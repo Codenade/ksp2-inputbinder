@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33723.286
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ksp2-inputbinder", "ksp2-inputbinder\ksp2-inputbinder.csproj", "{2FC980F3-E92E-4D49-8BE7-61DBAE7D5E57}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ksp2-inputbinder-bepinex", "ksp2-inputbinder-bepinex\ksp2-inputbinder-bepinex.csproj", "{D51887B1-93B8-43BA-A0D2-01538951CA59}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2FC980F3-E92E-4D49-8BE7-61DBAE7D5E57}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FC980F3-E92E-4D49-8BE7-61DBAE7D5E57}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D51887B1-93B8-43BA-A0D2-01538951CA59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D51887B1-93B8-43BA-A0D2-01538951CA59}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E99C96B2-27C5-415A-9D9A-5D21A01AF0AB}
+	EndGlobalSection
+EndGlobal
