@@ -62,7 +62,7 @@
       <HintPath>$(KSP2_PATH)\KSP2_x64_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
-	<Reference Include="UnityEngine.TextRenderingModule">
+    <Reference Include="UnityEngine.TextRenderingModule">
       <HintPath>$(KSP2_PATH)\KSP2_x64_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
@@ -86,10 +86,12 @@
   <ItemGroup>
     <Compile Include="AppBarButton.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="Containers.cs" />
     <Compile Include="InputActionManager.cs" />
     <Compile Include="Inputbinder.cs" />
     <Compile Include="MapProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="BindingUI.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="input.json">

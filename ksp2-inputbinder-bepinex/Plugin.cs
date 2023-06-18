@@ -1,5 +1,4 @@
 ﻿using BepInEx;
-using BepInEx.Logging;
 using HarmonyLib;
 using KSP.Input;
 using KSP.IO;
@@ -9,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Codenade.Inputbinder.BepInEx
 {
@@ -20,14 +20,16 @@ namespace Codenade.Inputbinder.BepInEx
             // Plugin startup logic
             Logger.LogInfo($"Plugin codenade-inputbinder-bepinex is loaded!");
             var harmony = new Harmony("codenade-inputbinder");
-            harmony.PatchAll(typeof(KSP2Mod_Load_Postfix));
-            harmony.PatchAll(typeof(InputManager_Awake_Transpiler));
+            harmony.PatchAll(typeof(LoadMod));
+            harmony.PatchAll(typeof(NoControllerAutoremove));
+            //harmony.PatchAll(typeof(NoMouseGlitch));
+            harmony.PatchAll(typeof(NoMouseGlitch2));
             enabled = false;
         }
     }
 
     [HarmonyPatch(typeof(KSP2Mod), nameof(KSP2Mod.Load))]
-    public class KSP2Mod_Load_Postfix
+    public class LoadMod
     {
         static void Postfix(KSP2Mod __instance)
         {
@@ -41,13 +43,39 @@ namespace Codenade.Inputbinder.BepInEx
         }
     }
 
+    [HarmonyPatch(typeof(global::Mouse), nameof(global::Mouse.Update))]
+    public class NoMouseGlitch2
+    {
+        static bool Prefix(ref Mouse.ControlScheme ____controlScheme)
+        {
+            if (UnityEngine.InputSystem.Mouse.current.HasMouseInput())
+            {
+                ____controlScheme = global::Mouse.ControlScheme.Mouse;
+                if (!global::Mouse.IsProcessingEvents)
+                {
+                    global::Mouse.SetActive(true);
+                }
+            }
+            return false;
+        }
+    }
+
+    [HarmonyPatch(typeof(global::Mouse), "set_Position")]
+    public class NoMouseGlitch
+    {
+        static bool Prefix(Vector2 value, ref Vector2 ___systemPosition)
+        {
+            ___systemPosition = value;
+            return false;
+        }
+    }
+
     [HarmonyPatch(typeof(InputManager), "Awake")]
-    public class InputManager_Awake_Transpiler
+    public class NoControllerAutoremove
     {
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            var log = new ManualLogSource("codenade-inputbinder");
-            log.LogDebug("Starting Transpiler");
+            var log = global::BepInEx.Logging.Logger.CreateLogSource("codenade-inputbinder");
             var sequenceFound = false;
             var startIndex = -1;
 
@@ -71,7 +99,6 @@ namespace Codenade.Inputbinder.BepInEx
             }
             if (sequenceFound)
             {
-                log.LogDebug("Sequence found at " + startIndex);
                 codes.RemoveRange(startIndex, seq.Length);
             }
             else
@@ -79,14 +106,14 @@ namespace Codenade.Inputbinder.BepInEx
             return codes.AsEnumerable();
         }
 
-        public static readonly OpCode[] seq =
+        private static readonly OpCode[] seq =
         {
             OpCodes.Ldloca_S,
             OpCodes.Call,
             OpCodes.Stloc_1,
             OpCodes.Ldc_I4_0,
             OpCodes.Stloc_2,
-            OpCodes.Br_S,
+            OpCodes.Br,
             OpCodes.Ldloc_1,
             OpCodes.Ldloc_2,
             OpCodes.Ldelem_Ref,
@@ -99,7 +126,7 @@ namespace Codenade.Inputbinder.BepInEx
             OpCodes.Ldloc_1,
             OpCodes.Ldlen,
             OpCodes.Conv_I4,
-            OpCodes.Blt_S,
+            OpCodes.Blt,
             OpCodes.Ldarg_0,
             OpCodes.Ldftn,
             OpCodes.Newobj,

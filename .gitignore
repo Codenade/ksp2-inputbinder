@@ -361,3 +361,12 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+/[B]uild
+/build/BepInEx/plugins/ksp2-inputbinder-bepinex.dll
+/build/GameData/Mods/inputbinder/input.json
+/build/GameData/Mods/inputbinder/ksp2-inputbinder.dll
+/build/BepInEx/plugins/ksp2-inputbinder-bepinex.dll
+/build/GameData/Mods/inputbinder/input.json
+/build/BepInEx/plugins/ksp2-inputbinder-bepinex.dll
+/build/GameData/Mods/inputbinder/ksp2-inputbinder.dll
