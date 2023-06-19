@@ -1,56 +1,41 @@
 {
-  "throttle_axis": {
+  "inputbinder/throttle_axis": {
     "friendly_name": "Throttle Axis",
     "action_type": "Axis",
-    "path": "",
-    "processors": "",
-    "override": true,
-    "path_override": "/Mega World USB Game Controllers/z",
-    "processors_override": "Invert();Map(in_min=-1,in_max=1,out_min=0,out_max=1)"
+    "bindings": [
+      {
+        "override": true,
+        "path_override": "",
+        "processors_override": ""
+      }
+    ]
   },
-  "pitch_trim_up": {
-    "friendly_name": "Pitch Trim Up",
+  "inputbinder/pitch_trim": {
+    "friendly_name": "Pitch Trim",
     "action_type": "Axis",
-    "path": "",
-    "processors": "",
-    "override": true,
-    "path_override": "",
-    "processors_override": ""
-  },
-  "pitch_trim_down": {
-    "friendly_name": "Pitch Trim Down",
-    "action_type": "Axis",
-    "path": "",
-    "processors": "",
-    "override": true,
-    "path_override": "",
-    "processors_override": ""
-  },
-  "pitch_axis": {
-    "friendly_name": "Pitch",
-    "action_type": "Axis",
-    "path": "",
-    "processors": "",
-    "override": true,
-    "path_override": "",
-    "processors_override": ""
-  },
-  "roll_axis": {
-    "friendly_name": "Roll",
-    "action_type": "Axis",
-    "path": "",
-    "processors": "",
-    "override": true,
-    "path_override": "",
-    "processors_override": ""
-  },
-  "yaw_axis": {
-    "friendly_name": "Yaw",
-    "action_type": "Axis",
-    "path": "",
-    "processors": "",
-    "override": true,
-    "path_override": "",
-    "processors_override": ""
+    "bindings": [
+      {
+        "name": "Combined",
+        "is_composite": true,
+        "path": "1DAxis",
+        "processors": ""
+      },
+      {
+        "name": "positive",
+        "is_part_of_composite": true,
+        "path": "positive",
+        "override": true,
+        "path_override": "",
+        "processors_override": ""
+      },
+      {
+        "name": "negative",
+        "is_part_of_composite": true,
+        "path": "negative",
+        "override": true,
+        "path_override": "",
+        "processors_override": ""
+      }
+    ]
   }
 }

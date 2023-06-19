@@ -1,29 +1,32 @@
-﻿using KSP.IO;
+﻿using KSP.Game;
+using KSP.IO;
 using KSP.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using UniLinq;
+using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Controls;
+using static UnityEngine.InputSystem.InputActionSetupExtensions;
 
 namespace Codenade.Inputbinder
 {
     public class InputActionManager
     {
-        public Dictionary<string, NamedInputAction> Actions { get; }
-        public bool IsCurrentlyRebinding => _currentRebinding is object;
-        public InputAction RebindingAction => _currentRebinding?.action;
-        public bool IsChangingProc => _currentProcChanging is object;
-        public InputAction ChgProcAction => _currentProcChanging;
+        public Dictionary<string, NamedInputAction> Actions { get; private set; }
+        public bool IsCurrentlyRebinding => _rebindInfo is object;
+        public bool IsChangingProc => _procBindInfo is object;
 
-        private InputActionRebindingExtensions.RebindingOperation _currentRebinding = null;
-        private InputAction _currentProcChanging = null;
+        public RebindInformation RebindInfo => _rebindInfo;
+        public ProcRebindInformation ProcBindInfo => _procBindInfo;
+
+        private RebindInformation _rebindInfo;
+        private ProcRebindInformation _procBindInfo;
 
         public InputActionManager()
         {
             Actions = new Dictionary<string, NamedInputAction>();
+            _rebindInfo = null;
+            _procBindInfo = null;
         }
 
         public void EnableAll()
@@ -36,99 +39,165 @@ namespace Codenade.Inputbinder
             foreach (var one in Actions.Values) one.Action.Disable();
         }
 
-        public void AddInputAction(InputAction action)
-        {
-            Actions.Add(action.name, new NamedInputAction(action));
-        }
+        public void Add(InputAction action, bool isFromGame = false) => Add(action, action.name, isFromGame);
 
-        public void AddInputAction(InputAction action, string friendlyName)
-        {
-            Actions.Add(action.name, new NamedInputAction(action, friendlyName));
-        }
+        public void Add(InputAction action, string friendlyName, bool isFromGame = false) => Actions.Add(action.name, new NamedInputAction(action, friendlyName, isFromGame));
 
-        public void RemoveInputAction(InputAction action)
+        public void Remove(InputAction action)
         {
             Actions.Remove(action.name);
         }
 
-        public void Rebind(InputAction action)
+        public void Remove(string name)
+        {
+            Actions.Remove(name);
+        }
+
+        public void Rebind(InputAction action, int bindingIndex)
         {
             GlobalLog.Log(LogFilter.UserMod, $"[{Constants.Name}] Rebind starting");
-            if (_currentRebinding is object || _currentProcChanging is object)
+            if (IsCurrentlyRebinding || IsChangingProc)
                 return;
+            var wasEnabled = action.enabled;
             action.Disable();
-            _currentRebinding = action.PerformInteractiveRebinding()
+            var operation = action.PerformInteractiveRebinding(bindingIndex)
                                       .OnComplete((result) => BindingComplete())
                                       .OnMatchWaitForAnother(0.1f)
-                                      .WithCancelingThrough("<Keyboard>/escape")
+                                      .WithCancelingThrough(Keyboard.current.escapeKey)
                                       .Start();
+            _rebindInfo = new RebindInformation(bindingIndex, operation, wasEnabled);
         }
 
         public void BindingComplete()
         {
-            if (_currentRebinding is null)
+            if (!IsCurrentlyRebinding)
                 return;
-            var action = _currentRebinding.action;
-            _currentRebinding.Dispose();
-            _currentRebinding = null;
-            action.Enable();
-            GlobalLog.Log(LogFilter.UserMod, $"[{Constants.Name}] Binding complete: {action.name} with path {action.bindings[0].effectivePath}");
+            var action = _rebindInfo.Operation.action;
+            var bindingInfo = _rebindInfo.Binding;
+            var wasEnabled = _rebindInfo.WasEnabled;
+            _rebindInfo.Operation.Dispose();
+            _rebindInfo = null;
+            if (wasEnabled)
+                action.Enable();
+            GlobalLog.Log(LogFilter.UserMod, $"[{Constants.Name}] Binding complete: {action.name} {bindingInfo.name} with path {bindingInfo.effectivePath}");
         }
 
         public void CancelBinding()
         {
-            if (_currentRebinding is null)
+            if (!IsCurrentlyRebinding)
                 return;
-            _currentRebinding.Cancel();
+            _rebindInfo.Operation.Cancel();
             BindingComplete();
         }
 
-        public bool ChangeProcessors(InputAction action)
+        public void ChangeProcessors(InputAction action) => ChangeProcessors(action, -1);
+
+        public void ChangeProcessors(InputAction action, int bindingIndex)
         {
-            if (_currentRebinding is object)
+            if (IsCurrentlyRebinding)
+                return;
+            if (!IsChangingProc)
             {
-                return false;
+                var chgIdx = 0;
+                if (bindingIndex < 0)
+                    for (var i = 0; i < action.bindings.Count; i++)
+                    {
+                        if (!(action.bindings[i].isComposite || action.bindings[i].isPartOfComposite))
+                            chgIdx = i;
+                        else
+                            return;
+                    }
+                else
+                    chgIdx = bindingIndex;
+                _procBindInfo = new ProcRebindInformation(chgIdx, action);
             }
-            
-            if (_currentProcChanging is null)
+            else if (action != _procBindInfo.Action || (bindingIndex >= 0 ? _procBindInfo.Binding != action.bindings[bindingIndex] : false))
             {
-                _currentProcChanging = action;
-                return true;
+                CompleteChangeProcessors();
+                ChangeProcessors(action, bindingIndex);
             }
             else
-            {
-                if (action == _currentProcChanging)
-                    return true;
-            }
-            return false;
+                CompleteChangeProcessors();
         }
 
         public void CompleteChangeProcessors()
         {
-            _currentProcChanging = null;
+            _procBindInfo = null;
         }
 
         public static InputActionManager LoadFromJson(string path)
         {
+            // TODO: Handle file not existent
             var data = IOProvider.FromJsonFile<Dictionary<string, InputActionData>>(path);
             var manager = new InputActionManager();
             foreach (var input in data)
             {
-                var action = new InputAction(input.Key);
-                action.AddBinding()
-                    .WithPath(input.Value.Path)
-                    .WithProcessors(input.Value.Processors);
-                action.expectedControlType = input.Value.ActionType;
-                if (input.Value.Override)
+                if (!input.Value.IsFromGame)
                 {
-                    var binding = new InputBinding()
+                    var action = new InputAction(input.Key);
+                    action.expectedControlType = input.Value.ActionType;
+                    for (var i = 0; i < input.Value.Bindings.Length; i++)
                     {
-                        overridePath = input.Value.PathOverride,
-                        overrideProcessors = input.Value.ProcessorsOverride
-                    };
-                    action.ApplyBindingOverride(0, binding);
+                        var b = input.Value.Bindings[i];
+                        if (b.IsPartOfComposite)
+                            continue;
+                        if (!b.IsComposite)
+                        {
+                            action.AddBinding()
+                                .WithName(b.Name)
+                                .WithPath(b.Path)
+                                .WithProcessors(b.Processors);
+                            if (b.Override)
+                            {
+                                var binding = action.bindings[i];
+                                binding.overridePath = b.PathOverride;
+                                binding.overrideProcessors = b.ProcessorsOverride;
+                                action.ApplyBindingOverride(i, binding);
+                            }
+                        }
+                        else
+                        {
+                            var binding_comp_start = i;
+                            var binding_list = new Queue<BindingData>();
+                            for (var i1 = binding_comp_start + 1; (i1 < input.Value.Bindings.Length) && input.Value.Bindings[i1].IsPartOfComposite; i1++)
+                            {
+                                binding_list.Enqueue(input.Value.Bindings[i1]);
+                            }
+                            var compositeSyntax = action.AddCompositeBinding("1DAxis");
+                            while (binding_list.Count > 0)
+                            {
+                                var one = binding_list.Dequeue();
+                                compositeSyntax.With(one.Name, one.Path);
+                            }
+                            for (var i1 = binding_comp_start + 1; i1 < action.bindings.Count; i1++)
+                            {
+                                if (!input.Value.Bindings[i1].Override)
+                                    continue;
+                                var ovrd = action.bindings[i1];
+                                ovrd.overridePath = input.Value.Bindings[i1].PathOverride;
+                                ovrd.overrideProcessors = input.Value.Bindings[i1].ProcessorsOverride;
+                                action.ApplyBindingOverride(ovrd);
+                            }
+                        }
+                    }
+                    manager.Add(action, input.Value.FriendlyName);
                 }
-                manager.AddInputAction(action, input.Value.FriendlyName);
+                else
+                {
+                    var action = GameManager.Instance.Game.Input.FindAction(input.Key, true);
+                    for (int i = 0; i < input.Value.Bindings.Length; i++)
+                    {
+                        if (i < action.bindings.Count && input.Value.Bindings[i].Override)
+                        {
+                            var saved = input.Value.Bindings[i];
+                            var binding = action.bindings[i];
+                            binding.overridePath = saved.PathOverride;
+                            binding.overrideProcessors = saved.ProcessorsOverride;
+                            action.ApplyBindingOverride(binding);
+                        }
+                    }
+                    manager.Add(action, true);
+                }
             }
             return manager;
         }
@@ -140,53 +209,29 @@ namespace Codenade.Inputbinder
             foreach (var nia in Actions)
             {
                 var data = new InputActionData();
-                data.FriendlyName = nia.Value.FriendlyName;
-                data.ActionType = nia.Value.Action.expectedControlType;
-                data.Path = nia.Value.Action.bindings[0].path;
-                data.Processors = nia.Value.Action.processors;
-                data.Override = nia.Value.Action.bindings[0].hasOverrides;
-                data.PathOverride = nia.Value.Action.bindings[0].overridePath;
-                data.ProcessorsOverride = nia.Value.Action.bindings[0].overrideProcessors;
+                var eAction = nia.Value;
+                data.FriendlyName = eAction.FriendlyName;
+                data.ActionType = eAction.Action.expectedControlType;
+                data.IsFromGame = eAction.IsFromGame;
+                var bindings = new BindingData[eAction.Action.bindings.Count];
+                for (var i = 0; i < eAction.Action.bindings.Count; i++)
+                {
+                    var binding = new BindingData();
+                    var eBinding = eAction.Action.bindings[i];
+                    binding.Name = eBinding.name ?? "";
+                    binding.IsComposite = eBinding.isComposite;
+                    binding.IsPartOfComposite = eBinding.isPartOfComposite;
+                    binding.Path = eBinding.path ?? "";
+                    binding.Processors = eBinding.processors ?? "";
+                    binding.Override = eBinding.hasOverrides;
+                    binding.PathOverride = eBinding.overridePath ?? "";
+                    binding.ProcessorsOverride = eBinding.overrideProcessors ?? "";
+                    bindings[i] = binding;
+                }
+                data.Bindings = bindings;
                 store.Add(nia.Key, data);
             }
             IOProvider.ToJsonFile(path, store);
         }
-
-        public class NamedInputAction
-        {
-            public InputAction Action { get; set; }
-            public string Name { get { return Action.name; } }
-            public string FriendlyName { get; set; }
-
-            public NamedInputAction(InputAction action)
-            {
-                Action = action;
-                FriendlyName = action.name;
-            }
-
-            public NamedInputAction(InputAction action, string friendlyName)
-            {
-                Action = action;
-                FriendlyName = friendlyName;
-            }
-        }
-    }
-
-    public struct InputActionData
-    {
-        [JsonProperty("friendly_name")]
-        public string FriendlyName { get; set; }
-        [JsonProperty("action_type")]
-        public string ActionType { get; set; }
-        [JsonProperty("path")]
-        public string Path { get; set; }
-        [JsonProperty("processors")]
-        public string Processors { get; set; }
-        [JsonProperty("override")]
-        public bool Override { get; set; }
-        [JsonProperty("path_override")]
-        public string PathOverride { get; set; }
-        [JsonProperty("processors_override")]
-        public string ProcessorsOverride { get; set; }
     }
 }

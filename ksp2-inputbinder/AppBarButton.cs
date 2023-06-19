@@ -1,5 +1,6 @@
 ﻿using I2.Loc;
 using KSP.Api.CoreTypes;
+using KSP.Logging;
 using KSP.UI.Binding;
 using System;
 using System.Xml.Linq;
@@ -51,6 +52,12 @@ namespace Codenade.Inputbinder
             var loc = text.gameObject.GetComponent<Localize>();
             if (loc is object) UnityEngine.Object.Destroy(loc);
             if (icon is object) newbutton.GetChild("Content").GetChild("GRP-icon").GetChild("ICO-asset").GetComponent<Image>().sprite = icon;
+            //else
+            //{
+            //    var image = newbutton.GetChild("Content").GetChild("GRP-icon").GetChild("ICO-asset").GetComponent<Image>();
+            //    var sprite = image.sprite;
+            //    sprite = Sprite.Create(Texture2D.blackTexture, sprite.rect, sprite.pivot);
+            //}
             var toggle = newbutton.GetComponent<ToggleExtended>();
             if (action is object) toggle.onValueChanged.AddListener(x => action(x));
             newbutton.GetComponent<UIValue_WriteBool_Toggle>().BindValue(new Property<bool>(false));

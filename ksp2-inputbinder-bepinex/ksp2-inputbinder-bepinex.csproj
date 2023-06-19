@@ -38,6 +38,10 @@
       <HintPath>$(KSP2_PATH)\BepInEx\core\BepInEx.dll</HintPath>
       <Private>False</Private>
     </Reference>
+	<Reference Include="Unity.InputSystem">
+		<HintPath>$(KSP2_PATH)\KSP2_x64_Data\Managed\Unity.InputSystem.dll</HintPath>
+		<Private>False</Private>
+	</Reference>
     <Reference Include="UnityEngine">
       <HintPath>$(KSP2_PATH)\KSP2_x64_Data\Managed\UnityEngine.dll</HintPath>
       <Private>False</Private>
