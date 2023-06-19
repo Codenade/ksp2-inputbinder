@@ -1,8 +1,10 @@
-﻿using KSP.IO;
+﻿using KSP.Game;
+using KSP.IO;
 using KSP.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.InputSystem;
 using static UnityEngine.InputSystem.InputActionSetupExtensions;
 
@@ -41,23 +43,6 @@ namespace Codenade.Inputbinder
 
         public void Add(InputAction action, string friendlyName, bool isFromGame = false) => Actions.Add(action.name, new NamedInputAction(action, friendlyName, isFromGame));
 
-        public void Bind(InputAction action, bool isFromGame = false) => Bind(action, action.name, isFromGame);
-
-        public void Bind(InputAction action, string friendlyName, bool isFromGame = false)
-        {
-            if (!Actions.ContainsKey(action.name))
-                Add(action, isFromGame);
-            else
-            {
-                var stored = Actions[action.name];
-                for (var i = 0; i < stored.Action.bindings.Count; i++)
-                {
-                    if (!stored.Action.bindings[i].isComposite)
-                        ; // TODO: Support saving and loading of in-game bindings
-                }
-            }
-        }
-
         public void Remove(InputAction action)
         {
             Actions.Remove(action.name);
@@ -68,21 +53,19 @@ namespace Codenade.Inputbinder
             Actions.Remove(name);
         }
 
-        [Obsolete("Lacks bidning index")]
-        public void Rebind(InputAction action) => Rebind(action, -1);
-
         public void Rebind(InputAction action, int bindingIndex)
         {
             GlobalLog.Log(LogFilter.UserMod, $"[{Constants.Name}] Rebind starting");
             if (IsCurrentlyRebinding || IsChangingProc)
                 return;
+            var wasEnabled = action.enabled;
             action.Disable();
             var operation = action.PerformInteractiveRebinding(bindingIndex)
                                       .OnComplete((result) => BindingComplete())
                                       .OnMatchWaitForAnother(0.1f)
                                       .WithCancelingThrough(Keyboard.current.escapeKey)
                                       .Start();
-            _rebindInfo = new RebindInformation(bindingIndex, operation);
+            _rebindInfo = new RebindInformation(bindingIndex, operation, wasEnabled);
         }
 
         public void BindingComplete()
@@ -91,9 +74,11 @@ namespace Codenade.Inputbinder
                 return;
             var action = _rebindInfo.Operation.action;
             var bindingInfo = _rebindInfo.Binding;
+            var wasEnabled = _rebindInfo.WasEnabled;
             _rebindInfo.Operation.Dispose();
             _rebindInfo = null;
-            action.Enable();
+            if (wasEnabled)
+                action.Enable();
             GlobalLog.Log(LogFilter.UserMod, $"[{Constants.Name}] Binding complete: {action.name} {bindingInfo.name} with path {bindingInfo.effectivePath}");
         }
 
@@ -147,82 +132,103 @@ namespace Codenade.Inputbinder
             var manager = new InputActionManager();
             foreach (var input in data)
             {
-                var action = new InputAction(input.Key);
-                action.expectedControlType = input.Value.ActionType;
-                for (var i = 0; i < input.Value.Bindings.Length; i++)
+                if (!input.Value.IsFromGame)
                 {
-                    var b = input.Value.Bindings[i];
-                    if (b.IsPartOfComposite)
-                        continue;
-                    if (!b.IsComposite)
+                    var action = new InputAction(input.Key);
+                    action.expectedControlType = input.Value.ActionType;
+                    for (var i = 0; i < input.Value.Bindings.Length; i++)
                     {
-                        action.AddBinding()
-                            .WithName(b.Name)
-                            .WithPath(b.Path)
-                            .WithProcessors(b.Processors);
-                        if (b.Override)
+                        var b = input.Value.Bindings[i];
+                        if (b.IsPartOfComposite)
+                            continue;
+                        if (!b.IsComposite)
                         {
-                            var binding = action.bindings[i];
-                            binding.overridePath = b.PathOverride;
-                            binding.overrideProcessors = b.ProcessorsOverride;
-                            action.ApplyBindingOverride(i, binding);
+                            action.AddBinding()
+                                .WithName(b.Name)
+                                .WithPath(b.Path)
+                                .WithProcessors(b.Processors);
+                            if (b.Override)
+                            {
+                                var binding = action.bindings[i];
+                                binding.overridePath = b.PathOverride;
+                                binding.overrideProcessors = b.ProcessorsOverride;
+                                action.ApplyBindingOverride(i, binding);
+                            }
+                        }
+                        else
+                        {
+                            var binding_comp_start = i;
+                            var binding_list = new Queue<BindingData>();
+                            for (var i1 = binding_comp_start + 1; (i1 < input.Value.Bindings.Length) && input.Value.Bindings[i1].IsPartOfComposite; i1++)
+                            {
+                                binding_list.Enqueue(input.Value.Bindings[i1]);
+                            }
+                            var compositeSyntax = action.AddCompositeBinding("1DAxis");
+                            while (binding_list.Count > 0)
+                            {
+                                var one = binding_list.Dequeue();
+                                compositeSyntax.With(one.Name, one.Path);
+                            }
+                            for (var i1 = binding_comp_start + 1; i1 < action.bindings.Count; i1++)
+                            {
+                                if (!input.Value.Bindings[i1].Override)
+                                    continue;
+                                var ovrd = action.bindings[i1];
+                                ovrd.overridePath = input.Value.Bindings[i1].PathOverride;
+                                ovrd.overrideProcessors = input.Value.Bindings[i1].ProcessorsOverride;
+                                action.ApplyBindingOverride(ovrd);
+                            }
                         }
                     }
-                    else
-                    {
-                        var binding_comp_start = i;
-                        var binding_list = new Queue<BindingData>();
-                        for (var i1 = binding_comp_start + 1; (i1 < input.Value.Bindings.Length) && input.Value.Bindings[i1].IsPartOfComposite; i1++)
-                        {
-                            binding_list.Enqueue(input.Value.Bindings[i1]);
-                        }
-                        var compositeSyntax = action.AddCompositeBinding("1DAxis");
-                        while (binding_list.Count > 0)
-                        {
-                            var one = binding_list.Dequeue();
-                            compositeSyntax.With(one.Name, one.Path);
-                        }
-                        for (var i1 = binding_comp_start + 1; i1 < action.bindings.Count; i1++)
-                        {
-                            if (!input.Value.Bindings[i1].Override)
-                                continue;
-                            var ovrd = action.bindings[i1];
-                            ovrd.overridePath = input.Value.Bindings[i1].PathOverride;
-                            ovrd.overrideProcessors = input.Value.Bindings[i1].ProcessorsOverride;
-                            action.ApplyBindingOverride(ovrd);
-                        }
-                    }
+                    manager.Add(action, input.Value.FriendlyName);
                 }
-                manager.Add(action, input.Value.FriendlyName, input.Value.IsFromGame);
+                else
+                {
+                    var action = GameManager.Instance.Game.Input.FindAction(input.Key, true);
+                    for (int i = 0; i < input.Value.Bindings.Length; i++)
+                    {
+                        if (i < action.bindings.Count && input.Value.Bindings[i].Override)
+                        {
+                            var saved = input.Value.Bindings[i];
+                            var binding = action.bindings[i];
+                            binding.overridePath = saved.PathOverride;
+                            binding.overrideProcessors = saved.ProcessorsOverride;
+                            action.ApplyBindingOverride(binding);
+                        }
+                    }
+                    manager.Add(action, true);
+                }
             }
             return manager;
         }
 
         public void SaveToJson(string path)
         {
-            // TODO: handle game's bindings
-            GlobalLog.Log(LogFilter.UserMod, $"[{Constants.Name}] Saving settings is disabled right now, it would lead to undefined behaviour");
-            return;
             GlobalLog.Log(LogFilter.UserMod, $"[{Constants.Name}] Saving settings ...");
             var store = new Dictionary<string, InputActionData>();
             foreach (var nia in Actions)
             {
                 var data = new InputActionData();
-                data.FriendlyName = nia.Value.FriendlyName;
-                data.ActionType = nia.Value.Action.expectedControlType;
-                data.IsFromGame = nia.Value.IsFromGame;
-                var b_arr = new BindingData[nia.Value.Action.bindings.Count];
-                for (var y = 0; y < nia.Value.Action.bindings.Count; y++)
+                var eAction = nia.Value;
+                data.FriendlyName = eAction.FriendlyName;
+                data.ActionType = eAction.Action.expectedControlType;
+                data.IsFromGame = eAction.IsFromGame;
+                var bindings = new BindingData[eAction.Action.bindings.Count];
+                for (var i = 0; i < eAction.Action.bindings.Count; i++)
                 {
-                    b_arr[y].Name = nia.Value.Action.bindings[y].name;
-                    b_arr[y].IsComposite = nia.Value.Action.bindings[y].isComposite;
-                    b_arr[y].IsPartOfComposite = nia.Value.Action.bindings[y].isPartOfComposite;
-                    b_arr[y].Path = nia.Value.Action.bindings[y].path;
-                    b_arr[y].Processors = nia.Value.Action.bindings[y].processors;
-                    b_arr[y].Override = nia.Value.Action.bindings[y].hasOverrides;
-                    b_arr[y].PathOverride = nia.Value.Action.bindings[y].overridePath;
-                    b_arr[y].ProcessorsOverride = nia.Value.Action.bindings[y].overrideProcessors;
+                    var binding = new BindingData();
+                    var eBinding = eAction.Action.bindings[i];
+                    binding.Name = eBinding.name ?? "";
+                    binding.IsComposite = eBinding.isComposite;
+                    binding.IsPartOfComposite = eBinding.isPartOfComposite;
+                    binding.Path = eBinding.path ?? "";
+                    binding.Processors = eBinding.processors ?? "";
+                    binding.Override = eBinding.hasOverrides;
+                    binding.PathOverride = eBinding.overridePath ?? "";
+                    binding.ProcessorsOverride = eBinding.overrideProcessors ?? "";
+                    bindings[i] = binding;
                 }
+                data.Bindings = bindings;
                 store.Add(nia.Key, data);
             }
             IOProvider.ToJsonFile(path, store);

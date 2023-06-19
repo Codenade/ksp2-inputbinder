@@ -7,16 +7,19 @@ namespace Codenade.Inputbinder
     public class RebindInformation
     {
         public int BindingIndex => _bindingIndex;
-        public InputBinding Binding => _operation.bindingMask.HasValue ? _operation.bindingMask.Value : _operation.action.bindings[_bindingIndex];
+        public bool WasEnabled => _wasEnabled;
+        public InputBinding Binding => _operation.bindingMask ?? _operation.action.bindings[_bindingIndex];
         public RebindingOperation Operation => _operation;
 
-        private int _bindingIndex;
-        private RebindingOperation _operation;
+        private readonly int _bindingIndex;
+        private readonly bool _wasEnabled;
+        private readonly RebindingOperation _operation;
 
-        public RebindInformation(int bindingIndex, RebindingOperation operation)
+        public RebindInformation(int bindingIndex, RebindingOperation operation, bool wasEnabled)
         {
             _bindingIndex = bindingIndex;;
             _operation = operation;
+            _wasEnabled = wasEnabled;
         }
     }
 
@@ -26,8 +29,8 @@ namespace Codenade.Inputbinder
         public InputBinding Binding => _action.bindings[_bindingIndex];
         public InputAction Action => _action;
 
-        private int _bindingIndex;
-        private InputAction _action;
+        private readonly int _bindingIndex;
+        private readonly InputAction _action;
 
         public ProcRebindInformation(int bindingIndex, InputAction action)
         {

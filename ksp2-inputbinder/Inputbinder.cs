@@ -25,17 +25,20 @@ namespace Codenade.Inputbinder
         private KSP2Mod _mod;
         private VesselComponent _vessel;
         private InputActionManager _actionManager;
-        private AppBarButton _button = null;
-        private BindingUI _bindingUI = null;
+        private AppBarButton _button;
+        private BindingUI _bindingUI;
 
         public Inputbinder()
         {
             if (_instance is null)
                 _instance = this;
+            else
+                Destroy(this);
         }
 
         private void Awake()
         {
+            DontDestroyOnLoad(this);
             foreach (var mod in Game.KSP2ModManager.CurrentMods)
                 if (mod.ModName == Constants.Name && mod.ModAuthor == Constants.Author)
                     _mod = mod;
@@ -43,21 +46,28 @@ namespace Codenade.Inputbinder
             InputSystem.settings.defaultDeadzoneMin = 0f;
             StopKSPFromRemovingGamepads();
             RemoveKSPsGamepadBindings();
-            // TODO: Trim reset action?
             _actionManager = InputActionManager.LoadFromJson(IOProvider.JoinPath(_mod.ModRootPath, "input.json"));
-            _actionManager.Add(Game.Input.Flight.Pitch, true);
-            _actionManager.Add(Game.Input.Flight.Roll, true);
-            _actionManager.Add(Game.Input.Flight.Yaw, true);
-            _actionManager.Add(Game.Input.Flight.ToggleLandingGear, true);
-            _actionManager.Add(Game.Input.Flight.WheelSteer, true);
-            _actionManager.Add(Game.Input.Flight.WheelBrakes, true);
-            _actionManager.Add(Game.Input.Flight.WheelThrottle, true);
+            var gameActionsToAdd = new List<InputAction>()
+            {
+                Game.Input.Flight.Pitch,
+                Game.Input.Flight.Roll,
+                Game.Input.Flight.Yaw,
+                Game.Input.Flight.ToggleLandingGear,
+                Game.Input.Flight.WheelSteer,
+                Game.Input.Flight.WheelBrakes,
+                Game.Input.Flight.WheelThrottle
+            };
+            foreach (var gameAction in gameActionsToAdd)
+            {
+                if (_actionManager.Actions.ContainsKey(gameAction.name))
+                    continue;
+                _actionManager.Add(gameAction, true);
+            }
             _actionManager.Actions["inputbinder/throttle_axis"].Action.performed += ctx => _vessel?.ApplyFlightCtrlState(new KSP.Sim.State.FlightCtrlStateIncremental() { mainThrottle = ctx.ReadValue<float>() });
             _actionManager.Actions["inputbinder/throttle_axis"].Action.started += ctx => _vessel?.ApplyFlightCtrlState(new KSP.Sim.State.FlightCtrlStateIncremental() { mainThrottle = ctx.ReadValue<float>() });
             _actionManager.Actions["inputbinder/throttle_axis"].Action.canceled += ctx => _vessel?.ApplyFlightCtrlState(new KSP.Sim.State.FlightCtrlStateIncremental() { mainThrottle = ctx.ReadValue<float>() });
-            //_actionManager.Actions["inputbinder/pitch_trim"].Action.performed += ctx => SetControls(pitchTrim: Mathf.Clamp(_vehicle.FlightControlInput.pitchTrim + ctx.ReadValue<float>(), -1, 1));
-            //_actionManager.Actions["inputbinder/pitch_trim"].Action.started += ctx => SetControls(pitchTrim: Mathf.Clamp(_vehicle.FlightControlInput.pitchTrim + ctx.ReadValue<float>(), -1, 1));
-            //_actionManager.Actions["inputbinder/pitch_trim"].Action.canceled += ctx => SetControls(pitchTrim: Mathf.Clamp(_vehicle.FlightControlInput.pitchTrim + ctx.ReadValue<float>(), -1, 1));
+            _actionManager.Actions["inputbinder/throttle_axis"].Action.Enable();
+            _actionManager.Actions["inputbinder/pitch_trim"].Action.Enable();
             _bindingUI = gameObject.AddComponent<BindingUI>();
             _bindingUI.enabled = false;
         }
@@ -112,15 +122,13 @@ namespace Codenade.Inputbinder
         private void OnEnable()
         {
             GameManager.Instance.Game.Messages.Subscribe<VesselChangingMessage>(VehicleStateChanged);
-            GameManager.Instance.Game.Messages.Subscribe<VesselChangedMessage>(VehicleStateChanged);
-            _actionManager?.EnableAll();         
+            GameManager.Instance.Game.Messages.Subscribe<VesselChangedMessage>(VehicleStateChanged);       
         }
 
         private void OnDisable()
         {
             GameManager.Instance.Game.Messages.Unsubscribe<VesselChangingMessage>(VehicleStateChanged);
             GameManager.Instance.Game.Messages.Unsubscribe<VesselChangedMessage>(VehicleStateChanged);
-            _actionManager.DisableAll();
         }
 
         private void VehicleStateChanged(MessageCenterMessage msg)
@@ -129,7 +137,9 @@ namespace Codenade.Inputbinder
             if (_vessel is object)
             {
                 if (_button is null)
+                {
                     _button = new AppBarButton($"BTN-{Constants.ID}", Constants.Name, OnAppBarButtonClicked);
+                }
             }
             else
             {
