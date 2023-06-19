@@ -1,6 +1,7 @@
 ﻿using KSP;
 using KSP.Game;
 using KSP.IO;
+using KSP.Logging;
 using KSP.Modding;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,7 @@ namespace Codenade.Inputbinder
     {
         // TODO: Add Binding editor and Interactions
         // TODO: Migrate to other UI system
+        // TODO: Lock game input while interacting with ui
 
         private Rect _windowRect = new Rect(400, 300, 100, 400);
         private Rect _windowProcRect = new Rect(0, 0, 300, 100);
@@ -27,6 +29,10 @@ namespace Codenade.Inputbinder
         public BindingUI()
         {
             _procValStore = new Dictionary<string, object>();
+        }
+
+        private void Awake()
+        {
             _actionManager = Inputbinder.Instance.ActionManager;
             _mod = Inputbinder.Instance.Mod;
         }
