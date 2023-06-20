@@ -60,15 +60,13 @@ namespace Codenade.Inputbinder
                     {
                         for (var idx = 0; idx < item.Value.Action.bindings.Count; idx++)
                         {
-                            if (item.Value.Action.bindings[idx].isComposite)
-                                continue;
                             GUILayout.BeginHorizontal();
                             GUILayout.Label($"{item.Value.FriendlyName} {item.Value.Action.bindings[idx].name}", lblStyle, GUILayout.Width(300));
                             GUILayout.FlexibleSpace();
                             string pathStr = item.Value.Action.bindings[idx].effectivePath;
                             if (_actionManager.IsCurrentlyRebinding)
                                 pathStr = (_actionManager.RebindInfo.Binding == item.Value.Action.bindings[idx]) ? "Press ESC to cancel" : pathStr;
-                            if (GUILayout.Button(new GUIContent(pathStr, "Click to change binding"), GUILayout.Width(150)))
+                            if (GUILayout.Button(new GUIContent(pathStr, item.Value.Action.bindings[idx].isComposite ? "Cannot rebind composite root" : "Click to change binding"), GUILayout.Width(150)) && !item.Value.Action.bindings[idx].isComposite)
                                 _actionManager.Rebind(item.Value.Action, idx);
                             if (GUILayout.Button(new GUIContent("Proc", "Change input modifiers"), GUILayout.Width(50)))
                                 _actionManager.ChangeProcessors(item.Value.Action, idx);
@@ -150,6 +148,8 @@ namespace Codenade.Inputbinder
                     {
                         foreach (var avail in InputSystem.ListProcessors())
                         {
+                            if (InputSystem.TryGetProcessor(avail).BaseType != typeof(InputProcessor<float>))
+                                continue;
                             if (GUILayout.Button(avail))
                             {
                                 _procTemp = avail;

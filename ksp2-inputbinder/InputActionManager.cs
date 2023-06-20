@@ -61,7 +61,8 @@ namespace Codenade.Inputbinder
             var wasEnabled = action.enabled;
             action.Disable();
             var operation = action.PerformInteractiveRebinding(bindingIndex)
-                                      .OnComplete((result) => BindingComplete())
+                                      .OnComplete(result => BindingComplete())
+                                      .OnCancel(result => BindingComplete())
                                       .OnMatchWaitForAnother(0.1f)
                                       .WithCancelingThrough(Keyboard.current.escapeKey)
                                       .Start();
