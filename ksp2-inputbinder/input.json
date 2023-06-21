@@ -4,6 +4,7 @@
     "action_type": "Axis",
     "bindings": [
       {
+        "name": "binding",
         "override": true,
         "path_override": "",
         "processors_override": ""

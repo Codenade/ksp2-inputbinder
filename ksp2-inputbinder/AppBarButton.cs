@@ -13,6 +13,7 @@ namespace Codenade.Inputbinder
 {
     internal class AppBarButton : IDisposable
     {
+        // TODO: change icon
         public bool Created { get { return _wasCreated; } }
         public string Text
         {

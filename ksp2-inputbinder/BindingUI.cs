@@ -95,13 +95,14 @@ namespace Codenade.Inputbinder
                                     treeLbl = idx < item.Value.Action.bindings.Count - 1 ? "├" : "└";
                                 else if (binding.isComposite)
                                 {
-                                    var hasMoreComposite = true;
+                                    var hasMoreComposite = false;
                                     for (var i = idx + 1; i < item.Value.Action.bindings.Count; i++)
                                     {
                                         if (item.Value.Action.bindings[i].isComposite)
+                                        {
+                                            hasMoreComposite = true;
                                             break;
-                                        if (i + 1 == item.Value.Action.bindings.Count)
-                                            hasMoreComposite = false;
+                                        }
                                     }
                                     treeLbl = hasMoreComposite ? "├" : "└";
                                 }
@@ -110,27 +111,32 @@ namespace Codenade.Inputbinder
                                     var nextIsPart = idx + 1 < item.Value.Action.bindings.Count;
                                     if (nextIsPart) 
                                         nextIsPart = item.Value.Action.bindings[idx + 1].isPartOfComposite;
-                                    var hasMoreComposite = true;
-                                    if (idx + 1 < item.Value.Action.bindings.Count)
+                                    var hasMoreComposite = false;
                                     for (var i = idx + 1; i < item.Value.Action.bindings.Count; i++)
                                     {
                                         if (item.Value.Action.bindings[i].isComposite)
+                                        {
+                                            hasMoreComposite = true;
                                             break;
-                                        if (i + 1 == item.Value.Action.bindings.Count)
-                                            hasMoreComposite = false;
+                                        }
                                     }
-                                    treeLbl = (hasMoreComposite ? "│" : " ") + " " + (nextIsPart ? "├" : "└");
+                                    treeLbl = (hasMoreComposite ? "│" : "  ") + " " + (nextIsPart ? "├" : "└");
                                 }
-                                GUILayout.Label($"{treeLbl} {(item.Value.Action.bindings[idx].isComposite ? "composite" : item.Value.Action.bindings[idx].name)}", lblStyle, GUILayout.Width(300));
+                                GUILayout.Label($"{treeLbl} {(binding.isComposite ? "composite" : binding.name)}", lblStyle, GUILayout.Width(300));
                                 GUILayout.FlexibleSpace();
-                                string pathStr = item.Value.Action.bindings[idx].effectivePath;
+                                string pathStr = binding.effectivePath;
                                 if (_actionManager.IsCurrentlyRebinding)
-                                    pathStr = (_actionManager.RebindInfo.Binding == item.Value.Action.bindings[idx]) ? "Press ESC to cancel" : pathStr;
-                                if (!item.Value.Action.bindings[idx].isComposite)
-                                    if (GUILayout.Button(new GUIContent(pathStr, item.Value.Action.bindings[idx].isComposite ? "Cannot rebind composite root" : "Click to change binding"), GUILayout.Width(150)) && !item.Value.Action.bindings[idx].isComposite)
+                                    pathStr = (_actionManager.RebindInfo.Binding == binding) ? "Press ESC to cancel" : pathStr;
+                                if (!binding.isComposite)
+                                    if (GUILayout.Button(new GUIContent(pathStr, binding.isComposite ? "Cannot rebind composite root" : "Click to change binding"), GUILayout.Width(150)) && !binding.isComposite)
                                         _actionManager.Rebind(item.Value.Action, idx);
-                                if (GUILayout.Button(new GUIContent("Proc", "Change input modifiers"), GUILayout.Width(50)))
-                                    _actionManager.ChangeProcessors(item.Value.Action, idx);
+                                if (!binding.isPartOfComposite)
+                                {
+                                    if (GUILayout.Button(new GUIContent("Processors", "Change input modifiers"), GUILayout.Width(100)))
+                                        _actionManager.ChangeProcessors(item.Value.Action, idx);
+                                }
+                                else
+                                    GUILayout.Space(100);
                                 GUILayout.EndHorizontal();
                                 var lastItemWidth = GUILayoutUtility.GetLastRect().width;
                                 _maxWidth = lastItemWidth > _maxWidth ? lastItemWidth : _maxWidth;
@@ -150,7 +156,7 @@ namespace Codenade.Inputbinder
                     GUILayout.EndHorizontal();
                 }
                 GUI.DragWindow();
-            }, "Main Window");
+            }, "Inputbinder");
             if (_actionManager.IsChangingProc)
             {
                 var pwtxt = "";

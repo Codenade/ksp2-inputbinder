@@ -151,6 +151,7 @@ namespace Codenade.Inputbinder
 
         private void OnAppBarButtonClicked(bool state)
         {
+            // TODO: Sync app button state with window enabled state
             if (!state)
                 _bindingUI.Hide();
             else
