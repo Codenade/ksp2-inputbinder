@@ -145,20 +145,16 @@ namespace Codenade.Inputbinder
             {
                 _button.Dispose();
                 _button = null;
-                _actionManager.CancelBinding();
-                _actionManager.CompleteChangeProcessors();
-                _bindingUI.enabled = false;
+                _bindingUI.Hide();
             }
         }
 
         private void OnAppBarButtonClicked(bool state)
         {
-            _bindingUI.enabled = state;
             if (!state)
-            {
-                _actionManager.CancelBinding();
-                _actionManager.CompleteChangeProcessors();
-            }
+                _bindingUI.Hide();
+            else
+                _bindingUI.Show();
         }
     }
 }

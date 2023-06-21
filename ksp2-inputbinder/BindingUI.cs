@@ -37,6 +37,18 @@ namespace Codenade.Inputbinder
             _mod = Inputbinder.Instance.Mod;
         }
 
+        public void Show()
+        {
+            enabled = true;
+        }
+
+        public void Hide()
+        {
+            _actionManager.CancelBinding();
+            _actionManager.CompleteChangeProcessors();
+            enabled = false;
+        }
+
         private void OnGUI()
         {
             var lblStyle = new GUIStyle(GUI.skin.label)
@@ -56,29 +68,86 @@ namespace Codenade.Inputbinder
                 if (_actionManager.Actions is object)
                 {
                     _scrollPos = GUILayout.BeginScrollView(_scrollPos, false, true, GUILayout.MinWidth(_maxWidth + 24));
+                    var actionNum = 1;
                     foreach (var item in _actionManager.Actions)
                     {
                         for (var idx = 0; idx < item.Value.Action.bindings.Count; idx++)
                         {
-                            GUILayout.BeginHorizontal();
-                            GUILayout.Label($"{item.Value.FriendlyName} {item.Value.Action.bindings[idx].name}", lblStyle, GUILayout.Width(300));
-                            GUILayout.FlexibleSpace();
-                            string pathStr = item.Value.Action.bindings[idx].effectivePath;
-                            if (_actionManager.IsCurrentlyRebinding)
-                                pathStr = (_actionManager.RebindInfo.Binding == item.Value.Action.bindings[idx]) ? "Press ESC to cancel" : pathStr;
-                            if (GUILayout.Button(new GUIContent(pathStr, item.Value.Action.bindings[idx].isComposite ? "Cannot rebind composite root" : "Click to change binding"), GUILayout.Width(150)) && !item.Value.Action.bindings[idx].isComposite)
-                                _actionManager.Rebind(item.Value.Action, idx);
-                            if (GUILayout.Button(new GUIContent("Proc", "Change input modifiers"), GUILayout.Width(50)))
-                                _actionManager.ChangeProcessors(item.Value.Action, idx);
-                            GUILayout.EndHorizontal();
-                            var lastItemWidth = GUILayoutUtility.GetLastRect().width;
-                            _maxWidth = lastItemWidth > _maxWidth ? lastItemWidth : _maxWidth;
+                            var binding = item.Value.Action.bindings[idx];
+                            if (idx == 0)
+                            {
+                                GUILayout.BeginHorizontal();
+                                GUILayout.Label(item.Value.FriendlyName, GUILayout.Width(150));
+                                if (GUILayout.Button(item.Value.IsUiExtended ? "Collapse" : "Extend"))
+                                    item.Value.IsUiExtended = !item.Value.IsUiExtended;
+                                GUILayout.FlexibleSpace();
+                                GUILayout.EndHorizontal();
+                                var lastItemWidth = GUILayoutUtility.GetLastRect().width;
+                                _maxWidth = lastItemWidth > _maxWidth ? lastItemWidth : _maxWidth;
+                            }
+                            if (!item.Value.IsUiExtended)
+                                break;
+                            else
+                            {
+                                GUILayout.BeginHorizontal();
+                                var treeLbl = "";
+                                if (!binding.isComposite && !binding.isPartOfComposite)
+                                    treeLbl = idx < item.Value.Action.bindings.Count - 1 ? "├" : "└";
+                                else if (binding.isComposite)
+                                {
+                                    var hasMoreComposite = true;
+                                    for (var i = idx + 1; i < item.Value.Action.bindings.Count; i++)
+                                    {
+                                        if (item.Value.Action.bindings[i].isComposite)
+                                            break;
+                                        if (i + 1 == item.Value.Action.bindings.Count)
+                                            hasMoreComposite = false;
+                                    }
+                                    treeLbl = hasMoreComposite ? "├" : "└";
+                                }
+                                else
+                                {
+                                    var nextIsPart = idx + 1 < item.Value.Action.bindings.Count;
+                                    if (nextIsPart) 
+                                        nextIsPart = item.Value.Action.bindings[idx + 1].isPartOfComposite;
+                                    var hasMoreComposite = true;
+                                    if (idx + 1 < item.Value.Action.bindings.Count)
+                                    for (var i = idx + 1; i < item.Value.Action.bindings.Count; i++)
+                                    {
+                                        if (item.Value.Action.bindings[i].isComposite)
+                                            break;
+                                        if (i + 1 == item.Value.Action.bindings.Count)
+                                            hasMoreComposite = false;
+                                    }
+                                    treeLbl = (hasMoreComposite ? "│" : " ") + " " + (nextIsPart ? "├" : "└");
+                                }
+                                GUILayout.Label($"{treeLbl} {(item.Value.Action.bindings[idx].isComposite ? "composite" : item.Value.Action.bindings[idx].name)}", lblStyle, GUILayout.Width(300));
+                                GUILayout.FlexibleSpace();
+                                string pathStr = item.Value.Action.bindings[idx].effectivePath;
+                                if (_actionManager.IsCurrentlyRebinding)
+                                    pathStr = (_actionManager.RebindInfo.Binding == item.Value.Action.bindings[idx]) ? "Press ESC to cancel" : pathStr;
+                                if (!item.Value.Action.bindings[idx].isComposite)
+                                    if (GUILayout.Button(new GUIContent(pathStr, item.Value.Action.bindings[idx].isComposite ? "Cannot rebind composite root" : "Click to change binding"), GUILayout.Width(150)) && !item.Value.Action.bindings[idx].isComposite)
+                                        _actionManager.Rebind(item.Value.Action, idx);
+                                if (GUILayout.Button(new GUIContent("Proc", "Change input modifiers"), GUILayout.Width(50)))
+                                    _actionManager.ChangeProcessors(item.Value.Action, idx);
+                                GUILayout.EndHorizontal();
+                                var lastItemWidth = GUILayoutUtility.GetLastRect().width;
+                                _maxWidth = lastItemWidth > _maxWidth ? lastItemWidth : _maxWidth;
+                            }
                         }
+                        if (actionNum < _actionManager.Actions.Count)
+                            GUILayout.Space(10);
+                        actionNum++;
                     }
                     GUILayout.FlexibleSpace();
                     GUILayout.EndScrollView();
+                    GUILayout.BeginHorizontal();
                     if (GUILayout.Button("Save"))
                         _actionManager.SaveToJson(IOProvider.JoinPath(_mod.ModRootPath, "input.json"));
+                    if (GUILayout.Button("Close"))
+                        Hide();
+                    GUILayout.EndHorizontal();
                 }
                 GUI.DragWindow();
             }, "Main Window");
