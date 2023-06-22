@@ -42,7 +42,7 @@ namespace Codenade.Inputbinder
 
         private static bool CreateButton(string id, string name, Action<bool> action, Sprite icon, out GameObject button)
         {
-            var appbargroup = GameObject.Find("GameManager/Default Game Instance(Clone)/UI Manager(Clone)/Popup Canvas/Container/ButtonBar/BTN-App-Tray/appbar-others-group");
+            var appbargroup = GameObject.Find("GameManager/Default Game Instance(Clone)/UI Manager(Clone)/Scaled Popup Canvas/Container/ButtonBar/BTN-App-Tray/appbar-others-group");
             var copyit = appbargroup?.GetChild("BTN-Resource-Manager");
             button = null;
             if (copyit is null) return false;
