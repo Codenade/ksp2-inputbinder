@@ -166,6 +166,7 @@ namespace Codenade.Inputbinder
                 if (_button is null)
                 {
                     _button = new AppBarButton($"BTN-{Constants.ID}", Constants.Name, OnAppBarButtonClicked);
+                    _button.State = _bindingUI.enabled;
                 }
             }
             else
