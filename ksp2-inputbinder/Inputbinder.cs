@@ -63,16 +63,43 @@ namespace Codenade.Inputbinder
                     continue;
                 _actionManager.Add(gameAction, true);
             }
-            _actionManager.Actions["inputbinder/throttle_axis"].Action.performed += ctx => _vessel?.ApplyFlightCtrlState(new KSP.Sim.State.FlightCtrlStateIncremental() { mainThrottle = ctx.ReadValue<float>() });
-            _actionManager.Actions["inputbinder/throttle_axis"].Action.started += ctx => _vessel?.ApplyFlightCtrlState(new KSP.Sim.State.FlightCtrlStateIncremental() { mainThrottle = ctx.ReadValue<float>() });
-            _actionManager.Actions["inputbinder/throttle_axis"].Action.canceled += ctx => _vessel?.ApplyFlightCtrlState(new KSP.Sim.State.FlightCtrlStateIncremental() { mainThrottle = ctx.ReadValue<float>() });
-            _actionManager.Actions["inputbinder/throttle_axis"].Action.Enable();
-            _actionManager.Actions["inputbinder/pitch_trim"].Action.Enable();
+            _actionManager.Actions[Constants.ActionThrottleID].Action.performed += ctx => SetThrottle(ctx.ReadValue<float>());
+            _actionManager.Actions[Constants.ActionThrottleID].Action.started += ctx => SetThrottle(ctx.ReadValue<float>());
+            _actionManager.Actions[Constants.ActionThrottleID].Action.canceled += ctx => SetThrottle(ctx.ReadValue<float>());
+            _actionManager.Actions[Constants.ActionTrimResetID].Action.performed += ctx => ResetTrim();
+            _actionManager.Actions[Constants.ActionThrottleID].Action.Enable();
+            _actionManager.Actions[Constants.ActionPitchTrimID].Action.Enable();
+            _actionManager.Actions[Constants.ActionRollTrimID].Action.Enable();
+            _actionManager.Actions[Constants.ActionYawTrimID].Action.Enable();
+            _actionManager.Actions[Constants.ActionTrimResetID].Action.Enable();
             _bindingUI = gameObject.AddComponent<BindingUI>();
             _bindingUI.enabled = false;
         }
 
-        private void Update() => _vessel?.ApplyFlightCtrlState(new KSP.Sim.State.FlightCtrlStateIncremental() { pitchTrim = _vessel.flightCtrlState.pitchTrim + _actionManager.Actions["inputbinder/pitch_trim"].Action.ReadValue<float>() * Time.deltaTime });
+        public void SetThrottle(float value)
+        {
+            _vessel?.ApplyFlightCtrlState(new KSP.Sim.State.FlightCtrlStateIncremental() { mainThrottle = Mathf.Clamp01(value) });
+        }
+
+        public void ResetTrim()
+        {
+            _vessel?.ApplyFlightCtrlState(new KSP.Sim.State.FlightCtrlStateIncremental()
+            {
+                pitchTrim = 0,
+                rollTrim = 0,
+                yawTrim = 0
+            });
+        }
+
+        private void Update()
+        {
+            _vessel?.ApplyFlightCtrlState(new KSP.Sim.State.FlightCtrlStateIncremental()
+            {
+                pitchTrim = _vessel.flightCtrlState.pitchTrim + _actionManager.Actions[Constants.ActionPitchTrimID].Action.ReadValue<float>() * Time.deltaTime,
+                rollTrim = _vessel.flightCtrlState.rollTrim + _actionManager.Actions[Constants.ActionRollTrimID].Action.ReadValue<float>() * Time.deltaTime,
+                yawTrim = _vessel.flightCtrlState.yawTrim + _actionManager.Actions[Constants.ActionYawTrimID].Action.ReadValue<float>() * Time.deltaTime
+            });
+        }
 
         private void StopKSPFromRemovingGamepads()
         {
@@ -122,7 +149,7 @@ namespace Codenade.Inputbinder
         private void OnEnable()
         {
             GameManager.Instance.Game.Messages.Subscribe<VesselChangingMessage>(VehicleStateChanged);
-            GameManager.Instance.Game.Messages.Subscribe<VesselChangedMessage>(VehicleStateChanged);       
+            GameManager.Instance.Game.Messages.Subscribe<VesselChangedMessage>(VehicleStateChanged);
         }
 
         private void OnDisable()
