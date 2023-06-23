@@ -5,6 +5,7 @@ using KSP.Logging;
 using KSP.Modding;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -37,16 +38,19 @@ namespace Codenade.Inputbinder
             _mod = Inputbinder.Instance.Mod;
         }
 
-        public void Show()
+        public void Show() => enabled = true;
+
+        public void Hide() => enabled = false;
+
+        private void OnEnable()
         {
-            enabled = true;
+            
         }
 
-        public void Hide()
+        private void OnDisable()
         {
             _actionManager.CancelBinding();
             _actionManager.CompleteChangeProcessors();
-            enabled = false;
         }
 
         private void OnGUI()
