@@ -49,13 +49,45 @@ namespace Codenade.Inputbinder
             _actionManager = InputActionManager.LoadFromJson(IOProvider.JoinPath(_mod.ModRootPath, "input.json"));
             var gameActionsToAdd = new List<InputAction>()
             {
+                Game.Input.Flight.ThrottleDelta,
+                Game.Input.Flight.ThrottleCutoff,
+                Game.Input.Flight.ThrottleMax,
                 Game.Input.Flight.Pitch,
                 Game.Input.Flight.Roll,
                 Game.Input.Flight.Yaw,
-                Game.Input.Flight.ToggleLandingGear,
+                Game.Input.Flight.TogglePrecisionMode,
                 Game.Input.Flight.WheelSteer,
                 Game.Input.Flight.WheelBrakes,
-                Game.Input.Flight.WheelThrottle
+                Game.Input.Flight.WheelThrottle,
+                Game.Input.Flight.Stage,
+                Game.Input.Flight.ToggleLandingGear,
+                Game.Input.Flight.ToggleLights,
+                Game.Input.Flight.ToggleSAS,
+                Game.Input.Flight.ToggleRCS,
+                Game.Input.Flight.TranslateX,
+                Game.Input.Flight.TranslateY,
+                Game.Input.Flight.TranslateZ,
+                Game.Input.Flight.TriggerActionGroup1,
+                Game.Input.Flight.TriggerActionGroup2,
+                Game.Input.Flight.TriggerActionGroup3,
+                Game.Input.Flight.TriggerActionGroup4,
+                Game.Input.Flight.TriggerActionGroup5,
+                Game.Input.Flight.TriggerActionGroup6,
+                Game.Input.Flight.TriggerActionGroup7,
+                Game.Input.Flight.TriggerActionGroup8,
+                Game.Input.Flight.TriggerActionGroup9,
+                Game.Input.Flight.TriggerActionGroup10,
+                Game.Input.Flight.CameraPitchGamepad,
+                Game.Input.Flight.CameraYawGamepad,
+                Game.Input.Flight.ShowMap,
+                Game.Input.Global.ConfirmDialogue,
+                Game.Input.Global.MenuGoBack,
+                Game.Input.Global.QuickSave,
+                Game.Input.Global.TimeWarpDecrease,
+                Game.Input.Global.TimeWarpIncrease,
+                Game.Input.Global.TimeWarpStop,
+                Game.Input.Global.TogglePauseMenu,
+                Game.Input.Global.ToggleUIVisibility
             };
             foreach (var gameAction in gameActionsToAdd)
             {
