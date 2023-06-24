@@ -44,7 +44,7 @@ namespace Codenade.Inputbinder
 
         private void OnEnable()
         {
-            
+
         }
 
         private void OnDisable()
@@ -128,12 +128,16 @@ namespace Codenade.Inputbinder
                                 }
                                 GUILayout.Label($"{treeLbl} {(binding.isComposite ? "composite" : binding.name)}", lblStyle, GUILayout.Width(300));
                                 GUILayout.FlexibleSpace();
-                                string pathStr = binding.effectivePath;
-                                if (_actionManager.IsCurrentlyRebinding)
-                                    pathStr = (_actionManager.RebindInfo.Binding == binding) ? "Press ESC to cancel" : pathStr;
                                 if (!binding.isComposite)
-                                    if (GUILayout.Button(new GUIContent(pathStr, binding.isComposite ? "Cannot rebind composite root" : "Click to change binding"), GUILayout.Width(150)) && !binding.isComposite)
+                                {
+                                    string pathStr = binding.effectivePath;
+                                    if (_actionManager.IsCurrentlyRebinding)
+                                        pathStr = (_actionManager.RebindInfo.Binding == binding) ? "Press ESC to cancel" : pathStr;
+                                    if (GUILayout.Button(new GUIContent("X", "Click to clear binding")))
+                                        InputActionManager.ClearBinding(binding, item.Value.Action);
+                                    if (GUILayout.Button(new GUIContent(pathStr, "Click to change binding"), GUILayout.Width(150)) && !binding.isComposite)
                                         _actionManager.Rebind(item.Value.Action, idx);
+                                }
                                 if (!binding.isPartOfComposite)
                                 {
                                     if (GUILayout.Button(new GUIContent("Processors", "Change input modifiers"), GUILayout.Width(100)))

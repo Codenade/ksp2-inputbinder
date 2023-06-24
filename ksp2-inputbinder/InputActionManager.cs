@@ -1,4 +1,5 @@
-﻿using KSP.Game;
+﻿using Castle.Core.Internal;
+using KSP.Game;
 using KSP.IO;
 using KSP.Logging;
 using Newtonsoft.Json;
@@ -31,27 +32,21 @@ namespace Codenade.Inputbinder
 
         public void EnableAll()
         {
-            foreach (var one in Actions.Values) one.Action.Enable();
+            foreach (var one in Actions.Values) if (!one.IsFromGame) one.Action.Enable();
         }
 
         public void DisableAll()
         {
-            foreach (var one in Actions.Values) one.Action.Disable();
+            foreach (var one in Actions.Values) if (!one.IsFromGame) one.Action.Disable();
         }
 
         public void Add(InputAction action, bool isFromGame = false) => Add(action, action.name, isFromGame);
 
         public void Add(InputAction action, string friendlyName, bool isFromGame = false) => Actions.Add(action.name, new NamedInputAction(action, friendlyName, isFromGame));
 
-        public void Remove(InputAction action)
-        {
-            Actions.Remove(action.name);
-        }
+        public void Remove(InputAction action) => Actions.Remove(action.name);
 
-        public void Remove(string name)
-        {
-            Actions.Remove(name);
-        }
+        public void Remove(string name) => Actions.Remove(name);
 
         public void Rebind(InputAction action, int bindingIndex)
         {
@@ -63,7 +58,6 @@ namespace Codenade.Inputbinder
             var operation = action.PerformInteractiveRebinding(bindingIndex)
                                       .OnComplete(result => BindingComplete())
                                       .OnCancel(result => BindingComplete())
-                                      .OnMatchWaitForAnother(0.1f)
                                       .WithCancelingThrough(Keyboard.current.escapeKey)
                                       .Start();
             _rebindInfo = new RebindInformation(bindingIndex, operation, wasEnabled);
@@ -89,6 +83,13 @@ namespace Codenade.Inputbinder
                 return;
             _rebindInfo.Operation.Cancel();
             BindingComplete();
+        }
+
+        public static void ClearBinding(InputBinding binding, InputAction action)
+        {
+            var modifiedBinding = binding;
+            modifiedBinding.overridePath = null;
+            action.ApplyBindingOverride(modifiedBinding);
         }
 
         public void ChangeProcessors(InputAction action) => ChangeProcessors(action, -1);
@@ -151,8 +152,8 @@ namespace Codenade.Inputbinder
                             if (b.Override)
                             {
                                 var binding = action.bindings[i];
-                                binding.overridePath = b.PathOverride;
-                                binding.overrideProcessors = b.ProcessorsOverride;
+                                binding.overridePath = b.PathOverride.IsNullOrEmpty() ? null : b.PathOverride;
+                                binding.overrideProcessors = b.ProcessorsOverride.IsNullOrEmpty() ? null : b.ProcessorsOverride;
                                 action.ApplyBindingOverride(i, binding);
                             }
                         }
@@ -175,8 +176,8 @@ namespace Codenade.Inputbinder
                                 if (!input.Value.Bindings[i1].Override)
                                     continue;
                                 var ovrd = action.bindings[i1];
-                                ovrd.overridePath = input.Value.Bindings[i1].PathOverride;
-                                ovrd.overrideProcessors = input.Value.Bindings[i1].ProcessorsOverride;
+                                ovrd.overridePath = input.Value.Bindings[i1].PathOverride.IsNullOrEmpty() ? null : input.Value.Bindings[i1].PathOverride;
+                                ovrd.overrideProcessors = input.Value.Bindings[i1].ProcessorsOverride.IsNullOrEmpty() ? null : input.Value.Bindings[i1].ProcessorsOverride;
                                 action.ApplyBindingOverride(ovrd);
                             }
                         }
