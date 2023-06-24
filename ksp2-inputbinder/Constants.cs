@@ -11,5 +11,6 @@
         public static readonly string ActionRollTrimID = "inputbinder/roll_trim";
         public static readonly string ActionYawTrimID = "inputbinder/yaw_trim";
         public static readonly string ActionTrimResetID = "inputbinder/trim_reset";
+        public static readonly string BindingClearPath = "none";
     }
 }

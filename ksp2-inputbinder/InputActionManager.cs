@@ -88,7 +88,7 @@ namespace Codenade.Inputbinder
         public static void ClearBinding(InputBinding binding, InputAction action)
         {
             var modifiedBinding = binding;
-            modifiedBinding.overridePath = null;
+            modifiedBinding.overridePath = Constants.BindingClearPath;
             action.ApplyBindingOverride(modifiedBinding);
         }
 
