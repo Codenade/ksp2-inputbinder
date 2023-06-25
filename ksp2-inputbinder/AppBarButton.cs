@@ -1,12 +1,9 @@
 ﻿using I2.Loc;
 using KSP.Api.CoreTypes;
-using KSP.Logging;
 using KSP.UI.Binding;
 using System;
-using System.Xml.Linq;
 using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace Codenade.Inputbinder

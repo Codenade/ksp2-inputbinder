@@ -1,11 +1,9 @@
 ﻿using KSP;
 using KSP.Game;
 using KSP.IO;
-using KSP.Logging;
 using KSP.Modding;
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -16,6 +14,8 @@ namespace Codenade.Inputbinder
         // TODO: Add Binding editor and Interactions
         // TODO: Migrate to other UI system
         // TODO: Lock game input while interacting with ui
+
+        public event Action<bool> VisibilityChanged;
 
         private Rect _windowRect = new Rect(400, 300, 100, 400);
         private Rect _windowProcRect = new Rect(0, 0, 300, 100);
@@ -44,13 +44,14 @@ namespace Codenade.Inputbinder
 
         private void OnEnable()
         {
-
+            VisibilityChanged?.Invoke(true);
         }
 
         private void OnDisable()
         {
             _actionManager.CancelBinding();
             _actionManager.CompleteChangeProcessors();
+            VisibilityChanged?.Invoke(false);
         }
 
         private void OnGUI()

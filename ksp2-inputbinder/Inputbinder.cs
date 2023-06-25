@@ -106,6 +106,13 @@ namespace Codenade.Inputbinder
             _actionManager.Actions[Constants.ActionTrimResetID].Action.Enable();
             _bindingUI = gameObject.AddComponent<BindingUI>();
             _bindingUI.enabled = false;
+            _bindingUI.VisibilityChanged += OnUiVisibilityChange;
+        }
+
+        private void OnUiVisibilityChange(bool visible)
+        {
+            if (_button?.Created is object)
+                _button.State = visible;
         }
 
         public void SetThrottle(float value)
@@ -211,7 +218,6 @@ namespace Codenade.Inputbinder
 
         private void OnAppBarButtonClicked(bool state)
         {
-            // TODO: Sync app button state with window enabled state
             if (!state)
                 _bindingUI.Hide();
             else
