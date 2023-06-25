@@ -4,6 +4,7 @@
     "action_type": "Axis",
     "bindings": [
       {
+        "name": "binding",
         "override": true,
         "path_override": "",
         "processors_override": ""
@@ -32,6 +33,74 @@
         "name": "negative",
         "is_part_of_composite": true,
         "path": "negative",
+        "override": true,
+        "path_override": "",
+        "processors_override": ""
+      }
+    ]
+  },
+  "inputbinder/roll_trim": {
+    "friendly_name": "Roll Trim",
+    "action_type": "Axis",
+    "bindings": [
+      {
+        "name": "Combined",
+        "is_composite": true,
+        "path": "1DAxis",
+        "processors": ""
+      },
+      {
+        "name": "positive",
+        "is_part_of_composite": true,
+        "path": "positive",
+        "override": true,
+        "path_override": "",
+        "processors_override": ""
+      },
+      {
+        "name": "negative",
+        "is_part_of_composite": true,
+        "path": "negative",
+        "override": true,
+        "path_override": "",
+        "processors_override": ""
+      }
+    ]
+  },
+  "inputbinder/yaw_trim": {
+    "friendly_name": "Yaw Trim",
+    "action_type": "Axis",
+    "bindings": [
+      {
+        "name": "Combined",
+        "is_composite": true,
+        "path": "1DAxis",
+        "processors": ""
+      },
+      {
+        "name": "positive",
+        "is_part_of_composite": true,
+        "path": "positive",
+        "override": true,
+        "path_override": "",
+        "processors_override": ""
+      },
+      {
+        "name": "negative",
+        "is_part_of_composite": true,
+        "path": "negative",
+        "override": true,
+        "path_override": "",
+        "processors_override": ""
+      }
+    ]
+  },
+  "inputbinder/trim_reset": {
+    "friendly_name": "Reset Trim",
+    "action_type": "Button",
+    "bindings": [
+      {
+        "name": "binding",
         "override": true,
         "path_override": "",
         "processors_override": ""

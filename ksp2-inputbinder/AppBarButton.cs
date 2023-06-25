@@ -1,18 +1,16 @@
 ﻿using I2.Loc;
 using KSP.Api.CoreTypes;
-using KSP.Logging;
 using KSP.UI.Binding;
 using System;
-using System.Xml.Linq;
 using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace Codenade.Inputbinder
 {
     internal class AppBarButton : IDisposable
     {
+        // TODO: change icon
         public bool Created { get { return _wasCreated; } }
         public string Text
         {
@@ -41,7 +39,7 @@ namespace Codenade.Inputbinder
 
         private static bool CreateButton(string id, string name, Action<bool> action, Sprite icon, out GameObject button)
         {
-            var appbargroup = GameObject.Find("GameManager/Default Game Instance(Clone)/UI Manager(Clone)/Popup Canvas/Container/ButtonBar/BTN-App-Tray/appbar-others-group");
+            var appbargroup = GameObject.Find("GameManager/Default Game Instance(Clone)/UI Manager(Clone)/Scaled Popup Canvas/Container/ButtonBar/BTN-App-Tray/appbar-others-group");
             var copyit = appbargroup?.GetChild("BTN-Resource-Manager");
             button = null;
             if (copyit is null) return false;

@@ -49,13 +49,45 @@ namespace Codenade.Inputbinder
             _actionManager = InputActionManager.LoadFromJson(IOProvider.JoinPath(_mod.ModRootPath, "input.json"));
             var gameActionsToAdd = new List<InputAction>()
             {
+                Game.Input.Flight.ThrottleDelta,
+                Game.Input.Flight.ThrottleCutoff,
+                Game.Input.Flight.ThrottleMax,
                 Game.Input.Flight.Pitch,
                 Game.Input.Flight.Roll,
                 Game.Input.Flight.Yaw,
-                Game.Input.Flight.ToggleLandingGear,
+                Game.Input.Flight.TogglePrecisionMode,
                 Game.Input.Flight.WheelSteer,
                 Game.Input.Flight.WheelBrakes,
-                Game.Input.Flight.WheelThrottle
+                Game.Input.Flight.WheelThrottle,
+                Game.Input.Flight.Stage,
+                Game.Input.Flight.ToggleLandingGear,
+                Game.Input.Flight.ToggleLights,
+                Game.Input.Flight.ToggleSAS,
+                Game.Input.Flight.ToggleRCS,
+                Game.Input.Flight.TranslateX,
+                Game.Input.Flight.TranslateY,
+                Game.Input.Flight.TranslateZ,
+                Game.Input.Flight.TriggerActionGroup1,
+                Game.Input.Flight.TriggerActionGroup2,
+                Game.Input.Flight.TriggerActionGroup3,
+                Game.Input.Flight.TriggerActionGroup4,
+                Game.Input.Flight.TriggerActionGroup5,
+                Game.Input.Flight.TriggerActionGroup6,
+                Game.Input.Flight.TriggerActionGroup7,
+                Game.Input.Flight.TriggerActionGroup8,
+                Game.Input.Flight.TriggerActionGroup9,
+                Game.Input.Flight.TriggerActionGroup10,
+                Game.Input.Flight.CameraPitchGamepad,
+                Game.Input.Flight.CameraYawGamepad,
+                Game.Input.Flight.ShowMap,
+                Game.Input.Global.ConfirmDialogue,
+                Game.Input.Global.MenuGoBack,
+                Game.Input.Global.QuickSave,
+                Game.Input.Global.TimeWarpDecrease,
+                Game.Input.Global.TimeWarpIncrease,
+                Game.Input.Global.TimeWarpStop,
+                Game.Input.Global.TogglePauseMenu,
+                Game.Input.Global.ToggleUIVisibility
             };
             foreach (var gameAction in gameActionsToAdd)
             {
@@ -63,16 +95,50 @@ namespace Codenade.Inputbinder
                     continue;
                 _actionManager.Add(gameAction, true);
             }
-            _actionManager.Actions["inputbinder/throttle_axis"].Action.performed += ctx => _vessel?.ApplyFlightCtrlState(new KSP.Sim.State.FlightCtrlStateIncremental() { mainThrottle = ctx.ReadValue<float>() });
-            _actionManager.Actions["inputbinder/throttle_axis"].Action.started += ctx => _vessel?.ApplyFlightCtrlState(new KSP.Sim.State.FlightCtrlStateIncremental() { mainThrottle = ctx.ReadValue<float>() });
-            _actionManager.Actions["inputbinder/throttle_axis"].Action.canceled += ctx => _vessel?.ApplyFlightCtrlState(new KSP.Sim.State.FlightCtrlStateIncremental() { mainThrottle = ctx.ReadValue<float>() });
-            _actionManager.Actions["inputbinder/throttle_axis"].Action.Enable();
-            _actionManager.Actions["inputbinder/pitch_trim"].Action.Enable();
+            _actionManager.Actions[Constants.ActionThrottleID].Action.performed += ctx => SetThrottle(ctx.ReadValue<float>());
+            _actionManager.Actions[Constants.ActionThrottleID].Action.started += ctx => SetThrottle(ctx.ReadValue<float>());
+            _actionManager.Actions[Constants.ActionThrottleID].Action.canceled += ctx => SetThrottle(ctx.ReadValue<float>());
+            _actionManager.Actions[Constants.ActionTrimResetID].Action.performed += ctx => ResetTrim();
+            _actionManager.Actions[Constants.ActionThrottleID].Action.Enable();
+            _actionManager.Actions[Constants.ActionPitchTrimID].Action.Enable();
+            _actionManager.Actions[Constants.ActionRollTrimID].Action.Enable();
+            _actionManager.Actions[Constants.ActionYawTrimID].Action.Enable();
+            _actionManager.Actions[Constants.ActionTrimResetID].Action.Enable();
             _bindingUI = gameObject.AddComponent<BindingUI>();
-            _bindingUI.enabled = false;
+            _bindingUI.Hide();
+            _bindingUI.VisibilityChanged += OnUiVisibilityChange;
         }
 
-        private void Update() => _vessel?.ApplyFlightCtrlState(new KSP.Sim.State.FlightCtrlStateIncremental() { pitchTrim = _vessel.flightCtrlState.pitchTrim + _actionManager.Actions["inputbinder/pitch_trim"].Action.ReadValue<float>() * Time.deltaTime });
+        private void OnUiVisibilityChange(bool visible)
+        {
+            if (_button?.Created is object)
+                _button.State = visible;
+        }
+
+        public void SetThrottle(float value)
+        {
+            _vessel?.ApplyFlightCtrlState(new KSP.Sim.State.FlightCtrlStateIncremental() { mainThrottle = Mathf.Clamp01(value) });
+        }
+
+        public void ResetTrim()
+        {
+            _vessel?.ApplyFlightCtrlState(new KSP.Sim.State.FlightCtrlStateIncremental()
+            {
+                pitchTrim = 0,
+                rollTrim = 0,
+                yawTrim = 0
+            });
+        }
+
+        private void Update()
+        {
+            _vessel?.ApplyFlightCtrlState(new KSP.Sim.State.FlightCtrlStateIncremental()
+            {
+                pitchTrim = _vessel.flightCtrlState.pitchTrim + _actionManager.Actions[Constants.ActionPitchTrimID].Action.ReadValue<float>() * Time.deltaTime,
+                rollTrim = _vessel.flightCtrlState.rollTrim + _actionManager.Actions[Constants.ActionRollTrimID].Action.ReadValue<float>() * Time.deltaTime,
+                yawTrim = _vessel.flightCtrlState.yawTrim + _actionManager.Actions[Constants.ActionYawTrimID].Action.ReadValue<float>() * Time.deltaTime
+            });
+        }
 
         private void StopKSPFromRemovingGamepads()
         {
@@ -122,7 +188,7 @@ namespace Codenade.Inputbinder
         private void OnEnable()
         {
             GameManager.Instance.Game.Messages.Subscribe<VesselChangingMessage>(VehicleStateChanged);
-            GameManager.Instance.Game.Messages.Subscribe<VesselChangedMessage>(VehicleStateChanged);       
+            GameManager.Instance.Game.Messages.Subscribe<VesselChangedMessage>(VehicleStateChanged);
         }
 
         private void OnDisable()
@@ -139,26 +205,20 @@ namespace Codenade.Inputbinder
                 if (_button is null)
                 {
                     _button = new AppBarButton($"BTN-{Constants.ID}", Constants.Name, OnAppBarButtonClicked);
+                    _button.State = _bindingUI.enabled;
                 }
             }
             else
             {
                 _button.Dispose();
                 _button = null;
-                _actionManager.CancelBinding();
-                _actionManager.CompleteChangeProcessors();
-                _bindingUI.enabled = false;
+                _bindingUI.Hide();
             }
         }
 
         private void OnAppBarButtonClicked(bool state)
         {
             _bindingUI.enabled = state;
-            if (!state)
-            {
-                _actionManager.CancelBinding();
-                _actionManager.CompleteChangeProcessors();
-            }
         }
     }
 }

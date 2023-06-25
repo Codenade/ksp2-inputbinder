@@ -45,12 +45,14 @@ namespace Codenade.Inputbinder
         public string Name { get { return Action.name; } }
         public string FriendlyName { get; set; }
         public bool IsFromGame { get; set; }
+        public bool IsUiExtended { get; set; }
 
         public NamedInputAction(InputAction action, bool isFromGame = false)
         {
             Action = action;
             FriendlyName = action.name;
             IsFromGame = isFromGame;
+            IsUiExtended = Constants.UiActionsExtendDefault;
         }
 
         public NamedInputAction(InputAction action, string friendlyName, bool isFromGame = false)
@@ -58,6 +60,7 @@ namespace Codenade.Inputbinder
             Action = action;
             FriendlyName = friendlyName;
             IsFromGame = isFromGame;
+            IsUiExtended = Constants.UiActionsExtendDefault;
         }
     }
 

@@ -1,4 +1,5 @@
-﻿{
+﻿// TODO: Check API version from new Patch
+{
   "APIVersion": "0.0.1.1",
   "ModVersion": "0.1.1",
   "ModName": "Inputbinder",
