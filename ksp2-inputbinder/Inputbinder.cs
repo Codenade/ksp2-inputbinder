@@ -105,7 +105,7 @@ namespace Codenade.Inputbinder
             _actionManager.Actions[Constants.ActionYawTrimID].Action.Enable();
             _actionManager.Actions[Constants.ActionTrimResetID].Action.Enable();
             _bindingUI = gameObject.AddComponent<BindingUI>();
-            _bindingUI.enabled = false;
+            _bindingUI.Hide();
             _bindingUI.VisibilityChanged += OnUiVisibilityChange;
         }
 
@@ -218,10 +218,7 @@ namespace Codenade.Inputbinder
 
         private void OnAppBarButtonClicked(bool state)
         {
-            if (!state)
-                _bindingUI.Hide();
-            else
-                _bindingUI.Show();
+            _bindingUI.enabled = state;
         }
     }
 }
