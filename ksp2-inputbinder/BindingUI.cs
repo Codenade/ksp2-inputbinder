@@ -11,7 +11,6 @@ namespace Codenade.Inputbinder
 {
     public class BindingUI : KerbalMonoBehaviour
     {
-        // TODO: Add Binding editor and Interactions
         // TODO: Migrate to other UI system
         // TODO: Lock game input while interacting with ui
 

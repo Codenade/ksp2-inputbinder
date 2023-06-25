@@ -2,11 +2,10 @@
 using KSP.Game;
 using KSP.IO;
 using KSP.Logging;
-using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Composites;
+using UnityEngine.InputSystem.Controls;
 using static UnityEngine.InputSystem.InputActionSetupExtensions;
 
 namespace Codenade.Inputbinder
@@ -58,8 +57,12 @@ namespace Codenade.Inputbinder
             var operation = action.PerformInteractiveRebinding(bindingIndex)
                                       .OnComplete(result => BindingComplete())
                                       .OnCancel(result => BindingComplete())
-                                      .WithCancelingThrough(Keyboard.current.escapeKey)
-                                      .Start();
+                                      .WithCancelingThrough(Keyboard.current.escapeKey);
+            // Workaround for change of expected control type for AxisComposite being changed from ButtonControl to AxisControl in InputSystem (1.3.0 -> 1.5.0):
+            // Forcing Button control type
+            if (InputSystem.TryGetBindingComposite(action.ChangeBinding(bindingIndex).PreviousCompositeBinding(null).binding.GetNameOfComposite()) == typeof(AxisComposite))
+                operation.WithExpectedControlType<ButtonControl>();
+            operation.Start();
             _rebindInfo = new RebindInformation(bindingIndex, operation, wasEnabled);
         }
 
