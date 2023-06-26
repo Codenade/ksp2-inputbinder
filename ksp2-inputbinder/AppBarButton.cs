@@ -8,9 +8,10 @@ using UnityEngine.UI;
 
 namespace Codenade.Inputbinder
 {
+    // TODO: Close tray on button click
+
     internal class AppBarButton : IDisposable
     {
-        // TODO: change icon
         public bool Created { get { return _wasCreated; } }
         public string Text
         {
@@ -20,7 +21,19 @@ namespace Codenade.Inputbinder
         public Sprite Icon
         {
             get { return _button.GetChild("Content").GetChild("GRP-icon").GetChild("ICO-asset").GetComponent<Image>().sprite; }
-            set { _button.GetChild("Content").GetChild("GRP-icon").GetChild("ICO-asset").GetComponent<Image>().sprite = value; }
+            set 
+            {
+                var iconAsset = _button.GetChild("Content").GetChild("GRP-icon").GetChild("ICO-asset");
+                if (value is object)
+                {
+                    iconAsset.GetComponent<Image>().sprite = value;
+                    iconAsset.SetActive(true);
+                }
+                else
+                {
+                    iconAsset.SetActive(false);
+                }
+            }
         }
         public bool State
         {
@@ -50,12 +63,7 @@ namespace Codenade.Inputbinder
             var loc = text.gameObject.GetComponent<Localize>();
             if (loc is object) UnityEngine.Object.Destroy(loc);
             if (icon is object) newbutton.GetChild("Content").GetChild("GRP-icon").GetChild("ICO-asset").GetComponent<Image>().sprite = icon;
-            //else
-            //{
-            //    var image = newbutton.GetChild("Content").GetChild("GRP-icon").GetChild("ICO-asset").GetComponent<Image>();
-            //    var sprite = image.sprite;
-            //    sprite = Sprite.Create(Texture2D.blackTexture, sprite.rect, sprite.pivot);
-            //}
+            else newbutton.GetChild("Content").GetChild("GRP-icon").GetChild("ICO-asset").SetActive(false);
             var toggle = newbutton.GetComponent<ToggleExtended>();
             if (action is object) toggle.onValueChanged.AddListener(x => action(x));
             newbutton.GetComponent<UIValue_WriteBool_Toggle>().BindValue(new Property<bool>(false));

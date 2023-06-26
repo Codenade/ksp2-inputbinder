@@ -6,7 +6,6 @@ using UnityEngine;
 using KSP.Modding;
 using KSP.IO;
 using System.Collections.Generic;
-using KSP;
 using System;
 using KSP.Input;
 using System.Reflection;
@@ -204,6 +203,10 @@ namespace Codenade.Inputbinder
             {
                 if (_button is null)
                 {
+                    Game.Assets.LoadRaw<Sprite>(Constants.AppBarIconAssetKey).Completed += op =>
+                    {
+                        _button.Icon = op.Result;
+                    };
                     _button = new AppBarButton($"BTN-{Constants.ID}", Constants.Name, OnAppBarButtonClicked);
                     _button.State = _bindingUI.enabled;
                 }

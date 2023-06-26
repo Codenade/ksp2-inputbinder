@@ -18,7 +18,6 @@ namespace Codenade.Inputbinder.BepInEx
         private void Awake()
         {
             // Plugin startup logic
-            Logger.LogInfo($"Plugin codenade-inputbinder-bepinex is loaded!");
             var harmony = new Harmony("codenade-inputbinder");
             harmony.PatchAll(typeof(LoadMod));
             harmony.PatchAll(typeof(NoControllerAutoremove));
