@@ -18,7 +18,7 @@ MonoBehaviour:
   m_GUID: f0af4cfd877f7554eb8fccd75dee52d4
   m_SerializeEntries:
   - m_GUID: e17c9cb96b47b1243996b158dfbee636
-    m_Address: ICO-AppBar-Inputbinder.png
+    m_Address: ICO-AppBar-Inputbinder
     m_ReadOnly: 0
     m_SerializedLabels:
     - default
