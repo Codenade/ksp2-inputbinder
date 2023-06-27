@@ -1,6 +1,7 @@
 ﻿using I2.Loc;
 using KSP.Api.CoreTypes;
 using KSP.UI.Binding;
+using KSP.UI.Binding.Core;
 using System;
 using TMPro;
 using UnityEngine;
@@ -8,8 +9,6 @@ using UnityEngine.UI;
 
 namespace Codenade.Inputbinder
 {
-    // TODO: Close tray on button click
-
     internal class AppBarButton : IDisposable
     {
         public bool Created { get { return _wasCreated; } }
@@ -43,20 +42,29 @@ namespace Codenade.Inputbinder
 
         private bool _wasCreated;
         private GameObject _button;
+        private GameObject _buttonGroup;
+        private UIValue_ReadBool_SetAlpha _buttonExtended;
 
         public AppBarButton(string id, string text, Action<bool> action = null, Sprite icon = null)
         {
-            _wasCreated = CreateButton(id, text, action, icon, out _button);
+            _wasCreated = CreateButton(id, text, action, icon);
             _wasCreated &= _button is object;
+            _buttonExtended = _buttonGroup.GetComponent<UIValue_ReadBool_SetAlpha>();
         }
 
-        private static bool CreateButton(string id, string name, Action<bool> action, Sprite icon, out GameObject button)
+        private void OnClick(bool state)
         {
-            var appbargroup = GameObject.Find("GameManager/Default Game Instance(Clone)/UI Manager(Clone)/Scaled Popup Canvas/Container/ButtonBar/BTN-App-Tray/appbar-others-group");
-            var copyit = appbargroup?.GetChild("BTN-Resource-Manager");
-            button = null;
+            if (state)
+                _buttonExtended.SetValue(false);
+        }
+
+        private bool CreateButton(string id, string name, Action<bool> action, Sprite icon)
+        {
+            _buttonGroup = GameObject.Find("GameManager/Default Game Instance(Clone)/UI Manager(Clone)/Scaled Popup Canvas/Container/ButtonBar/BTN-App-Tray/appbar-others-group");
+            var copyit = _buttonGroup?.GetChild("BTN-Resource-Manager");
+            _button = null;
             if (copyit is null) return false;
-            var newbutton = UnityEngine.Object.Instantiate(copyit, appbargroup.transform);
+            var newbutton = UnityEngine.Object.Instantiate(copyit, _buttonGroup.transform);
             newbutton.name = id;
             var text = newbutton.GetChild("Content").GetChild("TXT-title").GetComponent<TextMeshProUGUI>();
             text.text = name;
@@ -65,9 +73,10 @@ namespace Codenade.Inputbinder
             if (icon is object) newbutton.GetChild("Content").GetChild("GRP-icon").GetChild("ICO-asset").GetComponent<Image>().sprite = icon;
             else newbutton.GetChild("Content").GetChild("GRP-icon").GetChild("ICO-asset").SetActive(false);
             var toggle = newbutton.GetComponent<ToggleExtended>();
+            toggle.onValueChanged.AddListener(x => OnClick(x));
             if (action is object) toggle.onValueChanged.AddListener(x => action(x));
             newbutton.GetComponent<UIValue_WriteBool_Toggle>().BindValue(new Property<bool>(false));
-            button = newbutton;
+            _button = newbutton;
             return true;
         }
 
