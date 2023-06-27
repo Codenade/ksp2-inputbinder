@@ -2,6 +2,7 @@
 using KSP.Game;
 using KSP.IO;
 using KSP.Logging;
+using System;
 using System.Collections.Generic;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Composites;
@@ -92,8 +93,9 @@ namespace Codenade.Inputbinder
         public static void ClearBinding(InputBinding binding, InputAction action)
         {
             var modifiedBinding = binding;
+            var idx = action.bindings.IndexOf(bdg => binding == bdg);
             modifiedBinding.overridePath = Constants.BindingClearPath;
-            action.ApplyBindingOverride(modifiedBinding);
+            action.ApplyBindingOverride(idx, modifiedBinding);
         }
 
         public void ChangeProcessors(InputAction action) => ChangeProcessors(action, -1);
@@ -133,7 +135,8 @@ namespace Codenade.Inputbinder
 
         public static InputActionManager LoadFromJson(string path)
         {
-            // TODO: Handle file not existent
+            if (!IOProvider.FileExists(path))
+                return new InputActionManager();
             var data = IOProvider.FromJsonFile<Dictionary<string, InputActionData>>(path);
             var manager = new InputActionManager();
             foreach (var input in data)
@@ -208,9 +211,14 @@ namespace Codenade.Inputbinder
             return manager;
         }
 
-        public void SaveToJson(string path)
+        public bool SaveToJson(string path)
         {
             GlobalLog.Log(LogFilter.UserMod, $"[{Constants.Name}] Saving settings ...");
+            if (IOProvider.IsFileReadonly(path))
+            {
+                GlobalLog.Error(LogFilter.UserMod, $"[{Constants.Name}] Cannot save settings, input.json is read-only");
+                return false;
+            }
             var store = new Dictionary<string, InputActionData>();
             foreach (var nia in Actions)
             {
@@ -238,6 +246,7 @@ namespace Codenade.Inputbinder
                 store.Add(nia.Key, data);
             }
             IOProvider.ToJsonFile(path, store);
+            return true;
         }
     }
 }

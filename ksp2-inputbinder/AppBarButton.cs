@@ -54,8 +54,7 @@ namespace Codenade.Inputbinder
 
         private void OnClick(bool state)
         {
-            if (state)
-                _buttonExtended.SetValue(false);
+            _buttonExtended.SetValue(false);
         }
 
         private bool CreateButton(string id, string name, Action<bool> action, Sprite icon)

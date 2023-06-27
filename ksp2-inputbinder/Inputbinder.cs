@@ -46,6 +46,37 @@ namespace Codenade.Inputbinder
             StopKSPFromRemovingGamepads();
             RemoveKSPsGamepadBindings();
             _actionManager = InputActionManager.LoadFromJson(IOProvider.JoinPath(_mod.ModRootPath, "input.json"));
+            if (_actionManager.Actions.Count == 0)
+            {
+                var action = new InputAction(Constants.ActionThrottleID);
+                action.AddBinding("")
+                    .WithName("binding");
+                action.expectedControlType = "Axis";
+                _actionManager.Add(action, "Throttle Axis");
+                action = new InputAction(Constants.ActionPitchTrimID);
+                action.AddCompositeBinding("1DAxis")
+                    .With("negative", "")
+                    .With("positive", "");
+                action.expectedControlType = "Axis";
+                _actionManager.Add(action, "Pitch Trim");
+                action = new InputAction(Constants.ActionRollTrimID);
+                action.AddCompositeBinding("1DAxis")
+                    .With("negative", "")
+                    .With("positive", "");
+                action.expectedControlType = "Axis";
+                _actionManager.Add(action, "Roll Trim");
+                action = new InputAction(Constants.ActionYawTrimID);
+                action.AddCompositeBinding("1DAxis")
+                    .With("negative", "")
+                    .With("positive", "");
+                action.expectedControlType = "Axis";
+                _actionManager.Add(action, "Yaw Trim");
+                action = new InputAction(Constants.ActionTrimResetID);
+                action.AddBinding("")
+                    .WithName("binding");
+                action.expectedControlType = "Button";
+                _actionManager.Add(action, "Reset Trim");
+            }
             var gameActionsToAdd = new List<InputAction>()
             {
                 Game.Input.Flight.ThrottleDelta,
