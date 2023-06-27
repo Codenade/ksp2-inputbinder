@@ -214,11 +214,12 @@ namespace Codenade.Inputbinder
         public bool SaveToJson(string path)
         {
             GlobalLog.Log(LogFilter.UserMod, $"[{Constants.Name}] Saving settings ...");
-            if (IOProvider.IsFileReadonly(path))
-            {
-                GlobalLog.Error(LogFilter.UserMod, $"[{Constants.Name}] Cannot save settings, input.json is read-only");
-                return false;
-            }
+            if (IOProvider.FileExists(path))
+                if (IOProvider.IsFileReadonly(path))
+                {
+                    GlobalLog.Error(LogFilter.UserMod, $"[{Constants.Name}] Cannot save settings, input.json is read-only");
+                    return false;
+                }
             var store = new Dictionary<string, InputActionData>();
             foreach (var nia in Actions)
             {
