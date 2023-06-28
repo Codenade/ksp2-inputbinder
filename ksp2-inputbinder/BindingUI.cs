@@ -2,17 +2,19 @@
 using KSP.Game;
 using KSP.IO;
 using KSP.Modding;
+using KSP.UI;
+using KSP.UI.Binding;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 namespace Codenade.Inputbinder
 {
     public class BindingUI : KerbalMonoBehaviour
     {
-        // TODO: Migrate to other UI system
-        // TODO: Lock game input while interacting with ui
+        // TODO: Migrate to Unity UI
 
         public event Action<bool> VisibilityChanged;
 
@@ -25,6 +27,8 @@ namespace Codenade.Inputbinder
         private Vector2 _scrollPos = Vector2.zero;
         private InputActionManager _actionManager;
         private KSP2Mod _mod;
+        private GameObject _windowBlockObject;
+        private Canvas _windowBlockComponent;
 
         public BindingUI()
         {
@@ -43,6 +47,16 @@ namespace Codenade.Inputbinder
 
         private void OnEnable()
         {
+            _windowBlockObject = new GameObject("BindingUI");
+            _windowBlockObject.transform.parent = Game.UI.GetScaledPopupCanvas().transform;
+            _windowBlockComponent = _windowBlockObject.AddComponent<Canvas>();
+            _windowBlockObject.AddComponent<RectTransform>();
+            _windowBlockObject.AddComponent<GraphicRaycaster>();
+            _windowBlockObject.AddComponent<CanvasGroup>();
+            _windowBlockObject.AddComponent<ContextBindRoot>();
+            _windowBlockObject.AddComponent<UIViewElementParent>();
+            _windowBlockObject.AddComponent<KSP2UIWindow>();
+
             VisibilityChanged?.Invoke(true);
         }
 
@@ -50,6 +64,7 @@ namespace Codenade.Inputbinder
         {
             _actionManager.CancelBinding();
             _actionManager.CompleteChangeProcessors();
+            Destroy(_windowBlockObject);
             VisibilityChanged?.Invoke(false);
         }
 
@@ -350,6 +365,8 @@ namespace Codenade.Inputbinder
                     GUILayout.EndHorizontal();
                     GUILayout.EndVertical();
                 }, new GUIContent(pwtxt));
+                _windowBlockComponent. = _windowRect.position;
+                _windowBlockComponent.WindowRectTransform.sizeDelta = (_windowRect.size + new Vector2(_windowProcRect.size.x, 0)) - _windowBlockComponent.WindowRectTransform.rect.size;
             }
         }
     }
