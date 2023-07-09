@@ -35,15 +35,18 @@ namespace Codenade.Inputbinder
                 Destroy(this);
         }
 
-        private void Awake()
+        private void OnGameStateEntered(MessageCenterMessage message)
         {
-            DontDestroyOnLoad(this);
-            foreach (var mod in Game.KSP2ModManager.CurrentMods)
-                if (mod.ModName == Constants.Name && mod.ModAuthor == Constants.Author)
-                    _mod = mod;
-            InputSystem.RegisterProcessor<Processors.MapProcessor>("Map");
-            InputSystem.settings.defaultDeadzoneMin = 0f;
-            StopKSPFromRemovingGamepads();
+            GameStateEnteredMessage gameStateEnteredMessage = message as GameStateEnteredMessage;
+            if (gameStateEnteredMessage.StateBeingEntered == GameState.MainMenu)
+            {
+                Initialize();
+                Game.Messages.Unsubscribe<GameStateEnteredMessage>(OnGameStateEntered);
+            }
+        }
+
+        private void Initialize()
+        {
             RemoveKSPsGamepadBindings();
             _actionManager = InputActionManager.LoadFromJson(IOProvider.JoinPath(_mod.ModRootPath, "input.json"));
             if (_actionManager.Actions.Count == 0)
@@ -139,6 +142,19 @@ namespace Codenade.Inputbinder
             _bindingUI.VisibilityChanged += OnUiVisibilityChange;
         }
 
+        private void Awake()
+        {
+            DontDestroyOnLoad(this);
+            foreach (var mod in Game.KSP2ModManager.CurrentMods)
+                if (mod.ModName == Constants.Name && mod.ModAuthor == Constants.Author)
+                    _mod = mod;
+            StopKSPFromRemovingGamepads();
+            RemoveKSPsGamepadBindings();
+            InputSystem.RegisterProcessor<Processors.MapProcessor>("Map");
+            InputSystem.settings.defaultDeadzoneMin = 0f;
+            Game.Messages.Subscribe<GameStateEnteredMessage>(OnGameStateEntered);
+        }
+
         private void OnUiVisibilityChange(bool visible)
         {
             if (_button?.Created is object)
@@ -179,37 +195,22 @@ namespace Codenade.Inputbinder
             eventInfo.RemoveEventHandler(null, handler);
         }
 
-        private void RemoveKSPsGamepadBindings()
+        public void RemoveKSPsGamepadBindings()
         {
             GlobalLog.Log(LogFilter.UserMod, $"[{Constants.Name}] Removing KSP's Gamepad bindings...");
-            var gamepads = Gamepad.all.ToArray();
+            //var gamepads = Gamepad.all.ToArray();
             foreach (var action in Game.Input)
             {
-                foreach (var bdg in action.bindings)
+                for (var i = 0; i < action.bindings.Count; i++)
                 {
-                    if (bdg.effectivePath.Contains("<Gamepad>"))
+                    var bdg = action.bindings[i];
+                    //if (!bdg.isComposite && !bdg.effectivePath.IsNullOrEmpty() && !bdg.effectivePath.Contains("Keyboard") && !bdg.effectivePath.Contains("Mouse") && !bdg.effectivePath.Contains("Gamepad"))
+                    //    GlobalLog.Log(LogFilter.UserMod, $"[{Constants.Name}] LOOK {action.name} {bdg.effectivePath}");
+                    if (bdg.effectivePath.Contains("Gamepad") || bdg.effectivePath.Contains("XInputController"))
                     {
-                        var a = Game.Input.FindAction(action.name);
-                        a.ApplyBindingOverride("", path: bdg.path);
-                    }
-                }
-            }
-            foreach (var gamepad in gamepads)
-            {
-                foreach (var control in gamepad.allControls)
-                {
-                    foreach (var action in Game.Input)
-                    {
-                        foreach (var ac in action.controls)
-                        {
-                            if (control == ac)
-                            {
-                                var b = action.GetBindingForControl(control);
-                                if (!b.HasValue)
-                                    continue;
-                                action.ApplyBindingOverride("", b.Value.path);
-                            }
-                        }
+                        GlobalLog.Log(LogFilter.UserMod, $"[{Constants.Name}] Hit {action.name} {bdg.effectivePath}");
+                        action.ChangeBinding(i).WithPath("");
+                        action.ApplyBindingOverride(i, "");
                     }
                 }
             }
@@ -232,6 +233,8 @@ namespace Codenade.Inputbinder
             _vessel = Game.ViewController.GetActiveSimVessel();
             if (_vessel is object)
             {
+                if (!_bindingUI.IsInitialized && !_bindingUI.IsInitializing)
+                    _bindingUI.Initialize(Game.UI.GetPopupCanvas().transform);
                 if (_button is null)
                 {
                     Game.Assets.LoadRaw<Sprite>(Constants.AppBarIconAssetKey).Completed += op =>

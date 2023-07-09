@@ -648,14 +648,25 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ProcessorUtilities.cs" />
+    <Compile Include="ui\BindingGroup.cs" />
     <Compile Include="AppBarButton.cs" />
+    <Compile Include="ui\CompositeBindingGroup.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Containers.cs" />
+    <Compile Include="ui\ExpandCollapse.cs" />
     <Compile Include="InputActionManager.cs" />
     <Compile Include="Inputbinder.cs" />
     <Compile Include="MapProcessor.cs" />
+    <Compile Include="ui\Page1ListPopulator.cs" />
+    <Compile Include="ui\Page2ListPopulator.cs" />
+    <Compile Include="ui\Page3ValuesManager.cs" />
+    <Compile Include="ui\ProcNextBehaviour.cs" />
+    <Compile Include="ui\ProcCancelBehaviour.cs" />
+    <Compile Include="ui\ProcRemoveBehaviour.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="BindingUI.cs" />
+    <Compile Include="ui\BindingUI.cs" />
+    <Compile Include="ui\SetupVerticalLayout.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="modinfo.json">

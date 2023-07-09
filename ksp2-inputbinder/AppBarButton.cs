@@ -1,7 +1,6 @@
 ﻿using I2.Loc;
 using KSP.Api.CoreTypes;
 using KSP.UI.Binding;
-using KSP.UI.Binding.Core;
 using System;
 using TMPro;
 using UnityEngine;

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 using UnityEngine.InputSystem;
 using static UnityEngine.InputSystem.InputActionRebindingExtensions;
 
@@ -28,6 +29,8 @@ namespace Codenade.Inputbinder
         public int BindingIndex => _bindingIndex;
         public InputBinding Binding => _action.bindings[_bindingIndex];
         public InputAction Action => _action;
+        public string ProcessorName { get; set; }
+        public Dictionary<string, object> Values { get; }
 
         private readonly int _bindingIndex;
         private readonly InputAction _action;
@@ -36,6 +39,8 @@ namespace Codenade.Inputbinder
         {
             _bindingIndex = bindingIndex; ;
             _action = action;
+            ProcessorName = "";
+            Values = new Dictionary<string, object>();
         }
     }
 

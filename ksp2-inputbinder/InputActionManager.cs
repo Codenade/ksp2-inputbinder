@@ -2,7 +2,6 @@
 using KSP.Game;
 using KSP.IO;
 using KSP.Logging;
-using System;
 using System.Collections.Generic;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Composites;
@@ -119,7 +118,7 @@ namespace Codenade.Inputbinder
                     chgIdx = bindingIndex;
                 _procBindInfo = new ProcRebindInformation(chgIdx, action);
             }
-            else if (action != _procBindInfo.Action || (bindingIndex >= 0 ? _procBindInfo.Binding != action.bindings[bindingIndex] : false))
+            else if (action != _procBindInfo.Action || (bindingIndex >= 0 && _procBindInfo.Binding != action.bindings[bindingIndex]))
             {
                 CompleteChangeProcessors();
                 ChangeProcessors(action, bindingIndex);
@@ -200,9 +199,9 @@ namespace Codenade.Inputbinder
                         {
                             var saved = input.Value.Bindings[i];
                             var binding = action.bindings[i];
-                            binding.overridePath = saved.PathOverride;
-                            binding.overrideProcessors = saved.ProcessorsOverride;
-                            action.ApplyBindingOverride(binding);
+                            binding.overridePath = saved.PathOverride.IsNullOrEmpty() ? null : saved.PathOverride;
+                            binding.overrideProcessors = saved.ProcessorsOverride.IsNullOrEmpty() ? null : saved.ProcessorsOverride;
+                            action.ApplyBindingOverride(i, binding);
                         }
                     }
                     manager.Add(action, true);
