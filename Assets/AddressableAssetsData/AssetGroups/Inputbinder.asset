@@ -65,6 +65,10 @@ MonoBehaviour:
     m_Address: RemoveGamepadBindingsButton.prefab
     m_ReadOnly: 0
     m_SerializedLabels: []
+  - m_GUID: 5c11701627fa24b48ac0a8388c164af0
+    m_Address: LoadBindingsButton.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 8644c698111574d4db1297cfbb2f6c1b, type: 2}
   m_SchemaSet:
