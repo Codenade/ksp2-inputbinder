@@ -134,6 +134,7 @@ namespace Codenade.Inputbinder
 
         public static InputActionManager LoadFromJson(string path)
         {
+            GlobalLog.Log(LogFilter.UserMod, $"[{Constants.Name}] Loading settings ...");
             if (!IOProvider.FileExists(path))
                 return new InputActionManager();
             var data = IOProvider.FromJsonFile<Dictionary<string, InputActionData>>(path);
@@ -184,7 +185,7 @@ namespace Codenade.Inputbinder
                                 var ovrd = action.bindings[i1];
                                 ovrd.overridePath = input.Value.Bindings[i1].PathOverride.IsNullOrEmpty() ? null : input.Value.Bindings[i1].PathOverride;
                                 ovrd.overrideProcessors = input.Value.Bindings[i1].ProcessorsOverride.IsNullOrEmpty() ? null : input.Value.Bindings[i1].ProcessorsOverride;
-                                action.ApplyBindingOverride(ovrd);
+                                action.ApplyBindingOverride(i1, ovrd);
                             }
                         }
                     }

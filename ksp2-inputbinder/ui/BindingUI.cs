@@ -17,9 +17,15 @@ namespace Codenade.Inputbinder
     public class BindingUI : MonoBehaviour
     {
         public event Action<bool> VisibilityChanged;
+        public event Action InitializationFinished;
 
         public bool IsInitialized { get; private set; }
         public bool IsInitializing { get; private set; }
+        public bool IsVisible
+        {
+            get => enabled;
+            set => enabled = value;
+        }
         public Dictionary<string, GameObject> Assets { get; private set; }
         public GameObject ContentRoot { get; private set; }
         public Status CurrentStatus { get; private set; }
@@ -93,6 +99,7 @@ namespace Codenade.Inputbinder
                 GetChild("Content");
             IsInitializing = false;
             IsInitialized = true;
+            InitializationFinished?.Invoke();
         }
 
         private void Awake()
@@ -109,13 +116,13 @@ namespace Codenade.Inputbinder
 
         public void Hide() => enabled = false;
 
+        private void LoadSettings() => Inputbinder.Reload();
+
         private void SaveSettings()
         {
             _actionManager.SaveToJson(IOProvider.JoinPath(_mod.ModRootPath, "input.json"));
         }
 
-        // TODO: Fix scroll through windows
-        // TODO: Add load bindings button
         private void Setup()
         {
             if (!_uiWindow || !_allPrefabsLoaded)
@@ -123,6 +130,8 @@ namespace Codenade.Inputbinder
             for (var j = ContentRoot.transform.childCount - 1; j >= 0 ; j--)
                 DestroyImmediate(ContentRoot.transform.GetChild(j).gameObject);
             _uiWindow.gameObject.name = "BindingUI";
+            _uiWindow.MinSize = new Vector2(480, 300);
+            _uiWindow.MaxSize = new Vector2(1200, 800);
             _uiMain = Instantiate(new GameObject("Main", typeof(SetupVerticalLayout)), ContentRoot.transform);
             _uiMain.SetActive(false);
             _uiPage1 = Instantiate(Assets[PrefabKeys.WindowProcessorsContent].GetChild("Viewport").GetChild("Content").GetChild("Page1"), ContentRoot.transform);
@@ -141,11 +150,17 @@ namespace Codenade.Inputbinder
             var saveBtnRT = saveBtn.GetComponent<RectTransform>();
             saveBtnRT.anchoredPosition = new Vector2(140, 20);
             saveBtnRT.sizeDelta = new Vector2(55, 30);
+            var loadBtn = Instantiate(Assets[PrefabKeys.LoadBindingsButton], header.transform);
+            loadBtn.transform.SetSiblingIndex(4);
+            loadBtn.GetComponent<Button>().onClick.AddListener(LoadSettings);
+            var loadBtnRT = loadBtn.GetComponent<RectTransform>();
+            loadBtnRT.anchoredPosition = new Vector2(199, 20);
+            loadBtnRT.sizeDelta = new Vector2(55, 30);
             var rmGpdBdgsBtn = Instantiate(Assets[PrefabKeys.RemoveGamepadBindingsButton], header.transform);
-            rmGpdBdgsBtn.transform.SetSiblingIndex(4);
+            rmGpdBdgsBtn.transform.SetSiblingIndex(5);
             rmGpdBdgsBtn.GetComponent<Button>().onClick.AddListener(Inputbinder.Instance.RemoveKSPsGamepadBindings);
             var rmGpdBdgBtnRT = rmGpdBdgsBtn.GetComponent<RectTransform>();
-            rmGpdBdgBtnRT.anchoredPosition= new Vector2(280, 20);
+            rmGpdBdgBtnRT.anchoredPosition= new Vector2(320, 20);
             rmGpdBdgBtnRT.sizeDelta = new Vector2(180, 30);
             var closeBtn = header.GetChild("KSP2ButtonText");
             closeBtn.GetComponent<ButtonExtended>().onClick.AddListener(Hide);
@@ -265,6 +280,12 @@ namespace Codenade.Inputbinder
             VisibilityChanged?.Invoke(false);
         }
 
+        private void OnDestroy()
+        {
+            if (_uiWindow is object)
+                Destroy(_uiWindow.gameObject);
+        }
+
         public static class PrefabKeys
         {
             public static readonly string WindowBindingContent =            "BindingWindowContent";
@@ -277,6 +298,7 @@ namespace Codenade.Inputbinder
             public static readonly string ProcessorValueGroup =             "ProcessorValueGroup";
             public static readonly string ProcessorValueGroupBool =         "ProcessorValueGroupBool";
             public static readonly string ProcessorSaveButton =             "ProcessorSaveButton";
+            public static readonly string LoadBindingsButton =              "LoadBindingsButton.prefab";
             public static readonly string RemoveGamepadBindingsButton =     "RemoveGamepadBindingsButton.prefab";
 
             public static string[] AllKeys 

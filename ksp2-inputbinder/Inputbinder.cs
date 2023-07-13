@@ -13,6 +13,9 @@ using KSP.Sim.impl;
 
 namespace Codenade.Inputbinder
 {
+    // TODO: Do some testing
+    // TODO: Check game actions
+
     public sealed class Inputbinder : KerbalMonoBehaviour
     {
         public InputActionManager ActionManager => _actionManager;
@@ -21,6 +24,7 @@ namespace Codenade.Inputbinder
         public static Inputbinder Instance => _instance;
 
         private static Inputbinder _instance;
+        private static bool _notFirstLoad;
         private KSP2Mod _mod;
         private VesselComponent _vessel;
         private InputActionManager _actionManager;
@@ -150,9 +154,18 @@ namespace Codenade.Inputbinder
                     _mod = mod;
             StopKSPFromRemovingGamepads();
             RemoveKSPsGamepadBindings();
-            InputSystem.RegisterProcessor<Processors.MapProcessor>("Map");
-            InputSystem.settings.defaultDeadzoneMin = 0f;
-            Game.Messages.Subscribe<GameStateEnteredMessage>(OnGameStateEntered);
+            if (!_notFirstLoad)
+            {
+                InputSystem.RegisterProcessor<Processors.MapProcessor>("Map");
+                InputSystem.settings.defaultDeadzoneMin = 0f;
+                Game.Messages.Subscribe<GameStateEnteredMessage>(OnGameStateEntered);
+                _notFirstLoad = true;
+            }
+            else
+            {
+                Initialize();
+                VehicleStateChanged(null);
+            }
         }
 
         private void OnUiVisibilityChange(bool visible)
@@ -198,17 +211,13 @@ namespace Codenade.Inputbinder
         public void RemoveKSPsGamepadBindings()
         {
             GlobalLog.Log(LogFilter.UserMod, $"[{Constants.Name}] Removing KSP's Gamepad bindings...");
-            //var gamepads = Gamepad.all.ToArray();
             foreach (var action in Game.Input)
             {
                 for (var i = 0; i < action.bindings.Count; i++)
                 {
                     var bdg = action.bindings[i];
-                    //if (!bdg.isComposite && !bdg.effectivePath.IsNullOrEmpty() && !bdg.effectivePath.Contains("Keyboard") && !bdg.effectivePath.Contains("Mouse") && !bdg.effectivePath.Contains("Gamepad"))
-                    //    GlobalLog.Log(LogFilter.UserMod, $"[{Constants.Name}] LOOK {action.name} {bdg.effectivePath}");
                     if (bdg.effectivePath.Contains("Gamepad") || bdg.effectivePath.Contains("XInputController"))
                     {
-                        GlobalLog.Log(LogFilter.UserMod, $"[{Constants.Name}] Hit {action.name} {bdg.effectivePath}");
                         action.ChangeBinding(i).WithPath("");
                         action.ApplyBindingOverride(i, "");
                     }
@@ -220,6 +229,12 @@ namespace Codenade.Inputbinder
         {
             GameManager.Instance.Game.Messages.Subscribe<VesselChangingMessage>(VehicleStateChanged);
             GameManager.Instance.Game.Messages.Subscribe<VesselChangedMessage>(VehicleStateChanged);
+        }
+
+        private void OnDestroy()
+        {
+            if (_button is object)
+                _button.Dispose();
         }
 
         private void OnDisable()
@@ -247,7 +262,7 @@ namespace Codenade.Inputbinder
             }
             else
             {
-                _button.Dispose();
+                _button?.Dispose();
                 _button = null;
                 _bindingUI.Hide();
             }
@@ -256,6 +271,38 @@ namespace Codenade.Inputbinder
         private void OnAppBarButtonClicked(bool state)
         {
             _bindingUI.enabled = state;
+        }
+
+        public static void Load()
+        {
+            if (_instance is object) Reload();
+            else new GameObject("Codenade.Inputbinder", typeof(Inputbinder));
+        }
+
+        public static void Unload()
+        {
+            if (_instance is object)
+            {
+                _instance.gameObject.name += ".Old";
+                Destroy(_instance.gameObject);
+                _instance = null;
+            }
+        }
+
+        public static void Reload()
+        {
+            if (_instance is null)
+            {
+                Load();
+                return;
+            }
+            var oldInstance = _instance;
+            _instance = null;
+            oldInstance.gameObject.name += ".Old";
+            new GameObject("Codenade.Inputbinder", typeof(Inputbinder));
+            var wasVisible = oldInstance.BindingUI.IsVisible;
+            _instance.BindingUI.InitializationFinished += () => _instance.BindingUI.IsVisible = wasVisible;
+            Destroy(oldInstance.gameObject);
         }
     }
 }
