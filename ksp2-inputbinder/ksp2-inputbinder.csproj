@@ -648,6 +648,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GameInputUtils.cs" />
     <Compile Include="ProcessorUtilities.cs" />
     <Compile Include="ui\BindingGroup.cs" />
     <Compile Include="AppBarButton.cs" />
