@@ -4,9 +4,9 @@ ksp2-inputbinder is a mod for [Kerbal Space Program 2](https://en.wikipedia.org/
 
 ### Jump to section
 
-* [Configuration]
-* [How to install]
-* [How to build]
+* [Configuration](#configuration)
+* [How to install](#how-to-install)
+* [How to build](#how-to-build)
 
 This mod makes it possible to use gamepads for controlling your vessel. Additionally, it brings UI for configuring input actions, which lets the user make more detailed changes.
 
