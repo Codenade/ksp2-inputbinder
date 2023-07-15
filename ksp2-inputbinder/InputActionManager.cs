@@ -92,8 +92,9 @@ namespace Codenade.Inputbinder
         public static void ClearBinding(InputBinding binding, InputAction action)
         {
             var modifiedBinding = binding;
+            var idx = action.bindings.IndexOf(bdg => binding == bdg);
             modifiedBinding.overridePath = Constants.BindingClearPath;
-            action.ApplyBindingOverride(modifiedBinding);
+            action.ApplyBindingOverride(idx, modifiedBinding);
         }
 
         public void ChangeProcessors(InputAction action) => ChangeProcessors(action, -1);
@@ -117,7 +118,7 @@ namespace Codenade.Inputbinder
                     chgIdx = bindingIndex;
                 _procBindInfo = new ProcRebindInformation(chgIdx, action);
             }
-            else if (action != _procBindInfo.Action || (bindingIndex >= 0 ? _procBindInfo.Binding != action.bindings[bindingIndex] : false))
+            else if (action != _procBindInfo.Action || (bindingIndex >= 0 && _procBindInfo.Binding != action.bindings[bindingIndex]))
             {
                 CompleteChangeProcessors();
                 ChangeProcessors(action, bindingIndex);
@@ -133,7 +134,9 @@ namespace Codenade.Inputbinder
 
         public static InputActionManager LoadFromJson(string path)
         {
-            // TODO: Handle file not existent
+            GlobalLog.Log(LogFilter.UserMod, $"[{Constants.Name}] Loading settings ...");
+            if (!IOProvider.FileExists(path))
+                return new InputActionManager();
             var data = IOProvider.FromJsonFile<Dictionary<string, InputActionData>>(path);
             var manager = new InputActionManager();
             foreach (var input in data)
@@ -182,7 +185,7 @@ namespace Codenade.Inputbinder
                                 var ovrd = action.bindings[i1];
                                 ovrd.overridePath = input.Value.Bindings[i1].PathOverride.IsNullOrEmpty() ? null : input.Value.Bindings[i1].PathOverride;
                                 ovrd.overrideProcessors = input.Value.Bindings[i1].ProcessorsOverride.IsNullOrEmpty() ? null : input.Value.Bindings[i1].ProcessorsOverride;
-                                action.ApplyBindingOverride(ovrd);
+                                action.ApplyBindingOverride(i1, ovrd);
                             }
                         }
                     }
@@ -197,9 +200,9 @@ namespace Codenade.Inputbinder
                         {
                             var saved = input.Value.Bindings[i];
                             var binding = action.bindings[i];
-                            binding.overridePath = saved.PathOverride;
-                            binding.overrideProcessors = saved.ProcessorsOverride;
-                            action.ApplyBindingOverride(binding);
+                            binding.overridePath = saved.PathOverride.IsNullOrEmpty() ? null : saved.PathOverride;
+                            binding.overrideProcessors = saved.ProcessorsOverride.IsNullOrEmpty() ? null : saved.ProcessorsOverride;
+                            action.ApplyBindingOverride(i, binding);
                         }
                     }
                     manager.Add(action, true);
@@ -208,9 +211,15 @@ namespace Codenade.Inputbinder
             return manager;
         }
 
-        public void SaveToJson(string path)
+        public bool SaveToJson(string path)
         {
             GlobalLog.Log(LogFilter.UserMod, $"[{Constants.Name}] Saving settings ...");
+            if (IOProvider.FileExists(path))
+                if (IOProvider.IsFileReadonly(path))
+                {
+                    GlobalLog.Error(LogFilter.UserMod, $"[{Constants.Name}] Cannot save settings, input.json is read-only");
+                    return false;
+                }
             var store = new Dictionary<string, InputActionData>();
             foreach (var nia in Actions)
             {
@@ -238,6 +247,7 @@ namespace Codenade.Inputbinder
                 store.Add(nia.Key, data);
             }
             IOProvider.ToJsonFile(path, store);
+            return true;
         }
     }
 }

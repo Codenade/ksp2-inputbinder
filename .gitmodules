@@ -1,0 +1,3 @@
+[submodule "ksp2-inputbinder-assets"]
+	path = ksp2-inputbinder-assets
+	url = https://github.com/Codenade/ksp2-inputbinder-assets

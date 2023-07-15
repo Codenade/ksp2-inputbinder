@@ -8,66 +8,84 @@ using UnityEngine.UI;
 
 namespace Codenade.Inputbinder
 {
-    internal class AppBarButton : IDisposable
+    internal class AppBarButton : MonoBehaviour
     {
-        // TODO: change icon
-        public bool Created { get { return _wasCreated; } }
+        public event Action Destroying;
+
         public string Text
         {
-            get { return _button.GetChild("Content").GetChild("TXT-title").GetComponent<TextMeshProUGUI>().text; }
-            set { _button.GetChild("Content").GetChild("TXT-title").GetComponent<TextMeshProUGUI>().text = value; }
+            get { return _text.text; }
+            set { _text.text = value; }
         }
         public Sprite Icon
         {
-            get { return _button.GetChild("Content").GetChild("GRP-icon").GetChild("ICO-asset").GetComponent<Image>().sprite; }
-            set { _button.GetChild("Content").GetChild("GRP-icon").GetChild("ICO-asset").GetComponent<Image>().sprite = value; }
+            get { return _image.sprite; }
+            set
+            {
+                if (value is object)
+                {
+                    _image.sprite = value;
+                    _iconAsset.SetActive(true);
+                }
+                else
+                {
+                    _iconAsset.SetActive(false);
+                }
+            }
         }
         public bool State
         {
-            get { return _button.GetComponent<ToggleExtended>().isOn; }
-            set { _button.GetComponent<UIValue_WriteBool_Toggle>().BindValue(new Property<bool>(value)); }
+            get { return _toggleExtended.isOn; }
+            set { _writeBool.BindValue(new Property<bool>(value)); }
         }
 
-        private bool _wasCreated;
-        private GameObject _button;
+        private GameObject _iconAsset;
+        private Image _image;
+        private UIValue_ReadBool_SetAlpha _buttonExtended;
+        private ToggleExtended _toggleExtended;
+        private TextMeshProUGUI _text;
+        private UIValue_WriteBool_Toggle _writeBool;
 
-        public AppBarButton(string id, string text, Action<bool> action = null, Sprite icon = null)
+        private void OnClick(bool state)
         {
-            _wasCreated = CreateButton(id, text, action, icon, out _button);
-            _wasCreated &= _button is object;
+            _buttonExtended.SetValue(false);
         }
 
-        private static bool CreateButton(string id, string name, Action<bool> action, Sprite icon, out GameObject button)
+        public static AppBarButton CreateButton(string id, string name, Action<bool> action, Sprite icon = null)
         {
-            var appbargroup = GameObject.Find("GameManager/Default Game Instance(Clone)/UI Manager(Clone)/Scaled Popup Canvas/Container/ButtonBar/BTN-App-Tray/appbar-others-group");
-            var copyit = appbargroup?.GetChild("BTN-Resource-Manager");
-            button = null;
-            if (copyit is null) return false;
-            var newbutton = UnityEngine.Object.Instantiate(copyit, appbargroup.transform);
+            var buttonGroup = GameObject.Find("GameManager/Default Game Instance(Clone)/UI Manager(Clone)/Scaled Popup Canvas/Container/ButtonBar/BTN-App-Tray/appbar-others-group");
+            var copyit = buttonGroup?.GetChild("BTN-Resource-Manager");
+            if (copyit is null) return null;
+            var newbutton = Instantiate(copyit, buttonGroup.transform);
             newbutton.name = id;
             var text = newbutton.GetChild("Content").GetChild("TXT-title").GetComponent<TextMeshProUGUI>();
             text.text = name;
             var loc = text.gameObject.GetComponent<Localize>();
-            if (loc is object) UnityEngine.Object.Destroy(loc);
-            if (icon is object) newbutton.GetChild("Content").GetChild("GRP-icon").GetChild("ICO-asset").GetComponent<Image>().sprite = icon;
-            //else
-            //{
-            //    var image = newbutton.GetChild("Content").GetChild("GRP-icon").GetChild("ICO-asset").GetComponent<Image>();
-            //    var sprite = image.sprite;
-            //    sprite = Sprite.Create(Texture2D.blackTexture, sprite.rect, sprite.pivot);
-            //}
+            if (loc is object) Destroy(loc);
             var toggle = newbutton.GetComponent<ToggleExtended>();
+            var buttonbehaviour = newbutton.AddComponent<AppBarButton>();
+            toggle.onValueChanged.AddListener(x => buttonbehaviour.OnClick(x));
             if (action is object) toggle.onValueChanged.AddListener(x => action(x));
-            newbutton.GetComponent<UIValue_WriteBool_Toggle>().BindValue(new Property<bool>(false));
-            button = newbutton;
-            return true;
+            buttonbehaviour._writeBool = newbutton.GetComponent<UIValue_WriteBool_Toggle>();
+            buttonbehaviour._writeBool.BindValue(new Property<bool>(false));
+            buttonbehaviour._toggleExtended = toggle;
+            buttonbehaviour._text = text;
+            buttonbehaviour._buttonExtended = buttonGroup.GetComponent<UIValue_ReadBool_SetAlpha>();
+            buttonbehaviour._iconAsset = newbutton.GetChild("Content").GetChild("GRP-icon").GetChild("ICO-asset");
+            buttonbehaviour._image = buttonbehaviour._iconAsset.GetComponent<Image>();
+            if (icon is object) buttonbehaviour._image.sprite = icon;
+            else buttonbehaviour._iconAsset.SetActive(false);
+            return buttonbehaviour;
         }
 
-        public void Dispose()
+        public void Destroy()
         {
-            _wasCreated = false;
-            if (_button is object) UnityEngine.Object.Destroy(_button);
-            _button = null;
+            Destroy(gameObject);
+        }
+
+        private void OnDestroy()
+        {
+            Destroying?.Invoke();
         }
     }
 }

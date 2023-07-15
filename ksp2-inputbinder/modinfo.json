@@ -1,9 +1,8 @@
-﻿// TODO: Check API version from new Patch
-{
+﻿{
   "APIVersion": "0.0.1.1",
-  "ModVersion": "0.1.1",
+  "ModVersion": "0.3.0",
   "ModName": "Inputbinder",
   "ModAuthor": "Codenade",
-  "ModDescription": "Allows making input bindings you could otherwise not make.",
-  "Catalog": ""
+  "ModDescription": "Adds a menu to configure input bindings.",
+  "Catalog": "addressables/catalog.json"
 }
