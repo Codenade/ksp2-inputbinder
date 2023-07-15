@@ -12,8 +12,6 @@ using KSP.Sim.impl;
 
 namespace Codenade.Inputbinder
 {
-    // TODO: Do some testing
-
     public sealed class Inputbinder : KerbalMonoBehaviour
     {
         public InputActionManager ActionManager => _actionManager;
