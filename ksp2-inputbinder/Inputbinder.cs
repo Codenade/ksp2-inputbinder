@@ -106,6 +106,7 @@ namespace Codenade.Inputbinder
         private void Awake()
         {
             DontDestroyOnLoad(this);
+            gameObject.tag = "Game Manager";
             foreach (var mod in Game.KSP2ModManager.CurrentMods)
                 if (mod.ModName == Constants.Name && mod.ModAuthor == Constants.Author)
                     _mod = mod;
@@ -127,7 +128,7 @@ namespace Codenade.Inputbinder
 
         private void OnUiVisibilityChange(bool visible)
         {
-            if (_button?.Created is object)
+            if (_button is object)
                 _button.State = visible;
         }
 
@@ -184,14 +185,13 @@ namespace Codenade.Inputbinder
 
         private void OnEnable()
         {
-            GameManager.Instance.Game.Messages.Subscribe<VesselChangingMessage>(VehicleStateChanged);
-            GameManager.Instance.Game.Messages.Subscribe<VesselChangedMessage>(VehicleStateChanged);
+            GameManager.Instance.Game.Messages.PersistentSubscribe<VesselChangingMessage>(VehicleStateChanged);
+            GameManager.Instance.Game.Messages.PersistentSubscribe<VesselChangedMessage>(VehicleStateChanged);
         }
 
         private void OnDestroy()
         {
-            if (_button is object)
-                _button.Dispose();
+            _button?.Destroy();
         }
 
         private void OnDisable()
@@ -209,18 +209,19 @@ namespace Codenade.Inputbinder
                     _bindingUI.Initialize(Game.UI.GetPopupCanvas().transform);
                 if (_button is null)
                 {
+                    _button = AppBarButton.CreateButton($"BTN-{Constants.ID}", Constants.Name, OnAppBarButtonClicked);
+                    _button.Destroying += () => _button = null;
                     Game.Assets.LoadRaw<Sprite>(Constants.AppBarIconAssetKey).Completed += op =>
                     {
-                        _button.Icon = op.Result;
+                        if (_button is object)
+                            _button.Icon = op.Result;
                     };
-                    _button = new AppBarButton($"BTN-{Constants.ID}", Constants.Name, OnAppBarButtonClicked);
                     _button.State = _bindingUI.enabled;
                 }
             }
             else
             {
-                _button?.Dispose();
-                _button = null;
+                _button?.Destroy();
                 _bindingUI.Hide();
             }
         }
