@@ -12,7 +12,7 @@ using UnityEngine.InputSystem;
 
 namespace Codenade.Inputbinder.BepInEx
 {
-    [BepInPlugin("codenade-inputbinder", "codenade-inputbinder", "0.1.1")]//PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
+    [BepInPlugin("codenade-inputbinder", "codenade-inputbinder", "0.3.0")]//PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     public class Plugin : BaseUnityPlugin
     {
         private void Awake()
