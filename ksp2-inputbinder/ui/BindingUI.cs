@@ -1,7 +1,6 @@
 ﻿using KSP.Game;
 using KSP.IO;
 using KSP.Logging;
-using KSP.Modding;
 using KSP.UI;
 using KSP.UserInterface;
 using System;
@@ -36,7 +35,7 @@ namespace Codenade.Inputbinder
         }
 
         private InputActionManager _actionManager;
-        private KSP2Mod _mod;
+        private string _modRootPath;
         private KSP2UIWindow _uiWindow;
         private bool _allPrefabsLoaded;
         private bool _allPrefabsQueued;
@@ -109,7 +108,7 @@ namespace Codenade.Inputbinder
             _allPrefabsQueued = false;
             _allPrefabsLoaded = false;
             _actionManager = Inputbinder.Instance.ActionManager;
-            _mod = Inputbinder.Instance.Mod;
+            _modRootPath = Inputbinder.Instance.ModRootPath;
         }
 
         public void Show() => enabled = true;
@@ -120,7 +119,7 @@ namespace Codenade.Inputbinder
 
         private void SaveSettings()
         {
-            _actionManager.SaveToJson(IOProvider.JoinPath(_mod.ModRootPath, "input.json"));
+            _actionManager.SaveToJson(IOProvider.JoinPath(_modRootPath, "input.json"));
         }
 
         private void Setup()

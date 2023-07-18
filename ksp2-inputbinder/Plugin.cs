@@ -1,18 +1,16 @@
-﻿using BepInEx;
-using HarmonyLib;
-using KSP.Input;
-using KSP.IO;
+﻿using KSP.Input;
 using KSP.Modding;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
-using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine;
+using BepInEx;
+using HarmonyLib;
+using System.Reflection.Emit;
 
-namespace Codenade.Inputbinder.BepInEx
+namespace Codenade.Inputbinder
 {
-    [BepInPlugin("codenade-inputbinder", "codenade-inputbinder", "0.3.0")]//PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
+    [BepInPlugin("codenade-inputbinder", "codenade-inputbinder", "0.4.0")]//PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     public class Plugin : BaseUnityPlugin
     {
         private void Awake()
@@ -27,18 +25,14 @@ namespace Codenade.Inputbinder.BepInEx
         }
     }
 
-    [HarmonyPatch(typeof(KSP2Mod), nameof(KSP2Mod.Load))]
+    [HarmonyPatch(typeof(KSP2ModManager), nameof(KSP2ModManager.LoadAllMods))]
     public class LoadMod
     {
-        static void Postfix(KSP2Mod __instance)
+        static void Postfix()
         {
-            if (__instance.ModName == "Inputbinder" && __instance.ModAuthor == "Codenade")
-            {
-                Assembly assembly = Assembly.LoadFrom(__instance.ModRootPath + IOProvider.DirectorySeparatorCharacter.ToString() + "ksp2-inputbinder.dll");
-                GameObject o = new GameObject("Codenade.Inputbinder");
-                o.AddComponent(assembly.GetType("Codenade.Inputbinder.Inputbinder"));
-                o.SetActive(true);
-            }
+            GameObject o = new GameObject("Codenade.Inputbinder");
+            o.AddComponent<Inputbinder>();
+            o.SetActive(true);
         }
     }
 
