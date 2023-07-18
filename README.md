@@ -72,7 +72,7 @@ Dedicated actions to change the trim
 
 ### Reset the configuration
 
-To reset the configuration delete `input.json` from `Kerbal Space Program/GameData/Mods/inputbinder`.
+To reset the configuration delete `input.json` from `Kerbal Space Program/BepInEx/plugins/inputbinder`.
 
 ### Other
 

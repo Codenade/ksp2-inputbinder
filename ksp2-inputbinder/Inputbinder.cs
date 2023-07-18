@@ -3,29 +3,33 @@ using KSP.Logging;
 using KSP.Messages;
 using UnityEngine.InputSystem;
 using UnityEngine;
-using KSP.Modding;
 using KSP.IO;
 using System;
 using KSP.Input;
 using System.Reflection;
 using KSP.Sim.impl;
+using UnityEngine.AddressableAssets;
+using UnityEngine.AddressableAssets.ResourceLocators;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using System.Collections;
+using System.IO;
 
 namespace Codenade.Inputbinder
 {
     public sealed class Inputbinder : KerbalMonoBehaviour
     {
         public InputActionManager ActionManager => _actionManager;
-        public KSP2Mod Mod => _mod;
         public BindingUI BindingUI => _bindingUI;
         public static Inputbinder Instance => _instance;
+        public string ModRootPath => _modRootPath;
 
         private static Inputbinder _instance;
         private static bool _notFirstLoad;
-        private KSP2Mod _mod;
         private VesselComponent _vessel;
         private InputActionManager _actionManager;
         private AppBarButton _button;
         private BindingUI _bindingUI;
+        private string _modRootPath;
 
         public Inputbinder()
         {
@@ -48,7 +52,7 @@ namespace Codenade.Inputbinder
         private void Initialize()
         {
             RemoveKSPsGamepadBindings();
-            _actionManager = InputActionManager.LoadFromJson(IOProvider.JoinPath(_mod.ModRootPath, "input.json"));
+            _actionManager = InputActionManager.LoadFromJson(IOProvider.JoinPath(_modRootPath, "input.json"));
             if (_actionManager.Actions.Count == 0)
             {
                 var action = new InputAction(Constants.ActionThrottleID);
@@ -80,7 +84,7 @@ namespace Codenade.Inputbinder
                 action.expectedControlType = "Button";
                 _actionManager.Add(action, "Reset Trim");
             }
-            var gameActionsToAdd = GameInputUtils.Load(IOProvider.JoinPath(_mod.ModRootPath, "game_actions_to_add.txt"));
+            var gameActionsToAdd = GameInputUtils.Load(IOProvider.JoinPath(_modRootPath, "game_actions_to_add.txt"));
             foreach (var gameAction in gameActionsToAdd)
             {
                 if (_actionManager.Actions.ContainsKey(gameAction.name))
@@ -105,9 +109,9 @@ namespace Codenade.Inputbinder
         {
             DontDestroyOnLoad(this);
             gameObject.tag = "Game Manager";
-            foreach (var mod in Game.KSP2ModManager.CurrentMods)
-                if (mod.ModName == Constants.Name && mod.ModAuthor == Constants.Author)
-                    _mod = mod;
+            _modRootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            if (_modRootPath == null || _modRootPath == string.Empty)
+                GlobalLog.Error(LogFilter.UserMod, $"[{Constants.Name}] ModRootPath empty!");
             StopKSPFromRemovingGamepads();
             RemoveKSPsGamepadBindings();
             if (!_notFirstLoad)
@@ -115,6 +119,7 @@ namespace Codenade.Inputbinder
                 InputSystem.RegisterProcessor<Processors.MapProcessor>("Map");
                 InputSystem.settings.defaultDeadzoneMin = 0f;
                 Game.Messages.Subscribe<GameStateEnteredMessage>(OnGameStateEntered);
+                StartCoroutine(LoadCatalog());
                 _notFirstLoad = true;
             }
             else
@@ -122,6 +127,17 @@ namespace Codenade.Inputbinder
                 Initialize();
                 VehicleStateChanged(null);
             }
+        }
+
+        private IEnumerator LoadCatalog()
+        {
+            AsyncOperationHandle<IResourceLocator> operation = Addressables.LoadContentCatalogAsync(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + IOProvider.DirectorySeparatorCharacter.ToString() + "addressables/catalog.json");
+            yield return operation;
+            if (operation.Status == AsyncOperationStatus.Failed)
+                GlobalLog.Error(LogFilter.UserMod, $"[{Constants.Name}] Failed to load addressables catalog!");
+            else
+                GameManager.Instance.Game.Assets.RegisterResourceLocator(operation.Result);
+            yield break;
         }
 
         private void OnUiVisibilityChange(bool visible)

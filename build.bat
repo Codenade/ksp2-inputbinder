@@ -12,7 +12,7 @@ echo.
 echo Building assets
 "%ProgramFiles%\Unity\Hub\Editor\2020.3.33f1\Editor\Unity.exe" -projectPath "%CD%\ksp2-inputbinder-assets\" -quit -batchmode -executeMethod BuildAssets.PerformBuild >> %CD%/build.log
 if errorlevel 1 goto ERROR
-xcopy "%CD%\ksp2-inputbinder-assets\Library\com.unity.addressables\aa\Windows\" "%CD%\build\\GameData\Mods\inputbinder\addressables\" /Y /I /E >> %CD%/build.log
+xcopy "%CD%\ksp2-inputbinder-assets\Library\com.unity.addressables\aa\Windows\" "%CD%\build\\BepInEx\plugins\inputbinder\addressables\" /Y /I /E >> %CD%/build.log
 call :colorEcho 0A "Building assets finished"
 echo.
 echo Creating build.zip
