@@ -92,18 +92,17 @@ For more information see: https://github.com/Codenade/ksp2-inputbinder/wiki
 
 ### Prerequisites
 
+* [Python 3.5 or newer](https://www.python.org/downloads/)
 * [.NET Framework 4.7.2](https://dotnet.microsoft.com/en-us/download/dotnet-framework/net472)
 * [Unity 2020.3.33](https://unity.com/releases/editor/archive)
 * [BepInEx](https://docs.bepinex.dev/articles/user_guide/installation/index.html) installed to your installation of KSP 2
 
 ### Instructions
 
-* clone this repository to a location of your liking
+* Clone this repository to a location of your liking
 
-* initialize submodules `git submodule --init --recursive --remote`
+* Initialize submodules `git submodule --init --recursive --remote`
 
-* change the path to your unity installation (2020.3.33) after `echo Building assets` in `build.bat`
+* Add a new environment variable named `KSP2_PATH` with the value set to the path to your installation of KSP 2 (eg. `C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program 2`)
 
-* add a new environment variable named `KSP2_PATH` with the value set to the path to your installation of KSP 2 (eg. `C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program 2`)
-
-* run `build.bat`
+* Run `build.bat [--unity_executable "path to Unity.exe"]`
