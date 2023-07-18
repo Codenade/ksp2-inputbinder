@@ -25,6 +25,9 @@ def execute_build():
     print(h_styles.RED + e.__str__() + h_styles.ENDCOLOR)
     error()
   print(h_styles.CYAN + "Building assets finished" + h_styles.ENDCOLOR)
+  print("Copying README.md and LICENSE.txt")
+  shutil.copy("README.md", "build/BepInEx/plugins/inputbinder/README.md")
+  shutil.copy("LICENSE.txt", "build/BepInEx/plugins/inputbinder/LICENSE.txt")
   print("Creating build.zip")
   try:
     shutil.make_archive("build/build", "zip", "build", "BepInEx")
