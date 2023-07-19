@@ -172,13 +172,13 @@ namespace Codenade.Inputbinder
                             {
                                 binding_list.Enqueue(input.Value.Bindings[i1]);
                             }
-                            var compositeSyntax = action.AddCompositeBinding("1DAxis");
+                            var compositeSyntax = action.AddCompositeBinding(input.Value.Bindings[i].Name, processors: input.Value.Bindings[i].Processors);
                             while (binding_list.Count > 0)
                             {
                                 var one = binding_list.Dequeue();
                                 compositeSyntax.With(one.Name, one.Path);
                             }
-                            for (var i1 = binding_comp_start + 1; i1 < action.bindings.Count; i1++)
+                            for (var i1 = binding_comp_start; i1 < action.bindings.Count; i1++)
                             {
                                 if (!input.Value.Bindings[i1].Override)
                                     continue;
