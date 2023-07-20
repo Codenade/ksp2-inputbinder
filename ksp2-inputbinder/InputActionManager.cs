@@ -29,23 +29,25 @@ namespace Codenade.Inputbinder
             _procBindInfo = null;
         }
 
-        public void EnableAll()
+        public void AddAction(InputAction action, bool isFromGame = false) => AddAction(action, action.name, isFromGame);
+
+        public void AddAction(InputAction action, string friendlyName, bool isFromGame = false)
         {
-            foreach (var one in Actions.Values) if (!one.IsFromGame) one.Action.Enable();
+            Actions.Add(action.name, new NamedInputAction(action, friendlyName, isFromGame));
+            if (Inputbinder.Instance.BindingUI.IsVisible)
+            {
+                Inputbinder.Instance.BindingUI.Hide();
+                Inputbinder.Instance.BindingUI.Show();
+            }
         }
 
-        public void DisableAll()
-        {
-            foreach (var one in Actions.Values) if (!one.IsFromGame) one.Action.Disable();
-        }
+        public bool ContainsAction(string name) => Actions.ContainsKey(name);
 
-        public void Add(InputAction action, bool isFromGame = false) => Add(action, action.name, isFromGame);
+        public bool TryGetAction(string name, out NamedInputAction val) => Actions.TryGetValue(name, out val);
 
-        public void Add(InputAction action, string friendlyName, bool isFromGame = false) => Actions.Add(action.name, new NamedInputAction(action, friendlyName, isFromGame));
+        public void RemoveAction(InputAction action) => Actions.Remove(action.name);
 
-        public void Remove(InputAction action) => Actions.Remove(action.name);
-
-        public void Remove(string name) => Actions.Remove(name);
+        public void RemoveAction(string name) => Actions.Remove(name);
 
         public void Rebind(InputAction action, int bindingIndex)
         {
@@ -189,7 +191,7 @@ namespace Codenade.Inputbinder
                             }
                         }
                     }
-                    manager.Add(action, input.Value.FriendlyName);
+                    manager.AddAction(action, input.Value.FriendlyName);
                 }
                 else
                 {
@@ -205,7 +207,7 @@ namespace Codenade.Inputbinder
                             action.ApplyBindingOverride(i, binding);
                         }
                     }
-                    manager.Add(action, true);
+                    manager.AddAction(action, true);
                 }
             }
             return manager;

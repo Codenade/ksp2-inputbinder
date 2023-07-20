@@ -18,10 +18,12 @@ namespace Codenade.Inputbinder
 {
     public sealed class Inputbinder : KerbalMonoBehaviour
     {
+        public static event Action Initialized;
         public InputActionManager ActionManager => _actionManager;
         public BindingUI BindingUI => _bindingUI;
         public static Inputbinder Instance => _instance;
         public string ModRootPath => _modRootPath;
+        public bool IsInitialized => _isInitialized;
 
         private static Inputbinder _instance;
         private static bool _notFirstLoad;
@@ -30,6 +32,7 @@ namespace Codenade.Inputbinder
         private AppBarButton _button;
         private BindingUI _bindingUI;
         private string _modRootPath;
+        private bool _isInitialized;
 
         public Inputbinder()
         {
@@ -59,37 +62,37 @@ namespace Codenade.Inputbinder
                 action.AddBinding("")
                     .WithName("binding");
                 action.expectedControlType = "Axis";
-                _actionManager.Add(action, "Throttle Axis");
+                _actionManager.AddAction(action, "Throttle Axis");
                 action = new InputAction(Constants.ActionPitchTrimID);
                 action.AddCompositeBinding("1DAxis")
                     .With("negative", "")
                     .With("positive", "");
                 action.expectedControlType = "Axis";
-                _actionManager.Add(action, "Pitch Trim");
+                _actionManager.AddAction(action, "Pitch Trim");
                 action = new InputAction(Constants.ActionRollTrimID);
                 action.AddCompositeBinding("1DAxis")
                     .With("negative", "")
                     .With("positive", "");
                 action.expectedControlType = "Axis";
-                _actionManager.Add(action, "Roll Trim");
+                _actionManager.AddAction(action, "Roll Trim");
                 action = new InputAction(Constants.ActionYawTrimID);
                 action.AddCompositeBinding("1DAxis")
                     .With("negative", "")
                     .With("positive", "");
                 action.expectedControlType = "Axis";
-                _actionManager.Add(action, "Yaw Trim");
+                _actionManager.AddAction(action, "Yaw Trim");
                 action = new InputAction(Constants.ActionTrimResetID);
                 action.AddBinding("")
                     .WithName("binding");
                 action.expectedControlType = "Button";
-                _actionManager.Add(action, "Reset Trim");
+                _actionManager.AddAction(action, "Reset Trim");
             }
             var gameActionsToAdd = GameInputUtils.Load(IOProvider.JoinPath(_modRootPath, "game_actions_to_add.txt"));
             foreach (var gameAction in gameActionsToAdd)
             {
                 if (_actionManager.Actions.ContainsKey(gameAction.name))
                     continue;
-                _actionManager.Add(gameAction, true);
+                _actionManager.AddAction(gameAction, true);
             }
             _actionManager.Actions[Constants.ActionThrottleID].Action.performed += ctx => SetThrottle(ctx.ReadValue<float>());
             _actionManager.Actions[Constants.ActionThrottleID].Action.started += ctx => SetThrottle(ctx.ReadValue<float>());
@@ -103,6 +106,8 @@ namespace Codenade.Inputbinder
             _bindingUI = gameObject.AddComponent<BindingUI>();
             _bindingUI.Hide();
             _bindingUI.VisibilityChanged += OnUiVisibilityChange;
+            _isInitialized = true;
+            Initialized?.Invoke();
         }
 
         private void Awake()
