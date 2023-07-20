@@ -9,22 +9,23 @@ class h_styles:
 def execute_build():
   parser = argparse.ArgumentParser()
   parser.add_argument("--unity_executable", required=False, type=str, default="C:/Program Files/Unity/Hub/Editor/2020.3.33f1/Editor/Unity.exe")
+  parser.add_argument("--install", required=False, default=False, action="store_true")
+  parser.add_argument("--start", required=False, default=False, action="store_true")
   args = parser.parse_args()
   shutil.rmtree(os.path.join(os.getcwd(), "build"), True)
   print("Starting assembly build")
   try:
     subprocess.run("dotnet build", stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    print(h_styles.CYAN + "Assembly build finished" + h_styles.ENDCOLOR)
   except:
-    error()
-  print(h_styles.CYAN + "Assembly build finished" + h_styles.ENDCOLOR)
+    error("Assembly build failed")
   print("Building assets")
   try:
     subprocess.run(executable=args.unity_executable, args="-projectPath \"" + os.getcwd() + "/ksp2-inputbinder-assets/\" -quit -batchmode -executeMethod BuildAssets.PerformBuild", stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
     shutil.copytree("ksp2-inputbinder-assets/Library/com.unity.addressables/aa/windows", "build/BepInEx/plugins/inputbinder/addressables", dirs_exist_ok=True)
+    print(h_styles.CYAN + "Building assets finished" + h_styles.ENDCOLOR)
   except Exception as e:
-    print(h_styles.RED + e.__str__() + h_styles.ENDCOLOR)
-    error()
-  print(h_styles.CYAN + "Building assets finished" + h_styles.ENDCOLOR)
+    error("Building assets failed: " + e.__str__())
   print("Copying README.md and LICENSE.txt")
   shutil.copy("README.md", "build/BepInEx/plugins/inputbinder/README.md")
   shutil.copy("LICENSE.txt", "build/BepInEx/plugins/inputbinder/LICENSE.txt")
@@ -32,12 +33,21 @@ def execute_build():
   try:
     shutil.make_archive("build/build", "zip", "build", "BepInEx")
   except:
-    error()
-  print(h_styles.GREEN + "Done" + h_styles.ENDCOLOR)
+    error("Could not create build.zip")
+  print(h_styles.GREEN + "SUCCESS: Build finished" + h_styles.ENDCOLOR)
+  if args.install or args.start:
+    print("Installing to \'" + os.getenv("KSP2_PATH") + "\'")
+    try:
+      shutil.copytree(src="build", dst=os.getenv("KSP2_PATH"), ignore=shutil.ignore_patterns("*.zip"), dirs_exist_ok=True)
+    except:
+      error("Failed to install")
+  if args.start:
+    print("Starting KSP2")
+    os.system("\"" + shutil.which(os.path.join(os.getenv("KSP2_PATH"), "KSP2_x64.exe")) + "\"")
   exit(0)
 
-def error():
-  print(h_styles.RED + "Build failed" + h_styles.ENDCOLOR)
+def error(msg: str):
+  print(h_styles.RED + "FAILED: " + msg + h_styles.ENDCOLOR)
   exit(1)
 
 if __name__ == "__main__":
