@@ -7,21 +7,24 @@ assignees: ''
 
 ---
 
-**Description**
+#### Description
 A clear and concise description of what the bug is.
 
-**To Reproduce**
-Steps to reproduce the behavior
+#### Steps To Reproduce
+Steps to reproduce the issue.
 
-**Expected behavior**
+#### Expected behavior
 A clear and concise description of what you expected to happen.
 
-**Log/Screenshots**
-Optionally add screenshots and your Player.log from %appdata%/../LocalLow/Intercept Games\Kerbal Space Program 2
+#### Workarounds
+What did you do to get around the problem?
 
-**Environment**
+#### Log/Screenshots
+Optionally add screenshots and your Player.log from %appdata%/../LocalLow/Intercept Games\Kerbal Space Program 2.
+
+#### Environment
 OS: (which os do you use)
 Launcher: (None / Intercept Games / Steam)
 
-**Additional context**
+#### Additional context
 Add any other context about the problem here.
