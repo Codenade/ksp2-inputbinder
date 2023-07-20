@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Inputbinder
+  m_EditorClassIdentifier: 
+  m_GroupName: Inputbinder
+  m_Data:
+    m_SerializedData: []
+  m_GUID: f0af4cfd877f7554eb8fccd75dee52d4
+  m_SerializeEntries:
+  - m_GUID: e17c9cb96b47b1243996b158dfbee636
+    m_Address: ICO-AppBar-Inputbinder
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 26610e5ab5c2ac740b4070ecc8839354
+    m_Address: ActionGroup
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 71be974ca80ac3e4aba3fbbacd5eab03
+    m_Address: BindingGroup
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: cdd98b154f4401b42b3b6d3f6b26ff65
+    m_Address: BindingWindowContent
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: b7e74eacd44239946a39d61cf099844e
+    m_Address: CompositeBindingGroup
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: b0d63523d8c110646bd42d29f5c0843a
+    m_Address: ProcessorWindowContent
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 04decc68b8c6fa74d835247bde411d5d
+    m_Address: ProcessorAddGroup
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 92ffa474171486149ac37574e2c85286
+    m_Address: ProcessorValueGroup
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: e966be6dbf7195d4f9289f57830cffcd
+    m_Address: ProcessorValueGroupBool
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 3d85dd5b2c1d19040b63ecfa4ec07302
+    m_Address: ProcessorGroup
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 5fb5680935354694bb69a32ebbbc2956
+    m_Address: ProcessorSaveButton
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 9b7914e9bf3d06d4d83a05dcc347ec48
+    m_Address: RemoveGamepadBindingsButton.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 5c11701627fa24b48ac0a8388c164af0
+    m_Address: LoadBindingsButton.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 8644c698111574d4db1297cfbb2f6c1b, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 910e5d6687ac7d2479da3e2f627ed526, type: 2}
+    - {fileID: 11400000, guid: 6691ebaf56029dd4cb70a9b1118ffbd0, type: 2}
