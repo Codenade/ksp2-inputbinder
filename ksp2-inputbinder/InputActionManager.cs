@@ -34,7 +34,7 @@ namespace Codenade.Inputbinder
         public void AddAction(InputAction action, string friendlyName, bool isFromGame = false)
         {
             Actions.Add(action.name, new NamedInputAction(action, friendlyName, isFromGame));
-            if (Inputbinder.Instance.BindingUI.IsVisible)
+            if (Inputbinder.Instance.BindingUI is object && Inputbinder.Instance.BindingUI.IsVisible)
             {
                 Inputbinder.Instance.BindingUI.Hide();
                 Inputbinder.Instance.BindingUI.Show();
