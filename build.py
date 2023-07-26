@@ -1,10 +1,10 @@
 import os, subprocess, os.path, shutil, argparse
 
-class h_styles:
-    CYAN = '\033[96m'
-    GREEN = '\033[92m'
-    RED = '\033[91m'
-    ENDCOLOR = '\033[0m'
+class f_styles:
+    STEP_SUCCESS = '\033[96m'
+    SUCCESS = '\033[92m'
+    FAIL = '\033[91m'
+    NORMAL = '\033[0m'
 
 def execute_build():
   parser = argparse.ArgumentParser()
@@ -15,15 +15,15 @@ def execute_build():
   shutil.rmtree(os.path.join(os.getcwd(), "build"), True)
   print("Starting assembly build")
   try:
-    subprocess.run("dotnet build", stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-    print(h_styles.CYAN + "Assembly build finished" + h_styles.ENDCOLOR)
+    subprocess.run("dotnet build", stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT).check_returncode()
+    print(f_styles.STEP_SUCCESS + "Assembly build finished" + f_styles.NORMAL)
   except:
     error("Assembly build failed")
   print("Building assets")
   try:
-    subprocess.run(executable=args.unity_executable, args="-projectPath \"" + os.getcwd() + "/ksp2-inputbinder-assets/\" -quit -batchmode -executeMethod BuildAssets.PerformBuild", stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    subprocess.run(executable=args.unity_executable, args="-projectPath \"" + os.getcwd() + "/ksp2-inputbinder-assets/\" -quit -batchmode -executeMethod BuildAssets.PerformBuild", stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT).check_returncode()
     shutil.copytree("ksp2-inputbinder-assets/Library/com.unity.addressables/aa/windows", "build/BepInEx/plugins/inputbinder/addressables", dirs_exist_ok=True)
-    print(h_styles.CYAN + "Building assets finished" + h_styles.ENDCOLOR)
+    print(f_styles.STEP_SUCCESS + "Building assets finished" + f_styles.NORMAL)
   except Exception as e:
     error("Building assets failed: " + e.__str__())
   print("Copying README.md and LICENSE.txt")
@@ -34,7 +34,7 @@ def execute_build():
     shutil.make_archive("build/build", "zip", "build", "BepInEx")
   except:
     error("Could not create build.zip")
-  print(h_styles.GREEN + "SUCCESS: Build finished" + h_styles.ENDCOLOR)
+  print(f_styles.SUCCESS + "SUCCESS: Build finished" + f_styles.NORMAL)
   if args.install or args.start:
     print("Installing to \'" + os.getenv("KSP2_PATH") + "\'")
     try:
@@ -47,7 +47,7 @@ def execute_build():
   exit(0)
 
 def error(msg: str):
-  print(h_styles.RED + "FAILED: " + msg + h_styles.ENDCOLOR)
+  print(f_styles.FAIL + "FAILED: " + msg + f_styles.NORMAL)
   exit(1)
 
 if __name__ == "__main__":

@@ -73,3 +73,7 @@ crashlytics-build.properties
 
 # VSCode user settings
 .vscode
+
+# TextMeshPro docs, examples, etc
+/[Aa]ssets/[Tt]ext[Mm]esh [Pp]ro/
+/[Aa]ssets/[Tt]ext[Mm]esh [Pp]ro.meta
