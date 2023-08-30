@@ -10,7 +10,7 @@ using System.Reflection.Emit;
 
 namespace Codenade.Inputbinder
 {
-    [BepInPlugin("codenade-inputbinder", "codenade-inputbinder", "0.4.1")]//PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
+    [BepInPlugin("codenade-inputbinder", "codenade-inputbinder", "0.4.2")]//PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     public class Plugin : BaseUnityPlugin
     {
         private void Awake()
