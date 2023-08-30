@@ -141,7 +141,7 @@ namespace Codenade.Inputbinder
             if (operation.Status == AsyncOperationStatus.Failed)
                 GlobalLog.Error(LogFilter.UserMod, $"[{Constants.Name}] Failed to load addressables catalog!");
             else
-                GameManager.Instance.Game.Assets.RegisterResourceLocator(operation.Result);
+                GameManager.Instance.Assets.RegisterResourceLocator(operation.Result);
             yield break;
         }
 
@@ -230,7 +230,7 @@ namespace Codenade.Inputbinder
                 {
                     _button = AppBarButton.CreateButton($"BTN-{Constants.ID}", Constants.Name, OnAppBarButtonClicked);
                     _button.Destroying += () => _button = null;
-                    Game.Assets.LoadRaw<Sprite>(Constants.AppBarIconAssetKey).Completed += op =>
+                    Assets.LoadRaw<Sprite>(Constants.AppBarIconAssetKey).Completed += op =>
                     {
                         if (_button is object)
                             _button.Icon = op.Result;
