@@ -49,7 +49,7 @@ namespace Codenade.Inputbinder
         public void Initialize(Transform parent)
         {
             IsInitializing = true;
-            GameManager.Instance.Game.Assets.CreateAsync<GameObject>(
+            GameManager.Instance.Assets.CreateAsync<GameObject>(
                 (Attribute.GetCustomAttribute(typeof(KSP2UIWindow), typeof(PrefabNameAttribute)) as PrefabNameAttribute).Prefab,
                 parent,
                 (result) =>
@@ -60,7 +60,7 @@ namespace Codenade.Inputbinder
             foreach (var key in PrefabKeys.AllKeys)
             {
                 _operationsInProgress++;
-                GameManager.Instance.Game.Assets.LoadAssetAsync<GameObject>(key)
+                GameManager.Instance.Assets.LoadAssetAsync<GameObject>(key)
                     .Completed += operation => SinglePrefabLoadFinished(key, operation);
             }
             _allPrefabsQueued = true;
