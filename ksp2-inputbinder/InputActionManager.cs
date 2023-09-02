@@ -69,12 +69,15 @@ namespace Codenade.Inputbinder
                     operation.WithExpectedControlType<ButtonControl>();
             operation.Start();
             _rebindInfo = new RebindInformation(bindingIndex, operation, wasEnabled);
+            if (_rebindInfo?.Operation is object)
+                Inputbinder.Instance.BindingUI.ChangeStatus(BindingUI.Status.Rebinding);
         }
 
         public void BindingComplete()
         {
             if (!IsCurrentlyRebinding)
                 return;
+            Inputbinder.Instance.BindingUI.ChangeStatus(BindingUI.Status.Default);
             var action = _rebindInfo.Operation.action;
             var bindingInfo = _rebindInfo.Binding;
             var wasEnabled = _rebindInfo.WasEnabled;

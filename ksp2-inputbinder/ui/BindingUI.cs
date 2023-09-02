@@ -41,6 +41,7 @@ namespace Codenade.Inputbinder
         private bool _allPrefabsQueued;
         private int _operationsInProgress;
         private GameObject _uiMain;
+        private GameObject _uiOverlayRebind;
         private GameObject _uiPage1;
         private GameObject _uiPage2;
         private GameObject _uiPage3;
@@ -133,6 +134,8 @@ namespace Codenade.Inputbinder
             _uiWindow.MaxSize = new Vector2(1200, 800);
             _uiMain = Instantiate(new GameObject("Main", typeof(SetupVerticalLayout)), ContentRoot.transform);
             _uiMain.SetActive(false);
+            _uiOverlayRebind = Instantiate(Assets[PrefabKeys.CurrentlyBindingOverlay], ContentRoot.transform.parent.parent);
+            _uiOverlayRebind.SetActive(false);
             _uiPage1 = Instantiate(Assets[PrefabKeys.WindowProcessorsContent].GetChild("Viewport").GetChild("Content").GetChild("Page1"), ContentRoot.transform);
             _uiPage1.SetActive(false);
             _uiPage2 = Instantiate(Assets[PrefabKeys.WindowProcessorsContent].GetChild("Viewport").GetChild("Content").GetChild("Page2"), ContentRoot.transform);
@@ -227,6 +230,7 @@ namespace Codenade.Inputbinder
                 _scrollRectPosition = scrollRect.verticalNormalizedPosition;
             }
             _uiMain.SetActive(false);
+            _uiOverlayRebind.SetActive(false);
             _uiPage1.SetActive(false);
             _uiPage2.SetActive(false);
             _uiPage3.SetActive(false);
@@ -234,6 +238,16 @@ namespace Codenade.Inputbinder
             {
                 case Status.Default:
                     _uiMain.SetActive(true);
+                    break;
+                case Status.Rebinding:
+                    if (!Inputbinder.Instance.ActionManager.IsCurrentlyRebinding)
+                    {
+                        ChangeStatus(Status.Default);
+                        return;
+                    }
+                    _uiOverlayRebind.transform.Find("Dialog").Find("Content").Find("Subtitle").GetComponent<TextMeshProUGUI>().text = Inputbinder.Instance.ActionManager.RebindInfo.ToString();
+                    _uiMain.SetActive(true);
+                    _uiOverlayRebind.SetActive(true);
                     break;
                 case Status.ProcessorList:
                     _uiPage1.SetActive(true);
@@ -287,18 +301,19 @@ namespace Codenade.Inputbinder
 
         public static class PrefabKeys
         {
-            public static readonly string WindowBindingContent =            "BindingWindowContent";
-            public static readonly string WindowProcessorsContent =         "ProcessorWindowContent";
-            public static readonly string BindingGroup =                    "BindingGroup";
-            public static readonly string BindingGroupComposite =           "CompositeBindingGroup";
-            public static readonly string ActionGroup =                     "ActionGroup";
-            public static readonly string ProcessorGroup =                  "ProcessorGroup";
-            public static readonly string ProcessorAddGroup =               "ProcessorAddGroup";
-            public static readonly string ProcessorValueGroup =             "ProcessorValueGroup";
-            public static readonly string ProcessorValueGroupBool =         "ProcessorValueGroupBool";
-            public static readonly string ProcessorSaveButton =             "ProcessorSaveButton";
-            public static readonly string LoadBindingsButton =              "LoadBindingsButton.prefab";
-            public static readonly string RemoveGamepadBindingsButton =     "RemoveGamepadBindingsButton.prefab";
+            public static readonly string WindowBindingContent =        "Codenade.Inputbinder/BindingWindowContent";
+            public static readonly string WindowProcessorsContent =     "Codenade.Inputbinder/ProcessorWindowContent";
+            public static readonly string BindingGroup =                "Codenade.Inputbinder/BindingGroup";
+            public static readonly string BindingGroupComposite =       "Codenade.Inputbinder/CompositeBindingGroup";
+            public static readonly string ActionGroup =                 "Codenade.Inputbinder/ActionGroup";
+            public static readonly string ProcessorGroup =              "Codenade.Inputbinder/ProcessorGroup";
+            public static readonly string ProcessorAddGroup =           "Codenade.Inputbinder/ProcessorAddGroup";
+            public static readonly string ProcessorValueGroup =         "Codenade.Inputbinder/ProcessorValueGroup";
+            public static readonly string ProcessorValueGroupBool =     "Codenade.Inputbinder/ProcessorValueGroupBool";
+            public static readonly string ProcessorSaveButton =         "Codenade.Inputbinder/ProcessorSaveButton";
+            public static readonly string LoadBindingsButton =          "Codenade.Inputbinder/LoadBindingsButton";
+            public static readonly string RemoveGamepadBindingsButton = "Codenade.Inputbinder/RemoveGamepadBindingsButton";
+            public static readonly string CurrentlyBindingOverlay =     "Codenade.Inputbinder/CurrentlyBindingOverlay";
 
             public static string[] AllKeys 
             { 
@@ -316,6 +331,7 @@ namespace Codenade.Inputbinder
         public enum Status
         {
             Default,
+            Rebinding,
             ProcessorList,
             ProcessorAdd,
             ProcessorConfirm,
