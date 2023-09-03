@@ -51,14 +51,16 @@ namespace Codenade.Inputbinder
 
         public void Rebind(InputAction action, int bindingIndex)
         {
-            GlobalLog.Log(LogFilter.UserMod, $"[{Constants.Name}] Rebind starting");
             if (IsCurrentlyRebinding || IsChangingProc)
                 return;
+            GlobalLog.Log(LogFilter.UserMod, $"[{Constants.Name}] Rebind starting");
             var wasEnabled = action.enabled;
             action.Disable();
             var operation = action.PerformInteractiveRebinding(bindingIndex)
                                       .OnComplete(result => BindingComplete())
                                       .OnCancel(result => BindingComplete())
+                                      .WithoutGeneralizingPathOfSelectedControl()
+                                      .WithControlsHavingToMatchPath("*")
                                       .WithCancelingThrough(Keyboard.current.escapeKey);
             // Workaround for change of expected control type for AxisComposite being changed from ButtonControl to AxisControl in InputSystem (1.3.0 -> 1.5.0):
             // Forcing Button control type
@@ -67,12 +69,15 @@ namespace Codenade.Inputbinder
                     operation.WithExpectedControlType<ButtonControl>();
             operation.Start();
             _rebindInfo = new RebindInformation(bindingIndex, operation, wasEnabled);
+            if (_rebindInfo?.Operation is object)
+                Inputbinder.Instance.BindingUI.ChangeStatus(BindingUI.Status.Rebinding);
         }
 
         public void BindingComplete()
         {
             if (!IsCurrentlyRebinding)
                 return;
+            Inputbinder.Instance.BindingUI.ChangeStatus(BindingUI.Status.Default);
             var action = _rebindInfo.Operation.action;
             var bindingInfo = _rebindInfo.Binding;
             var wasEnabled = _rebindInfo.WasEnabled;

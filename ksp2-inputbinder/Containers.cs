@@ -22,6 +22,8 @@ namespace Codenade.Inputbinder
             _operation = operation;
             _wasEnabled = wasEnabled;
         }
+
+        public override string ToString() => $"{_operation.action.name}, index: {_bindingIndex}";
     }
 
     public class ProcRebindInformation
