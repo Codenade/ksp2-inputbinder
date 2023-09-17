@@ -20,11 +20,7 @@ A clear and concise description of what you expected to happen.
 What did you do to get around the problem?
 
 #### Log/Screenshots
-Optionally add screenshots and your Player.log from %appdata%/../LocalLow/Intercept Games\Kerbal Space Program 2.
-
-#### Environment
-OS: (which os do you use)
-Launcher: (None / Intercept Games / Steam)
+Optionally add screenshots and your Player.log from %USERPROFILE%\AppData\LocalLow\Intercept Games\Kerbal Space Program 2.
 
 #### Additional context
 Add any other context about the problem here.
