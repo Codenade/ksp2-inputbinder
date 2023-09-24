@@ -87,12 +87,18 @@ namespace Codenade.Inputbinder
                 action.expectedControlType = "Button";
                 _actionManager.AddAction(action, "Reset Trim");
             }
-            var gameActionsToAdd = GameInputUtils.Load(IOProvider.JoinPath(_modRootPath, "game_actions_to_add.txt"));
-            foreach (var gameAction in gameActionsToAdd)
+            foreach (var gameAction in GameInputUtils.Load(IOProvider.JoinPath(_modRootPath, "game_actions_to_add.txt")))
             {
-                if (_actionManager.Actions.ContainsKey(gameAction.name))
+                var inputAction = gameAction.Item1;
+                if (gameAction.Item2)
+                {
+                    inputAction.AddBinding(path: null);
+                    inputAction.ChangeBinding(inputAction.bindings.Count - 1).WithName("Axis");
+                    _actionManager.ModifiedGameActions.Add(inputAction);
+                }
+                if (_actionManager.Actions.ContainsKey(inputAction.name))
                     continue;
-                _actionManager.AddAction(gameAction, true);
+                _actionManager.AddAction(inputAction, true);
             }
             _actionManager.Actions[Constants.ActionThrottleID].Action.performed += ctx => SetThrottle(ctx.ReadValue<float>());
             _actionManager.Actions[Constants.ActionThrottleID].Action.started += ctx => SetThrottle(ctx.ReadValue<float>());
@@ -210,6 +216,14 @@ namespace Codenade.Inputbinder
 
         private void OnDestroy()
         {
+            foreach (var modGA in _actionManager.ModifiedGameActions)
+            {
+                if (_actionManager.TryGetAction(modGA.name, out var val))
+                {
+                    val.Action.ChangeBinding(val.Action.bindings.Count - 1).Erase();
+                }
+            }
+            _actionManager.ModifiedGameActions.Clear();
             _button?.Destroy();
         }
 

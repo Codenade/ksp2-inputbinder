@@ -21,10 +21,12 @@ namespace Codenade.Inputbinder
 
         private RebindInformation _rebindInfo;
         private ProcRebindInformation _procBindInfo;
+        public List<InputAction> ModifiedGameActions;
 
         public InputActionManager()
         {
             Actions = new Dictionary<string, NamedInputAction>();
+            ModifiedGameActions = new List<InputAction>();
             _rebindInfo = null;
             _procBindInfo = null;
         }
@@ -66,7 +68,13 @@ namespace Codenade.Inputbinder
             // Forcing Button control type
             if (action.bindings[bindingIndex].isPartOfComposite)
                 if (InputSystem.TryGetBindingComposite(action.ChangeBinding(bindingIndex).PreviousCompositeBinding(null).binding.GetNameOfComposite()) == typeof(AxisComposite))
+                    // TODO: Check if adding WithExpectedControlType(string) would improve anything
                     operation.WithExpectedControlType<ButtonControl>();
+            // Always use control type AxisControl for added axis bindings
+            if (ModifiedGameActions.Contains(action))
+                if (bindingIndex + 1 == action.bindings.Count)
+                    // Both of the following WithExpectedControlType variants are important as they assign different internal variables
+                    operation.WithExpectedControlType<AxisControl>().WithExpectedControlType("Axis");
             operation.Start();
             _rebindInfo = new RebindInformation(bindingIndex, operation, wasEnabled);
             if (_rebindInfo?.Operation is object)
