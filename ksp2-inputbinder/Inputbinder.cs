@@ -59,31 +59,32 @@ namespace Codenade.Inputbinder
             if (_actionManager.Actions.Count == 0)
             {
                 var action = new InputAction(Constants.ActionThrottleID);
-                action.AddBinding("")
-                    .WithName("binding");
+                action.AddBinding(path: null).WithName("Axis");
                 action.expectedControlType = "Axis";
                 _actionManager.AddAction(action, "Throttle Axis");
                 action = new InputAction(Constants.ActionPitchTrimID);
                 action.AddCompositeBinding("1DAxis")
                     .With("negative", "")
                     .With("positive", "");
+                action.AddBinding(path: null).WithName("Axis");
                 action.expectedControlType = "Axis";
                 _actionManager.AddAction(action, "Pitch Trim");
                 action = new InputAction(Constants.ActionRollTrimID);
                 action.AddCompositeBinding("1DAxis")
                     .With("negative", "")
                     .With("positive", "");
+                action.AddBinding(path: null).WithName("Axis");
                 action.expectedControlType = "Axis";
                 _actionManager.AddAction(action, "Roll Trim");
                 action = new InputAction(Constants.ActionYawTrimID);
                 action.AddCompositeBinding("1DAxis")
                     .With("negative", "")
                     .With("positive", "");
+                action.AddBinding(path: null).WithName("Axis");
                 action.expectedControlType = "Axis";
                 _actionManager.AddAction(action, "Yaw Trim");
                 action = new InputAction(Constants.ActionTrimResetID);
-                action.AddBinding("")
-                    .WithName("binding");
+                action.AddBinding(path: null).WithName("binding");
                 action.expectedControlType = "Button";
                 _actionManager.AddAction(action, "Reset Trim");
             }
