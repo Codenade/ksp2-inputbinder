@@ -144,7 +144,8 @@ namespace Codenade.Inputbinder
             _uiPage3.SetActive(false);
             var uiwindowcontent = _uiMain.transform.parent.gameObject;
             var scrollComponent = uiwindowcontent.transform.parent.parent.gameObject.GetComponent<ScrollRect>();
-            scrollComponent.scrollSensitivity = 30f;
+            scrollComponent.scrollSensitivity = 1f;
+            scrollComponent.tag = "UI_SCROLL"; // Block the scrollwheel from zooming the camera view using the game's mechanic for it
             var header = scrollComponent.transform.parent.parent.gameObject.GetChild("GRP-Header");
             var saveBtn = Instantiate(Assets[PrefabKeys.ProcessorSaveButton], header.transform);
             saveBtn.transform.SetSiblingIndex(3);
