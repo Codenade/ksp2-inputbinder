@@ -33,6 +33,19 @@ namespace Codenade.Inputbinder
 
         public void AddAction(InputAction action, string friendlyName, bool isFromGame = false)
         {
+            if (action.expectedControlType == "Vector2")
+            {
+                for (var j = action.bindings.Count - 1; j >= 0; j--)
+                    action.ChangeBinding(j).Erase();
+                action.AddCompositeBinding("2DVector")
+                    .With("left", "")
+                    .With("right", "")
+                    .With("down", "")
+                    .With("up", "");
+                action.AddCompositeBinding("2DAxis")
+                    .With("x", "")
+                    .With("y", "");
+            }
             Actions.Add(action.name, new NamedInputAction(action, friendlyName, isFromGame));
             if (Inputbinder.Instance.BindingUI is object && Inputbinder.Instance.BindingUI.IsVisible)
             {

@@ -122,6 +122,7 @@ namespace Codenade.Inputbinder
             if (!_notFirstLoad)
             {
                 InputSystem.RegisterProcessor<Processors.MapProcessor>("Map");
+                InputSystem.RegisterBindingComposite<Composites.Vector2AxisComposite>("2DAxis");
                 InputSystem.settings.defaultDeadzoneMin = 0f;
                 Game.Messages.Subscribe<GameStateEnteredMessage>(OnGameStateEntered);
                 StartCoroutine(LoadCatalog());
