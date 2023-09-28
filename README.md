@@ -101,6 +101,7 @@ Dedicated actions to change the trim
 * Trigger Action Group 10
 * Camera Pitch Gamepad
 * Camera Yaw Gamepad
+* Camera Zoom
 * Show Map
 * Quick Save
 * Time Warp Decrease
@@ -108,7 +109,6 @@ Dedicated actions to change the trim
 * Time Warp Stop
 * Toggle Pause Menu
 * Toggle UI Visibility
-* Camera Zoom
 
 ### Reset the configuration
 
