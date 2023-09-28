@@ -171,7 +171,7 @@ namespace Codenade.Inputbinder
             windowTitle.GetComponent<TextMeshProUGUI>().text = "Inputbinder";
             var uiwc_rect = uiwindowcontent.GetComponent<RectTransform>();
             uiwc_rect.offsetMin = new Vector2(0, uiwc_rect.offsetMin.y);
-            uiwc_rect.offsetMax = new Vector2(-15, uiwc_rect.offsetMax.y);
+            uiwc_rect.offsetMax = new Vector2(-20, uiwc_rect.offsetMax.y);
             var uiwc_csf = uiwindowcontent.GetComponent<ContentSizeFitter>();
             uiwc_csf.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
             uiwc_csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;

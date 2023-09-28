@@ -44,7 +44,7 @@ namespace Codenade.Inputbinder
                 new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.TriggerActionGroup10, false),
                 new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.CameraPitchGamepad, true),
                 new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.CameraYawGamepad, true),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.CameraZoom, false),
+                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.CameraZoom, true),
                 new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.ShowMap, false),
                 new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Global.QuickSave, false),
                 new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Global.TimeWarpDecrease, false),

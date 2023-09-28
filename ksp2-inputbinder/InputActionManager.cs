@@ -4,6 +4,7 @@ using KSP.IO;
 using KSP.Logging;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Composites;
 using UnityEngine.InputSystem.Controls;
@@ -22,7 +23,7 @@ namespace Codenade.Inputbinder
 
         private RebindInformation _rebindInfo;
         private ProcRebindInformation _procBindInfo;
-        public List<InputAction> ModifiedGameActions;
+        public List<InputAction> ModifiedGameActions; // contains actions with a binding named Axis at the last position
 
         public InputActionManager()
         {
@@ -36,37 +37,6 @@ namespace Codenade.Inputbinder
 
         public void AddAction(InputAction action, string friendlyName, bool isFromGame = false)
         {
-            if (action.expectedControlType == "Vector2")
-            {
-                // TODO: REPLACE
-                for (var j = action.bindings.Count - 1; j >= 0; j--)
-                    action.ChangeBinding(j).Erase();
-                action.AddCompositeBinding("2DVector")
-                    .With("left", "")
-                    .With("right", "")
-                    .With("down", "")
-                    .With("up", "");
-                if (action == GameManager.Instance.Game.Input.Flight.CameraZoom)
-                {
-                    action.AddCompositeBinding("2DAxis")
-                        .With("x", "")
-                        .With("y", "/Mouse/scroll/y");
-                    try
-                    {
-                        var ovrd = action.bindings[5];
-                        ovrd.overrideProcessors = "ScaleVector2(x=0,y=0.0005)";
-                        action.ApplyBindingOverride(5, ovrd);
-                    }
-                    catch (Exception e)
-                    {
-                        GlobalLog.Error(LogFilter.UserMod, $"[{Constants.Name}] {e}");
-                    }
-                }
-                else
-                    action.AddCompositeBinding("2DAxis")
-                        .With("x", "")
-                        .With("y", "");
-            }
             Actions.Add(action.name, new NamedInputAction(action, friendlyName, isFromGame));
             if (Inputbinder.Instance.BindingUI is object && Inputbinder.Instance.BindingUI.IsVisible)
             {
@@ -241,6 +211,11 @@ namespace Codenade.Inputbinder
                 else
                 {
                     var action = GameManager.Instance.Game.Input.FindAction(input.Key, true);
+                    if (action == GameManager.Instance.Game.Input.Flight.CameraZoom)
+                    {
+                        for (var j_erase = action.bindings.Count - 1; j_erase >= 0; j_erase--)
+                            action.ChangeBinding(j_erase).Erase();
+                    }
                     for (int i = 0; i < input.Value.Bindings.Length; i++)
                     {
                         if (i < action.bindings.Count && input.Value.Bindings[i].Override)

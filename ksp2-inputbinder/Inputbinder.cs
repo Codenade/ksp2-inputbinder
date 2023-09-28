@@ -90,13 +90,46 @@ namespace Codenade.Inputbinder
                 var inputAction = gameAction.Item1;
                 if (gameAction.Item2)
                 {
-                    bool contains_axis_binding = false;
-                    foreach (var binding in inputAction.bindings)
-                        if (binding.name == "Axis")
-                            contains_axis_binding = true;
-                    if (!contains_axis_binding)
-                        inputAction.AddBinding(path: null).WithName("Axis");
-                    _actionManager.ModifiedGameActions.Add(inputAction);
+                    if (inputAction.expectedControlType == "Vector2")
+                    {
+                        for (var j = inputAction.bindings.Count - 1; j >= 0; j--)
+                            inputAction.ChangeBinding(j).Erase();
+                        inputAction.AddCompositeBinding("2DVector")
+                            .With("left", "")
+                            .With("right", "")
+                            .With("down", "")
+                            .With("up", "");
+                        if (inputAction == GameManager.Instance.Game.Input.Flight.CameraZoom)
+                        {
+                            inputAction.AddCompositeBinding("2DAxis")
+                                .With("x", "")
+                                .With("y", "/Mouse/scroll/y");
+                            try
+                            {
+                                var ovrd = inputAction.bindings[5];
+                                ovrd.overrideProcessors = "ScaleVector2(x=0,y=0.0005)";
+                                inputAction.ApplyBindingOverride(5, ovrd);
+                            }
+                            catch (Exception e)
+                            {
+                                GlobalLog.Error(LogFilter.UserMod, $"[{Constants.Name}] {e}");
+                            }
+                        }
+                        else
+                            inputAction.AddCompositeBinding("2DAxis")
+                                .With("x", "")
+                                .With("y", "");
+                    }
+                    else
+                    {
+                        bool contains_axis_binding = false;
+                        foreach (var binding in inputAction.bindings)
+                            if (binding.name == "Axis")
+                                contains_axis_binding = true;
+                        if (!contains_axis_binding)
+                            inputAction.AddBinding(path: null).WithName("Axis");
+                        _actionManager.ModifiedGameActions.Add(inputAction);
+                    }
                 }
                 if (_actionManager.Actions.ContainsKey(inputAction.name))
                     continue;
@@ -221,14 +254,6 @@ namespace Codenade.Inputbinder
 
         private void OnDestroy()
         {
-            foreach (var modGA in _actionManager.ModifiedGameActions)
-            {
-                if (_actionManager.TryGetAction(modGA.name, out var val))
-                {
-                    val.Action.ChangeBinding(val.Action.bindings.Count - 1).Erase();
-                }
-            }
-            _actionManager.ModifiedGameActions.Clear();
             _button?.Destroy();
         }
 
