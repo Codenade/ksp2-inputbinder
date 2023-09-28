@@ -2,6 +2,7 @@
 using KSP.Game;
 using KSP.IO;
 using KSP.Logging;
+using System;
 using System.Collections.Generic;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Composites;
@@ -42,9 +43,26 @@ namespace Codenade.Inputbinder
                     .With("right", "")
                     .With("down", "")
                     .With("up", "");
-                action.AddCompositeBinding("2DAxis")
-                    .With("x", "")
-                    .With("y", "");
+                if (action == GameManager.Instance.Game.Input.Flight.CameraZoom)
+                {
+                    action.AddCompositeBinding("2DAxis")
+                        .With("x", "")
+                        .With("y", "/Mouse/scroll/y");
+                    try
+                    {
+                        var ovrd = action.bindings[5];
+                        ovrd.overrideProcessors = "ScaleVector2(x=0,y=0.0005)";
+                        action.ApplyBindingOverride(5, ovrd);
+                    }
+                    catch (Exception e)
+                    {
+                        GlobalLog.Error(LogFilter.UserMod, $"[{Constants.Name}] {e}");
+                    }
+                }
+                else
+                    action.AddCompositeBinding("2DAxis")
+                        .With("x", "")
+                        .With("y", "");
             }
             Actions.Add(action.name, new NamedInputAction(action, friendlyName, isFromGame));
             if (Inputbinder.Instance.BindingUI is object && Inputbinder.Instance.BindingUI.IsVisible)

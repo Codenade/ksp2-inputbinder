@@ -43,6 +43,7 @@ namespace Codenade.Inputbinder
                 GameManager.Instance.Game.Input.Flight.TriggerActionGroup10,
                 GameManager.Instance.Game.Input.Flight.CameraPitchGamepad,
                 GameManager.Instance.Game.Input.Flight.CameraYawGamepad,
+                GameManager.Instance.Game.Input.Flight.CameraZoom,
                 GameManager.Instance.Game.Input.Flight.ShowMap,
                 GameManager.Instance.Game.Input.Global.QuickSave,
                 GameManager.Instance.Game.Input.Global.TimeWarpDecrease,

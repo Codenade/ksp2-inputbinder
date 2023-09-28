@@ -108,6 +108,7 @@ Dedicated actions to change the trim
 * Time Warp Stop
 * Toggle Pause Menu
 * Toggle UI Visibility
+* Camera Zoom
 
 ### Reset the configuration
 
