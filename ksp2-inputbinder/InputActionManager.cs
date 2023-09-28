@@ -36,6 +36,7 @@ namespace Codenade.Inputbinder
         {
             if (action.expectedControlType == "Vector2")
             {
+                // TODO: REPLACE
                 for (var j = action.bindings.Count - 1; j >= 0; j--)
                     action.ChangeBinding(j).Erase();
                 action.AddCompositeBinding("2DVector")
