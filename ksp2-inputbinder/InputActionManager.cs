@@ -21,10 +21,12 @@ namespace Codenade.Inputbinder
 
         private RebindInformation _rebindInfo;
         private ProcRebindInformation _procBindInfo;
+        public List<InputAction> ModifiedGameActions;
 
         public InputActionManager()
         {
             Actions = new Dictionary<string, NamedInputAction>();
+            ModifiedGameActions = new List<InputAction>();
             _rebindInfo = null;
             _procBindInfo = null;
         }
@@ -66,7 +68,13 @@ namespace Codenade.Inputbinder
             // Forcing Button control type
             if (action.bindings[bindingIndex].isPartOfComposite)
                 if (InputSystem.TryGetBindingComposite(action.ChangeBinding(bindingIndex).PreviousCompositeBinding(null).binding.GetNameOfComposite()) == typeof(AxisComposite))
+                    // TODO: Check if adding WithExpectedControlType(string) would improve anything
                     operation.WithExpectedControlType<ButtonControl>();
+            // Always use control type AxisControl for added axis bindings
+            if (ModifiedGameActions.Contains(action))
+                if (bindingIndex + 1 == action.bindings.Count)
+                    // Both of the following WithExpectedControlType variants are important as they assign different internal variables
+                    operation.WithExpectedControlType<AxisControl>().WithExpectedControlType("Axis");
             operation.Start();
             _rebindInfo = new RebindInformation(bindingIndex, operation, wasEnabled);
             if (_rebindInfo?.Operation is object)
@@ -210,6 +218,50 @@ namespace Codenade.Inputbinder
                             binding.overridePath = saved.PathOverride.IsNullOrEmpty() ? null : saved.PathOverride;
                             binding.overrideProcessors = saved.ProcessorsOverride.IsNullOrEmpty() ? null : saved.ProcessorsOverride;
                             action.ApplyBindingOverride(i, binding);
+                        }
+                        else if (input.Value.Bindings[i].Override)
+                        {
+                            var b = input.Value.Bindings[i];
+                            if (b.IsPartOfComposite)
+                                continue;
+                            if (!b.IsComposite)
+                            {
+                                action.AddBinding()
+                                    .WithName(b.Name)
+                                    .WithPath(b.Path)
+                                    .WithProcessors(b.Processors);
+                                if (b.Override)
+                                {
+                                    var binding = action.bindings[i];
+                                    binding.overridePath = b.PathOverride.IsNullOrEmpty() ? null : b.PathOverride;
+                                    binding.overrideProcessors = b.ProcessorsOverride.IsNullOrEmpty() ? null : b.ProcessorsOverride;
+                                    action.ApplyBindingOverride(i, binding);
+                                }
+                            }
+                            else
+                            {
+                                var binding_comp_start = i;
+                                var binding_list = new Queue<BindingData>();
+                                for (var i1 = binding_comp_start + 1; (i1 < input.Value.Bindings.Length) && input.Value.Bindings[i1].IsPartOfComposite; i1++)
+                                {
+                                    binding_list.Enqueue(input.Value.Bindings[i1]);
+                                }
+                                var compositeSyntax = action.AddCompositeBinding(input.Value.Bindings[i].Name, processors: input.Value.Bindings[i].Processors);
+                                while (binding_list.Count > 0)
+                                {
+                                    var one = binding_list.Dequeue();
+                                    compositeSyntax.With(one.Name, one.Path);
+                                }
+                                for (var i1 = binding_comp_start; i1 < action.bindings.Count; i1++)
+                                {
+                                    if (!input.Value.Bindings[i1].Override)
+                                        continue;
+                                    var ovrd = action.bindings[i1];
+                                    ovrd.overridePath = input.Value.Bindings[i1].PathOverride.IsNullOrEmpty() ? null : input.Value.Bindings[i1].PathOverride;
+                                    ovrd.overrideProcessors = input.Value.Bindings[i1].ProcessorsOverride.IsNullOrEmpty() ? null : input.Value.Bindings[i1].ProcessorsOverride;
+                                    action.ApplyBindingOverride(i1, ovrd);
+                                }
+                            }
                         }
                     }
                     manager.AddAction(action, true);
