@@ -56,45 +56,46 @@ namespace Codenade.Inputbinder
         {
             RemoveKSPsGamepadBindings();
             _actionManager = InputActionManager.LoadFromJson(IOProvider.JoinPath(_modRootPath, "input.json"));
-            if (_actionManager.Actions.Count == 0)
+            foreach (var id in new string[] { Constants.ActionThrottleID, Constants.ActionTrimResetID })
             {
-                var action = new InputAction(Constants.ActionThrottleID);
-                action.AddBinding(path: null).WithName("Axis");
-                action.expectedControlType = "Axis";
-                _actionManager.AddAction(action, "Throttle Axis");
-                action = new InputAction(Constants.ActionPitchTrimID);
-                action.AddCompositeBinding("1DAxis")
-                    .With("negative", "")
-                    .With("positive", "");
-                action.AddBinding(path: null).WithName("Axis");
-                action.expectedControlType = "Axis";
-                _actionManager.AddAction(action, "Pitch Trim");
-                action = new InputAction(Constants.ActionRollTrimID);
-                action.AddCompositeBinding("1DAxis")
-                    .With("negative", "")
-                    .With("positive", "");
-                action.AddBinding(path: null).WithName("Axis");
-                action.expectedControlType = "Axis";
-                _actionManager.AddAction(action, "Roll Trim");
-                action = new InputAction(Constants.ActionYawTrimID);
-                action.AddCompositeBinding("1DAxis")
-                    .With("negative", "")
-                    .With("positive", "");
-                action.AddBinding(path: null).WithName("Axis");
-                action.expectedControlType = "Axis";
-                _actionManager.AddAction(action, "Yaw Trim");
-                action = new InputAction(Constants.ActionTrimResetID);
-                action.AddBinding(path: null).WithName("binding");
-                action.expectedControlType = "Button";
-                _actionManager.AddAction(action, "Reset Trim");
+                if (!_actionManager.ContainsAction(id))
+                {
+                    var n_action = new InputAction(id);
+                    n_action.AddBinding(path: null).WithName(id == Constants.ActionThrottleID ? "Axis" : "Button");
+                    n_action.expectedControlType = id == Constants.ActionThrottleID ? "Axis" : "Button";
+                    _actionManager.AddAction(n_action, id == Constants.ActionThrottleID ? "Throttle Axis" : "Reset Trim");
+                }
             }
+            foreach (var id in new string[] { Constants.ActionPitchTrimID, Constants.ActionRollTrimID, Constants.ActionYawTrimID })
+            {
+                if (_actionManager.TryGetAction(id, out var action))
+                {
+                    if (action.Action.bindings.Count < 4)
+                        action.Action.AddBinding(path: null).WithName("Axis");
+                    action.Action.expectedControlType = "Axis";
+                }
+                else
+                {
+                    var n_action = new InputAction(id);
+                    n_action.AddCompositeBinding("1DAxis")
+                        .With("negative", "")
+                        .With("positive", "");
+                    n_action.AddBinding(path: null).WithName("Axis");
+                    n_action.expectedControlType = "Axis";
+                    _actionManager.AddAction(n_action, id == Constants.ActionPitchTrimID ? "Pitch Trim" : (id == Constants.ActionYawTrimID ? "Yaw Trim" : "Roll Trim"));
+                }
+            }   
             foreach (var gameAction in GameInputUtils.Load(IOProvider.JoinPath(_modRootPath, "game_actions_to_add.txt")))
             {
                 var inputAction = gameAction.Item1;
                 if (gameAction.Item2)
                 {
-                    inputAction.AddBinding(path: null);
-                    inputAction.ChangeBinding(inputAction.bindings.Count - 1).WithName("Axis");
+                    bool contains_axis_binding = false;
+                    foreach (var binding in inputAction.bindings)
+                        if (binding.name == "Axis")
+                            contains_axis_binding = true;
+                    if (!contains_axis_binding)
+                        inputAction.AddBinding(path: null).WithName("Axis");
                     _actionManager.ModifiedGameActions.Add(inputAction);
                 }
                 if (_actionManager.Actions.ContainsKey(inputAction.name))
@@ -200,10 +201,12 @@ namespace Codenade.Inputbinder
                 for (var i = 0; i < action.bindings.Count; i++)
                 {
                     var bdg = action.bindings[i];
-                    if (bdg.effectivePath.Contains("Gamepad") || bdg.effectivePath.Contains("XInputController"))
+                    if (bdg.path is object && bdg.path.Contains("Gamepad") || bdg.overridePath is object && bdg.overridePath.Contains("XInputController"))
                     {
-                        action.ChangeBinding(i).WithPath("");
-                        action.ApplyBindingOverride(i, "");
+                        action.ChangeBinding(i).WithPath(null);
+                        var ovrd = action.bindings[i];
+                        ovrd.overridePath = null;
+                        action.ApplyBindingOverride(i, ovrd);
                     }
                 }
             }
