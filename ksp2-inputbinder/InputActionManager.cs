@@ -1,10 +1,6 @@
-﻿using Castle.Core.Internal;
-using KSP.Game;
+﻿using KSP.Game;
 using KSP.IO;
-using KSP.Logging;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Composites;
 using UnityEngine.InputSystem.Controls;
@@ -23,12 +19,12 @@ namespace Codenade.Inputbinder
 
         private RebindInformation _rebindInfo;
         private ProcRebindInformation _procBindInfo;
-        public List<InputAction> ModifiedGameActions; // contains actions with a binding named Axis at the last position
+        public List<InputAction> ModifiedGameActionsAxis1D; // contains actions with a binding named Axis at the last position
 
         public InputActionManager()
         {
             Actions = new Dictionary<string, NamedInputAction>();
-            ModifiedGameActions = new List<InputAction>();
+            ModifiedGameActionsAxis1D = new List<InputAction>();
             _rebindInfo = null;
             _procBindInfo = null;
         }
@@ -57,7 +53,7 @@ namespace Codenade.Inputbinder
         {
             if (IsCurrentlyRebinding || IsChangingProc)
                 return;
-            GlobalLog.Log(LogFilter.UserMod, $"[{Constants.Name}] Rebind starting");
+            QLog.Debug("Rebind starting");
             var wasEnabled = action.enabled;
             action.Disable();
             var operation = action.PerformInteractiveRebinding(bindingIndex)
@@ -73,7 +69,7 @@ namespace Codenade.Inputbinder
                     // TODO: Check if adding WithExpectedControlType(string) would improve anything
                     operation.WithExpectedControlType<ButtonControl>();
             // Always use control type AxisControl for added axis bindings
-            if (ModifiedGameActions.Contains(action))
+            if (ModifiedGameActionsAxis1D.Contains(action))
                 if (bindingIndex + 1 == action.bindings.Count)
                     // Both of the following WithExpectedControlType variants are important as they assign different internal variables
                     operation.WithExpectedControlType<AxisControl>().WithExpectedControlType("Axis");
@@ -95,7 +91,7 @@ namespace Codenade.Inputbinder
             _rebindInfo = null;
             if (wasEnabled)
                 action.Enable();
-            GlobalLog.Log(LogFilter.UserMod, $"[{Constants.Name}] Binding complete: {action.name} {bindingInfo.name} with path {bindingInfo.effectivePath}");
+            QLog.Debug($"Binding complete: {action.name} {bindingInfo.name} with path {bindingInfo.effectivePath}");
         }
 
         public void CancelBinding()
@@ -151,7 +147,7 @@ namespace Codenade.Inputbinder
 
         public static InputActionManager LoadFromJson(string path)
         {
-            GlobalLog.Log(LogFilter.UserMod, $"[{Constants.Name}] Loading settings ...");
+            QLog.Info($"Loading settings ...");
             if (!IOProvider.FileExists(path))
                 return new InputActionManager();
             var data = IOProvider.FromJsonFile<Dictionary<string, InputActionData>>(path);
@@ -279,11 +275,11 @@ namespace Codenade.Inputbinder
 
         public bool SaveToJson(string path)
         {
-            GlobalLog.Log(LogFilter.UserMod, $"[{Constants.Name}] Saving settings ...");
+            QLog.Info("Saving settings ...");
             if (IOProvider.FileExists(path))
                 if (IOProvider.IsFileReadonly(path))
                 {
-                    GlobalLog.Error(LogFilter.UserMod, $"[{Constants.Name}] Cannot save settings, input.json is read-only");
+                    QLog.Error("Cannot save settings, input.json is read-only");
                     return false;
                 }
             var store = new Dictionary<string, InputActionData>();

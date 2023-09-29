@@ -667,6 +667,7 @@
     <Compile Include="GameInputUtils.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="ProcessorUtilities.cs" />
+    <Compile Include="QLog.cs" />
     <Compile Include="ui\BindingGroup.cs" />
     <Compile Include="AppBarButton.cs" />
     <Compile Include="ui\CompositeBindingGroup.cs" />

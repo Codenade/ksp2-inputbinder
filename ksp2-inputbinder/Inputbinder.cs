@@ -1,5 +1,4 @@
 ﻿using KSP.Game;
-using KSP.Logging;
 using KSP.Messages;
 using UnityEngine.InputSystem;
 using UnityEngine;
@@ -112,7 +111,7 @@ namespace Codenade.Inputbinder
                             }
                             catch (Exception e)
                             {
-                                GlobalLog.Error(LogFilter.UserMod, $"[{Constants.Name}] {e}");
+                                QLog.Error(e);
                             }
                         }
                         else
@@ -128,7 +127,7 @@ namespace Codenade.Inputbinder
                                 contains_axis_binding = true;
                         if (!contains_axis_binding)
                             inputAction.AddBinding(path: null).WithName("Axis");
-                        _actionManager.ModifiedGameActions.Add(inputAction);
+                        _actionManager.ModifiedGameActionsAxis1D.Add(inputAction);
                     }
                 }
                 if (_actionManager.Actions.ContainsKey(inputAction.name))
@@ -157,7 +156,7 @@ namespace Codenade.Inputbinder
             gameObject.tag = "Game Manager";
             _modRootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             if (_modRootPath == null || _modRootPath == string.Empty)
-                GlobalLog.Error(LogFilter.UserMod, $"[{Constants.Name}] ModRootPath empty!");
+                QLog.Error($"ModRootPath empty!");
             StopKSPFromRemovingGamepads();
             RemoveKSPsGamepadBindings();
             if (!_notFirstLoad)
@@ -181,7 +180,7 @@ namespace Codenade.Inputbinder
             AsyncOperationHandle<IResourceLocator> operation = Addressables.LoadContentCatalogAsync(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + IOProvider.DirectorySeparatorCharacter.ToString() + "addressables/catalog.json");
             yield return operation;
             if (operation.Status == AsyncOperationStatus.Failed)
-                GlobalLog.Error(LogFilter.UserMod, $"[{Constants.Name}] Failed to load addressables catalog!");
+                QLog.Error($"Failed to load addressables catalog!");
             else
                 GameManager.Instance.Assets.RegisterResourceLocator(operation.Result);
             yield break;
@@ -220,7 +219,7 @@ namespace Codenade.Inputbinder
 
         private void StopKSPFromRemovingGamepads()
         {
-            GlobalLog.Log(LogFilter.UserMod, $"[{Constants.Name}] Stopping KSP from automatically removing Gamepads...");
+            QLog.Info($"Stopping KSP from automatically removing Gamepads...");
             var eventInfo = typeof(InputSystem).GetEvent(nameof(InputSystem.onDeviceChange), BindingFlags.Static | BindingFlags.Public);
             var method = typeof(InputManager).GetMethod("RemoveGamepadCallback", BindingFlags.NonPublic | BindingFlags.Instance);
             var handler = Delegate.CreateDelegate(eventInfo.EventHandlerType, Game.InputManager, method);
@@ -229,7 +228,7 @@ namespace Codenade.Inputbinder
 
         public void RemoveKSPsGamepadBindings()
         {
-            GlobalLog.Log(LogFilter.UserMod, $"[{Constants.Name}] Removing KSP's Gamepad bindings...");
+            QLog.Info($"Removing KSP's Gamepad bindings...");
             foreach (var action in Game.Input)
             {
                 for (var i = 0; i < action.bindings.Count; i++)

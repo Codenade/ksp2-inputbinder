@@ -1,5 +1,4 @@
 ﻿using KSP;
-using KSP.Logging;
 using System;
 using TMPro;
 using UnityEngine;
@@ -75,7 +74,7 @@ namespace Codenade.Inputbinder
                     if (float.TryParse(pair[1], out var result))
                         _actionManager.ProcBindInfo.Values.Add(pair[0], result);
                     else
-                        GlobalLog.Warn(LogFilter.UserMod, $"[{Constants.Name}] [Processors] cannot parse {pair[0]} as float");
+                        QLog.Warn($"[Processors] cannot parse {pair[0]} as float");
                     continue;
                 }
                 if (Type.GetTypeCode(type) == TypeCode.Boolean)
@@ -83,12 +82,12 @@ namespace Codenade.Inputbinder
                     if (bool.TryParse(pair[1], out var result))
                         _actionManager.ProcBindInfo.Values.Add(pair[0], result);
                     else
-                        GlobalLog.Warn(LogFilter.UserMod, $"[{Constants.Name}] [Processors] cannot parse {pair[0]} as bool");
+                        QLog.Warn($"[Processors] cannot parse {pair[0]} as bool");
                     continue;
                 }
                 if (Type.GetTypeCode(type) == TypeCode.Object)
                     continue;
-                GlobalLog.Warn(LogFilter.UserMod, $"[{Constants.Name}] [Processors] incompatible field type {type} of {pair[0]}");
+                QLog.Warn($"[Processors] incompatible field type {type} of {pair[0]}");
             }
         }
     }

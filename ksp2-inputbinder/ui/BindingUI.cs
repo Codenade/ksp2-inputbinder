@@ -1,6 +1,5 @@
 ﻿using KSP.Game;
 using KSP.IO;
-using KSP.Logging;
 using KSP.UI;
 using KSP.UserInterface;
 using System;
@@ -71,7 +70,7 @@ namespace Codenade.Inputbinder
         {
             if (operation.Status != AsyncOperationStatus.Succeeded)
             {
-                GlobalLog.Error(LogFilter.UserMod, $"[{Constants.Name}] Could not load asset {key}");
+                QLog.Error($"Could not load asset {key}");
                 return;
             }
             Assets.Add(key, operation.Result);

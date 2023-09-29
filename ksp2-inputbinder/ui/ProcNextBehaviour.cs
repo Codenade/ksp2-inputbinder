@@ -1,5 +1,4 @@
-﻿using KSP.Logging;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
@@ -44,7 +43,7 @@ namespace Codenade.Inputbinder
                     }
                     break;
                 case BindingUI.Status.ProcessorAdd:
-                    if (_processorName == "") GlobalLog.Warn(LogFilter.UserMod, $"[{Constants.Name}] No processor name assigned to this {name}");
+                    if (_processorName == "") QLog.Warn($"No processor name assigned to this {name}");
                     else
                     {
                         _actionManager.ProcBindInfo.ProcessorName = _processorName;

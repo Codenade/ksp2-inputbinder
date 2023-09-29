@@ -1,6 +1,5 @@
 using KSP.Game;
 using KSP.Input;
-using KSP.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -63,7 +62,7 @@ namespace Codenade.Inputbinder
                     var action = ParseSingleAction(line);
                     if (action is null)
                     {
-                        GlobalLog.Log(LogFilter.UserMod, $"[{Constants.Name}] GameInputList: could not find action {line}");
+                        QLog.Info($"GameInputList: could not find action {line}");
                         continue;
                     }
                     outList.TryAddUnique(action);
@@ -90,5 +89,7 @@ namespace Codenade.Inputbinder
                 return new Tuple<InputAction, bool>((InputAction)actionProperty.GetValue(categoryProperty.GetValue(GameManager.Instance.Game.Input)), wantsAxis);
             return null;
         }
+
+        public static bool IsNullOrEmpty(this string s) => s is null || s == string.Empty;
     }
 }
