@@ -1,5 +1,4 @@
-﻿using KSP.Game;
-using KSP.IO;
+﻿using KSP.IO;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
