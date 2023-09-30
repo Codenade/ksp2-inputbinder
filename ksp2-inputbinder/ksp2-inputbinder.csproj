@@ -664,7 +664,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DefaultInputActionDefinitions.cs" />
     <Compile Include="GameInputUtils.cs" />
+    <Compile Include="LegacySettingsDatatypes.cs" />
+    <Compile Include="ProfileDatatypes.cs" />
+    <Compile Include="ProfileDefinitions.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="ProcessorUtilities.cs" />
     <Compile Include="QLog.cs" />

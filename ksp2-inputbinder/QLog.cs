@@ -1,5 +1,6 @@
 ﻿using KSP.Logging;
 using System.Collections;
+using System.Runtime.CompilerServices;
 
 namespace Codenade.Inputbinder
 {
@@ -26,6 +27,26 @@ namespace Codenade.Inputbinder
         public static void Error(object message)
         {
             GlobalLog.Error(LogFilter.UserMod, $"[{Constants.Name}] {message}");
+        }
+
+        public static void InfoLine(object message, [CallerLineNumber] int lineNumber = -1, [CallerMemberName] string caller = null)
+        {
+            Info($"{message} {caller} line {lineNumber}");
+        }
+
+        public static void DebugLine(object message, [CallerLineNumber] int lineNumber = -1, [CallerMemberName] string caller = null)
+        {
+            Debug($"{message} {caller} line {lineNumber}");
+        }
+
+        public static void WarnLine(object message, [CallerLineNumber] int lineNumber = -1, [CallerMemberName] string caller = null)
+        {
+            Warn($"{message} {caller} line {lineNumber}");
+        }
+
+        public static void ErrorLine(object message, [CallerLineNumber] int lineNumber = -1, [CallerMemberName] string caller = null)
+        {
+            Error($"{message} {caller} line {lineNumber}");
         }
 
         public static void Print(object message, Category c)

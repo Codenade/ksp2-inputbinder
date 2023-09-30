@@ -3,55 +3,17 @@ using KSP.Input;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using UnityEngine.InputSystem;
 
 namespace Codenade.Inputbinder
 {
     internal static class GameInputUtils
     {
-        public static List<Tuple<InputAction, bool>> Load(string path)
+        // Handling for game_actions_to_add.txt
+        public static List<WrappedInputAction> Load(string path)
         {
-            var outList = new List<Tuple<InputAction, bool>>()
-            {
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.ThrottleDelta, true),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.ThrottleCutoff, false),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.ThrottleMax, false),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.Pitch, true),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.Roll, true),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.Yaw, true),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.TogglePrecisionMode, false),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.WheelSteer, true),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.WheelBrakes, true),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.WheelThrottle, true),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.Stage, false),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.ToggleLandingGear, false),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.ToggleLights, false),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.ToggleSAS, false),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.ToggleRCS, false),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.TranslateX, true),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.TranslateY, true),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.TranslateZ, true),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.TriggerActionGroup1, false),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.TriggerActionGroup2, false),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.TriggerActionGroup3, false),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.TriggerActionGroup4, false),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.TriggerActionGroup5, false),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.TriggerActionGroup6, false),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.TriggerActionGroup7, false),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.TriggerActionGroup8, false),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.TriggerActionGroup9, false),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.TriggerActionGroup10, false),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.CameraPitchGamepad, true),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.CameraYawGamepad, true),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.CameraZoom, true),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Flight.ShowMap, false),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Global.QuickSave, false),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Global.TimeWarpDecrease, false),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Global.TimeWarpIncrease, false),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Global.TimeWarpStop, false),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Global.TogglePauseMenu, false),
-                new Tuple<InputAction, bool>(GameManager.Instance.Game.Input.Global.ToggleUIVisibility, false)
-            };
+            var outList = new List<WrappedInputAction>();
             if (!File.Exists(path))
                 return outList;
             using (var reader = new StreamReader(path))
@@ -60,7 +22,7 @@ namespace Codenade.Inputbinder
                 while ((line = reader.ReadLine()) is object)
                 {
                     var action = ParseSingleAction(line);
-                    if (action is null)
+                    if (action.InputAction is null)
                     {
                         QLog.Info($"GameInputList: could not find action {line}");
                         continue;
@@ -71,25 +33,87 @@ namespace Codenade.Inputbinder
             return outList;
         }
 
-        public static Tuple<InputAction, bool> ParseSingleAction(string input)
+        public static WrappedInputAction ParseSingleAction(string input)
         {
-            var wantsAxis = input.StartsWith("#");
-            if (wantsAxis)
-                input = input.Substring(1);
-            var splitInput = input.Split('.');
+            var flagChangeBindings = input.Contains("#");
+            string sfDef;
+            string actDef;
+            if (flagChangeBindings)
+            {
+                actDef = input.Substring(0, input.IndexOf('#'));
+                sfDef = input.Substring(input.IndexOf('#') + 1);
+            }
+            else
+            {
+                actDef = input;
+                sfDef = null;
+            }
+            var splitInput = actDef.Split('.');
             if (splitInput.Length < 2)
-                return null;
+                return default;
             var categoryProperty = typeof(GameInput).GetProperty(splitInput[0]);
             if (categoryProperty is null)
-                return null;
+                return default;
             var actionProperty = categoryProperty.PropertyType.GetProperty(splitInput[1]);
             if (actionProperty is null)
-                return null;
+                return default;
             if (actionProperty.PropertyType == typeof(InputAction))
-                return new Tuple<InputAction, bool>((InputAction)actionProperty.GetValue(categoryProperty.GetValue(GameManager.Instance.Game.Input)), wantsAxis);
-            return null;
+            {
+                var ia = (InputAction)actionProperty.GetValue(categoryProperty.GetValue(GameManager.Instance.Game.Input));
+                Action<WrappedInputAction> sf = null;
+                if (sfDef is object)
+                {
+                    foreach (var candidate in typeof(DefaultInputActionDefinitions).GetMethods(BindingFlags.Public | BindingFlags.Static))
+                    {
+                        var ps = candidate.GetParameters();
+                        if (ps.Length != 1 || ps[0].ParameterType != typeof(WrappedInputAction) || candidate.ReturnType != typeof(void) || candidate.Name != sfDef)
+                            continue;
+                        sf = (Action<WrappedInputAction>)candidate.CreateDelegate(typeof(Action<WrappedInputAction>));
+                    }
+                }
+                return new WrappedInputAction(ActionSource.Game, ia, ia.name, sf);
+            }
+            return default;
         }
 
         public static bool IsNullOrEmpty(this string s) => s is null || s == string.Empty;
+
+        public static int GetPreviousCompositeBinding(this InputAction action, int startIndex)
+        {
+            if (action.bindings.Count - 1 < startIndex || startIndex < 0)
+                throw new ArgumentOutOfRangeException(nameof(startIndex));
+            for (var j = startIndex; j >= 0; j--)
+            {
+                if (action.bindings[j].isComposite)
+                    return j;
+            }
+            return -1;
+        }
+
+        public static int FindNamedCompositePart(this InputAction action, int startIndex, string name)
+        {
+            if (action.bindings.Count - 1 < startIndex || startIndex < 0)
+                throw new ArgumentOutOfRangeException(nameof(startIndex));
+            if (name is null)
+                throw new ArgumentNullException(nameof(name));
+            for (var i = startIndex + 1; i < action.bindings.Count; i++)
+            {
+                if (!action.bindings[i].isPartOfComposite)
+                    return -1;
+                if (action.bindings[i].name.ToLower() == name.ToLower())
+                    return i;
+            }
+            return -1;
+        }
+
+        public static bool HasAnyOverrides(this InputAction action)
+        {
+            foreach (var bdg in action.bindings)
+            {
+                if (bdg.hasOverrides)
+                    return true;
+            }
+            return false;
+        }
     }
 }

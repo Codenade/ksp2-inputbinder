@@ -119,7 +119,7 @@ namespace Codenade.Inputbinder
 
         private void SaveSettings()
         {
-            _actionManager.SaveToJson(IOProvider.JoinPath(_modRootPath, "input.json"));
+            _actionManager.SaveOverrides(IOProvider.JoinPath(_modRootPath, "input.json"));
         }
 
         private void Setup()

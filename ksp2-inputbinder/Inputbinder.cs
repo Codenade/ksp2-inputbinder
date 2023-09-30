@@ -54,86 +54,8 @@ namespace Codenade.Inputbinder
         private void Initialize()
         {
             RemoveKSPsGamepadBindings();
-            _actionManager = InputActionManager.LoadFromJson(IOProvider.JoinPath(_modRootPath, "input.json"));
-            foreach (var id in new string[] { Constants.ActionThrottleID, Constants.ActionTrimResetID })
-            {
-                if (!_actionManager.ContainsAction(id))
-                {
-                    var n_action = new InputAction(id);
-                    n_action.AddBinding(path: null).WithName(id == Constants.ActionThrottleID ? "Axis" : "Button");
-                    n_action.expectedControlType = id == Constants.ActionThrottleID ? "Axis" : "Button";
-                    _actionManager.AddAction(n_action, id == Constants.ActionThrottleID ? "Throttle Axis" : "Reset Trim");
-                }
-            }
-            foreach (var id in new string[] { Constants.ActionPitchTrimID, Constants.ActionRollTrimID, Constants.ActionYawTrimID })
-            {
-                if (_actionManager.TryGetAction(id, out var action))
-                {
-                    if (action.Action.bindings.Count < 4)
-                        action.Action.AddBinding(path: null).WithName("Axis");
-                    action.Action.expectedControlType = "Axis";
-                }
-                else
-                {
-                    var n_action = new InputAction(id);
-                    n_action.AddCompositeBinding("1DAxis")
-                        .With("negative", "")
-                        .With("positive", "");
-                    n_action.AddBinding(path: null).WithName("Axis");
-                    n_action.expectedControlType = "Axis";
-                    _actionManager.AddAction(n_action, id == Constants.ActionPitchTrimID ? "Pitch Trim" : (id == Constants.ActionYawTrimID ? "Yaw Trim" : "Roll Trim"));
-                }
-            }   
-            foreach (var gameAction in GameInputUtils.Load(IOProvider.JoinPath(_modRootPath, "game_actions_to_add.txt")))
-            {
-                var inputAction = gameAction.Item1;
-                if (gameAction.Item2)
-                {
-                    if (inputAction.expectedControlType == "Vector2")
-                    {
-                        for (var j = inputAction.bindings.Count - 1; j >= 0; j--)
-                            inputAction.ChangeBinding(j).Erase();
-                        inputAction.AddCompositeBinding("2DVector")
-                            .With("left", "")
-                            .With("right", "")
-                            .With("down", "")
-                            .With("up", "");
-                        if (inputAction == GameManager.Instance.Game.Input.Flight.CameraZoom)
-                        {
-                            inputAction.AddCompositeBinding("2DAxis")
-                                .With("x", "")
-                                .With("y", "/Mouse/scroll/y");
-                            try
-                            {
-                                var ovrd = inputAction.bindings[5];
-                                ovrd.overrideProcessors = "ScaleVector2(x=0,y=0.0005)";
-                                inputAction.ApplyBindingOverride(5, ovrd);
-                            }
-                            catch (Exception e)
-                            {
-                                QLog.Error(e);
-                            }
-                        }
-                        else
-                            inputAction.AddCompositeBinding("2DAxis")
-                                .With("x", "")
-                                .With("y", "");
-                    }
-                    else
-                    {
-                        bool contains_axis_binding = false;
-                        foreach (var binding in inputAction.bindings)
-                            if (binding.name == "Axis")
-                                contains_axis_binding = true;
-                        if (!contains_axis_binding)
-                            inputAction.AddBinding(path: null).WithName("Axis");
-                        _actionManager.ModifiedGameActionsAxis1D.Add(inputAction);
-                    }
-                }
-                if (_actionManager.Actions.ContainsKey(inputAction.name))
-                    continue;
-                _actionManager.AddAction(inputAction, true);
-            }
+            _actionManager = new InputActionManager();
+            _actionManager.LoadOverrides(IOProvider.JoinPath(_modRootPath, "input.json"));
             _actionManager.Actions[Constants.ActionThrottleID].Action.performed += ctx => SetThrottle(ctx.ReadValue<float>());
             _actionManager.Actions[Constants.ActionThrottleID].Action.started += ctx => SetThrottle(ctx.ReadValue<float>());
             _actionManager.Actions[Constants.ActionThrottleID].Action.canceled += ctx => SetThrottle(ctx.ReadValue<float>());

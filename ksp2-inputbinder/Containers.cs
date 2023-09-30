@@ -70,36 +70,4 @@ namespace Codenade.Inputbinder
             IsUiExtended = Constants.UiActionsExtendDefault;
         }
     }
-
-    public class InputActionData
-    {
-        [JsonProperty("friendly_name")]
-        public string FriendlyName { get; set; }
-        [JsonProperty("action_type")]
-        public string ActionType { get; set; }
-        [JsonProperty("is_from_game")]
-        public bool IsFromGame { get; set; }
-        [JsonProperty("bindings")]
-        public BindingData[] Bindings { get; set; }
-    }
-
-    public class BindingData
-    {
-        [JsonProperty("name")]
-        public string Name { get; set; }
-        [JsonProperty("is_composite")]
-        public bool IsComposite { get; set; }
-        [JsonProperty("is_part_of_composite")]
-        public bool IsPartOfComposite { get; set; }
-        [JsonProperty("path")]
-        public string Path { get; set; }
-        [JsonProperty("processors")]
-        public string Processors { get; set; }
-        [JsonProperty("override")]
-        public bool Override { get; set; }
-        [JsonProperty("path_override")]
-        public string PathOverride { get; set; }
-        [JsonProperty("processors_override")]
-        public string ProcessorsOverride { get; set; }
-    }
 }
