@@ -7,9 +7,10 @@
 * [How to build](#how-to-build)
 * [Main features](#main-features)
 * [Configuration](#configuration)
-    * [Reset the configuration](#reset-the-configuration)
-    * [Slider settings](#slider-settings)
-    * [Adding more actions from the game to Inputbinder](#adding-more-actions-from-the-game-to-inputbinder)
+  * [Where are my bindings stored?](#where-are-my-bindings-stored)
+  * [Reset the configuration](#reset-the-configuration)
+  * [Slider settings](#slider-settings)
+  * [Adding more actions from the game to Inputbinder](#adding-more-actions-from-the-game-to-inputbinder)
 * [Bug Reports and Feature Requests](#bug-reports-and-feature-requests)
 * [More info](#more-info)
 
