@@ -73,6 +73,14 @@ MonoBehaviour:
     m_Address: Codenade.Inputbinder/CurrentlyBindingOverlay
     m_ReadOnly: 0
     m_SerializedLabels: []
+  - m_GUID: 4ddceef2c1905f54583ef8690c248c7f
+    m_Address: Codenade.Inputbinder//ResetAllBindingsButton
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 1fbac85f7d11a6a429f6e6510bc0dbc9
+    m_Address: Codenade.Inputbinder/ConfirmResetAllDialogOverlay
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 8644c698111574d4db1297cfbb2f6c1b, type: 2}
   m_SchemaSet:

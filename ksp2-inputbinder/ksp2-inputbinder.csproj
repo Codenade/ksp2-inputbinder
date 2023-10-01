@@ -666,6 +666,7 @@
   <ItemGroup>
     <Compile Include="DefaultInputActionDefinitions.cs" />
     <Compile Include="GameInputUtils.cs" />
+    <Compile Include="GlobalConfiguration.cs" />
     <Compile Include="LegacySettingsDatatypes.cs" />
     <Compile Include="ProfileDatatypes.cs" />
     <Compile Include="ProfileDefinitions.cs" />
@@ -689,6 +690,7 @@
     <Compile Include="ui\ProcRemoveBehaviour.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ui\BindingUI.cs" />
+    <Compile Include="ui\ResetAllBindingsDialogBehaviour.cs" />
     <Compile Include="ui\SetupVerticalLayout.cs" />
     <Compile Include="Vector2AxisComposite.cs" />
   </ItemGroup>

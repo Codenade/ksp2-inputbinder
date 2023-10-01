@@ -176,5 +176,11 @@ namespace Codenade.Inputbinder
         {
             return ProfileDefinitions.SaveOverrides(Actions, path);
         }
+
+        public void RemoveAllOverrides()
+        {
+            foreach (var action in Actions.Values)
+                action.Action.RemoveAllBindingOverrides();
+        }
     }
 }

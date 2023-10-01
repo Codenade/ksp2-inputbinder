@@ -54,6 +54,11 @@ namespace Codenade.Inputbinder
         private void Initialize()
         {
             RemoveKSPsGamepadBindings();
+            string cfgpath = Path.Combine(BepInEx.Paths.ConfigPath, "inputbinder.cfg");
+            if (File.Exists(cfgpath))
+                GlobalConfiguration.Load(cfgpath);
+            else
+                GlobalConfiguration.Save(cfgpath);
             _actionManager = new InputActionManager();
             _actionManager.LoadOverrides(IOProvider.JoinPath(_modRootPath, "input.json"));
             _actionManager.Actions[Constants.ActionThrottleID].Action.performed += ctx => SetThrottle(ctx.ReadValue<float>());

@@ -44,6 +44,7 @@ namespace Codenade.Inputbinder
                     var temp = Instantiate(Inputbinder.Instance.BindingUI.Assets[BindingUI.PrefabKeys.ProcessorValueGroupBool], gameObject.transform);
                     if (!_actionManager.ProcBindInfo.Values.ContainsKey(f.Name))
                         _actionManager.ProcBindInfo.Values.Add(f.Name, false);
+                    temp.GetChild("ValueName").GetComponent<TextMeshProUGUI>().text = f.Name;
                     temp.AddComponent<ProcValueGroupControllerBool>().Initialize(f.Name);
                 }
             }
@@ -101,6 +102,8 @@ namespace Codenade.Inputbinder
             _fieldName = fieldName;
             var slider = gameObject.GetChild("Slider").GetComponent<Slider>();
             slider.value= (float)Inputbinder.Instance.ActionManager.ProcBindInfo.Values[_fieldName];
+            slider.minValue = GlobalConfiguration.SliderMin;
+            slider.maxValue = GlobalConfiguration.SliderMax;
             var inputField = gameObject.GetChild("InputField").GetComponent<TMP_InputField>();
             inputField.GetComponent<TMP_InputField>().text = ((float)Inputbinder.Instance.ActionManager.ProcBindInfo.Values[_fieldName]).ToString();
             slider.onValueChanged.AddListener(SliderChanged);

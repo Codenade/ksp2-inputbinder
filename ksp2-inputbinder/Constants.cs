@@ -11,7 +11,7 @@
         public static readonly string ActionRollTrimID = "inputbinder/roll_trim";
         public static readonly string ActionYawTrimID = "inputbinder/yaw_trim";
         public static readonly string ActionTrimResetID = "inputbinder/trim_reset";
-        public static readonly string BindingClearPath = "none";
+        public static readonly string BindingClearPath = string.Empty;
         public static readonly string AppBarIconAssetKey = "Codenade.Inputbinder/ICO-AppBar-Inputbinder";
     }
 }

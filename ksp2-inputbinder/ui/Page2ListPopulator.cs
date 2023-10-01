@@ -24,7 +24,13 @@ namespace Codenade.Inputbinder
             var t = types[new InternedString(Inputbinder.Instance.ActionManager.ProcBindInfo.Action.expectedControlType)].BaseType;
             foreach (var p in InputSystem.ListProcessors())
             {
-                if (InputSystem.TryGetProcessor(p).BaseType.GetGenericArguments()[0] != t.GetGenericArguments()[0])
+                for (var i = 0; i < 3 && t is object; i++)
+                {
+                    if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(InputControl<>))
+                        break;
+                    t = t.BaseType;
+                }
+                if (t is null || !t.IsGenericType || t.GetGenericTypeDefinition() != typeof(InputControl<>) || InputSystem.TryGetProcessor(p).BaseType.GetGenericArguments()[0] != t.GetGenericArguments()[0])
                     continue;
                 var temp = Instantiate(Inputbinder.Instance.BindingUI.Assets[BindingUI.PrefabKeys.ProcessorAddGroup], gameObject.transform);
                 temp.GetChild("ProcessorName").GetComponent<TextMeshProUGUI>().text = p;
