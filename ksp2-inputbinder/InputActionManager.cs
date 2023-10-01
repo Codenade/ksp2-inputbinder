@@ -151,7 +151,7 @@ namespace Codenade.Inputbinder
                     wia.Setup.Invoke(wia);
                 Actions.Add(wia.InputAction.name, new NamedInputAction(wia.InputAction, wia.FriendlyName, wia.Source == ActionSource.Game));
             }
-            foreach (var wia in GameInputUtils.Load(IOProvider.JoinPath(Inputbinder.Instance.ModRootPath, "game_actions_to_add.txt")))
+            foreach (var wia in GameInputUtils.Load(IOProvider.JoinPath(BepInEx.Paths.ConfigPath, "inputbinder/game_actions_to_add.txt")))
             {
                 Actions.Add(wia.InputAction.name, new NamedInputAction(wia.InputAction, wia.FriendlyName, wia.Source == ActionSource.Game));
             }
