@@ -147,12 +147,12 @@ namespace Codenade.Inputbinder
         {
             foreach (var wia in DefaultInputActionDefinitions.WrappedInputActions)
             {
-                if (wia.Setup is object)
-                    wia.Setup.Invoke(wia);
+                wia.Setup?.Invoke(wia);
                 Actions.Add(wia.InputAction.name, new NamedInputAction(wia.InputAction, wia.FriendlyName, wia.Source == ActionSource.Game));
             }
             foreach (var wia in GameInputUtils.Load(IOProvider.JoinPath(BepInEx.Paths.ConfigPath, "inputbinder/game_actions_to_add.txt")))
             {
+                wia.Setup?.Invoke(wia);
                 Actions.Add(wia.InputAction.name, new NamedInputAction(wia.InputAction, wia.FriendlyName, wia.Source == ActionSource.Game));
             }
         }

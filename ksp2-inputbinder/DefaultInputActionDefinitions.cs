@@ -297,6 +297,13 @@ namespace Codenade.Inputbinder
                     new WrappedInputAction()
                     {
                         Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.MapView.HideMap,
+                        FriendlyName = "Hide Map",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
                         InputAction = GameManager.Instance.Game.Input.Global.QuickSave,
                         FriendlyName = "Quick Save",
                         Setup = DoButtonSetup
