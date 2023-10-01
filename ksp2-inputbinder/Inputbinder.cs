@@ -54,13 +54,14 @@ namespace Codenade.Inputbinder
         private void Initialize()
         {
             RemoveKSPsGamepadBindings();
-            string cfgpath = Path.Combine(BepInEx.Paths.ConfigPath, "inputbinder.cfg");
+            SetupConfigDir();
+            string cfgpath = Path.Combine(BepInEx.Paths.ConfigPath, "inputbinder/inputbinder.cfg");
             if (File.Exists(cfgpath))
                 GlobalConfiguration.Load(cfgpath);
             else
                 GlobalConfiguration.Save(cfgpath);
             _actionManager = new InputActionManager();
-            _actionManager.LoadOverrides(IOProvider.JoinPath(_modRootPath, "input.json"));
+            _actionManager.LoadOverrides(Path.Combine(BepInEx.Paths.ConfigPath, "inputbinder/profiles/input.json"));
             _actionManager.Actions[Constants.ActionThrottleID].Action.performed += ctx => SetThrottle(ctx.ReadValue<float>());
             _actionManager.Actions[Constants.ActionThrottleID].Action.started += ctx => SetThrottle(ctx.ReadValue<float>());
             _actionManager.Actions[Constants.ActionThrottleID].Action.canceled += ctx => SetThrottle(ctx.ReadValue<float>());
@@ -75,6 +76,14 @@ namespace Codenade.Inputbinder
             _bindingUI.VisibilityChanged += OnUiVisibilityChange;
             _isInitialized = true;
             Initialized?.Invoke();
+        }
+
+        private void SetupConfigDir()
+        {
+            Directory.CreateDirectory(Path.Combine(BepInEx.Paths.ConfigPath, "inputbinder"));
+            Directory.CreateDirectory(Path.Combine(BepInEx.Paths.ConfigPath, "inputbinder/profiles"));
+            if (File.Exists(Path.Combine(_modRootPath, "input.json")))
+                File.Move(Path.Combine(_modRootPath, "input.json"), Path.Combine(BepInEx.Paths.ConfigPath, "inputbinder/profiles/input.json"));
         }
 
         private void Awake()

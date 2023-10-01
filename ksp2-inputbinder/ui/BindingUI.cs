@@ -127,7 +127,7 @@ namespace Codenade.Inputbinder
 
         private void SaveSettings()
         {
-            _actionManager.SaveOverrides(IOProvider.JoinPath(_modRootPath, "input.json"));
+            _actionManager.SaveOverrides(IOProvider.JoinPath(BepInEx.Paths.ConfigPath, "inputbinder/profiles/input.json"));
         }
 
         private void Setup()
