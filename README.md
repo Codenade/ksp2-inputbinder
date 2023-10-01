@@ -122,7 +122,7 @@ It is possible to change the bindings for other game actions too.
 
 ## Bug Reports and Feature Requests
 
-Found any bugs? Have an idea to improve things? => [Open an issue on GitHub](https://github.com/Codenade/ksp2-inputbinder/issues/new).
+Found any bugs? Have an idea to improve things? => [Open an issue on GitHub](https://github.com/Codenade/ksp2-inputbinder/issues/new/choose).
 
 ## More info
 
