@@ -1,5 +1,4 @@
 ﻿using KSP.Game;
-using KSP.Logging;
 using KSP.Messages;
 using UnityEngine.InputSystem;
 using UnityEngine;
@@ -55,53 +54,14 @@ namespace Codenade.Inputbinder
         private void Initialize()
         {
             RemoveKSPsGamepadBindings();
-            _actionManager = InputActionManager.LoadFromJson(IOProvider.JoinPath(_modRootPath, "input.json"));
-            foreach (var id in new string[] { Constants.ActionThrottleID, Constants.ActionTrimResetID })
-            {
-                if (!_actionManager.ContainsAction(id))
-                {
-                    var n_action = new InputAction(id);
-                    n_action.AddBinding(path: null).WithName(id == Constants.ActionThrottleID ? "Axis" : "Button");
-                    n_action.expectedControlType = id == Constants.ActionThrottleID ? "Axis" : "Button";
-                    _actionManager.AddAction(n_action, id == Constants.ActionThrottleID ? "Throttle Axis" : "Reset Trim");
-                }
-            }
-            foreach (var id in new string[] { Constants.ActionPitchTrimID, Constants.ActionRollTrimID, Constants.ActionYawTrimID })
-            {
-                if (_actionManager.TryGetAction(id, out var action))
-                {
-                    if (action.Action.bindings.Count < 4)
-                        action.Action.AddBinding(path: null).WithName("Axis");
-                    action.Action.expectedControlType = "Axis";
-                }
-                else
-                {
-                    var n_action = new InputAction(id);
-                    n_action.AddCompositeBinding("1DAxis")
-                        .With("negative", "")
-                        .With("positive", "");
-                    n_action.AddBinding(path: null).WithName("Axis");
-                    n_action.expectedControlType = "Axis";
-                    _actionManager.AddAction(n_action, id == Constants.ActionPitchTrimID ? "Pitch Trim" : (id == Constants.ActionYawTrimID ? "Yaw Trim" : "Roll Trim"));
-                }
-            }   
-            foreach (var gameAction in GameInputUtils.Load(IOProvider.JoinPath(_modRootPath, "game_actions_to_add.txt")))
-            {
-                var inputAction = gameAction.Item1;
-                if (gameAction.Item2)
-                {
-                    bool contains_axis_binding = false;
-                    foreach (var binding in inputAction.bindings)
-                        if (binding.name == "Axis")
-                            contains_axis_binding = true;
-                    if (!contains_axis_binding)
-                        inputAction.AddBinding(path: null).WithName("Axis");
-                    _actionManager.ModifiedGameActions.Add(inputAction);
-                }
-                if (_actionManager.Actions.ContainsKey(inputAction.name))
-                    continue;
-                _actionManager.AddAction(inputAction, true);
-            }
+            SetupConfigDir();
+            string cfgpath = Path.Combine(BepInEx.Paths.ConfigPath, "inputbinder/inputbinder.cfg");
+            if (File.Exists(cfgpath))
+                GlobalConfiguration.Load(cfgpath);
+            else
+                GlobalConfiguration.Save(cfgpath);
+            _actionManager = new InputActionManager();
+            _actionManager.LoadOverrides(Path.Combine(BepInEx.Paths.ConfigPath, "inputbinder/profiles/input.json"));
             _actionManager.Actions[Constants.ActionThrottleID].Action.performed += ctx => SetThrottle(ctx.ReadValue<float>());
             _actionManager.Actions[Constants.ActionThrottleID].Action.started += ctx => SetThrottle(ctx.ReadValue<float>());
             _actionManager.Actions[Constants.ActionThrottleID].Action.canceled += ctx => SetThrottle(ctx.ReadValue<float>());
@@ -118,18 +78,27 @@ namespace Codenade.Inputbinder
             Initialized?.Invoke();
         }
 
+        private void SetupConfigDir()
+        {
+            Directory.CreateDirectory(Path.Combine(BepInEx.Paths.ConfigPath, "inputbinder"));
+            Directory.CreateDirectory(Path.Combine(BepInEx.Paths.ConfigPath, "inputbinder/profiles"));
+            if (File.Exists(Path.Combine(_modRootPath, "input.json")))
+                File.Move(Path.Combine(_modRootPath, "input.json"), Path.Combine(BepInEx.Paths.ConfigPath, "inputbinder/profiles/input.json"));
+        }
+
         private void Awake()
         {
             DontDestroyOnLoad(this);
             gameObject.tag = "Game Manager";
             _modRootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             if (_modRootPath == null || _modRootPath == string.Empty)
-                GlobalLog.Error(LogFilter.UserMod, $"[{Constants.Name}] ModRootPath empty!");
+                QLog.Error($"ModRootPath empty!");
             StopKSPFromRemovingGamepads();
             RemoveKSPsGamepadBindings();
             if (!_notFirstLoad)
             {
                 InputSystem.RegisterProcessor<Processors.MapProcessor>("Map");
+                InputSystem.RegisterBindingComposite<Composites.Vector2AxisComposite>("2DAxis");
                 InputSystem.settings.defaultDeadzoneMin = 0f;
                 Game.Messages.Subscribe<GameStateEnteredMessage>(OnGameStateEntered);
                 StartCoroutine(LoadCatalog());
@@ -147,7 +116,7 @@ namespace Codenade.Inputbinder
             AsyncOperationHandle<IResourceLocator> operation = Addressables.LoadContentCatalogAsync(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + IOProvider.DirectorySeparatorCharacter.ToString() + "addressables/catalog.json");
             yield return operation;
             if (operation.Status == AsyncOperationStatus.Failed)
-                GlobalLog.Error(LogFilter.UserMod, $"[{Constants.Name}] Failed to load addressables catalog!");
+                QLog.Error($"Failed to load addressables catalog!");
             else
                 GameManager.Instance.Assets.RegisterResourceLocator(operation.Result);
             yield break;
@@ -186,7 +155,7 @@ namespace Codenade.Inputbinder
 
         private void StopKSPFromRemovingGamepads()
         {
-            GlobalLog.Log(LogFilter.UserMod, $"[{Constants.Name}] Stopping KSP from automatically removing Gamepads...");
+            QLog.Info($"Stopping KSP from automatically removing Gamepads...");
             var eventInfo = typeof(InputSystem).GetEvent(nameof(InputSystem.onDeviceChange), BindingFlags.Static | BindingFlags.Public);
             var method = typeof(InputManager).GetMethod("RemoveGamepadCallback", BindingFlags.NonPublic | BindingFlags.Instance);
             var handler = Delegate.CreateDelegate(eventInfo.EventHandlerType, Game.InputManager, method);
@@ -195,7 +164,7 @@ namespace Codenade.Inputbinder
 
         public void RemoveKSPsGamepadBindings()
         {
-            GlobalLog.Log(LogFilter.UserMod, $"[{Constants.Name}] Removing KSP's Gamepad bindings...");
+            QLog.Info($"Removing KSP's Gamepad bindings...");
             foreach (var action in Game.Input)
             {
                 for (var i = 0; i < action.bindings.Count; i++)
@@ -220,14 +189,6 @@ namespace Codenade.Inputbinder
 
         private void OnDestroy()
         {
-            foreach (var modGA in _actionManager.ModifiedGameActions)
-            {
-                if (_actionManager.TryGetAction(modGA.name, out var val))
-                {
-                    val.Action.ChangeBinding(val.Action.bindings.Count - 1).Erase();
-                }
-            }
-            _actionManager.ModifiedGameActions.Clear();
             _button?.Destroy();
         }
 

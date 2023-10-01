@@ -10,6 +10,7 @@ namespace Codenade.Inputbinder
         private int _bindingIndex;
         private InputAction _action;
         private TextMeshProUGUI _pathTxt;
+        private TextMeshProUGUI _procText;
 
         public void Initialize(InputAction action, int bindingIndex)
         {
@@ -20,8 +21,13 @@ namespace Codenade.Inputbinder
             bindingInfoGroup.GetChild("BindingName").GetComponent<TextMeshProUGUI>().text = action.bindings[bindingIndex].name;
             _pathTxt = bindingInfoGroup.GetChild("BindingPath").GetComponent<TextMeshProUGUI>();
             _pathTxt.text = action.bindings[bindingIndex].effectivePath;
+            _procText = bindingInfoGroup.GetChild("BindingProcessors").GetComponent<TextMeshProUGUI>();
+            _procText.text = action.bindings[bindingIndex].effectiveProcessors;
             if (action.bindings[bindingIndex].isPartOfComposite)
+            {
                 modifyBindingGroup.GetChild("ProcessorButton").SetActive(false);
+                bindingInfoGroup.GetChild("BindingProcessors").SetActive(false);
+            }
             else
                 modifyBindingGroup.GetChild("ProcessorButton").GetComponent<Button>().onClick.AddListener(OnModifyClicked);
             modifyBindingGroup.GetChild("RebindButton").GetComponent<Button>().onClick.AddListener(OnRebindClicked);
@@ -30,8 +36,8 @@ namespace Codenade.Inputbinder
 
         private void FixedUpdate()
         {
-            if (_action.bindings[_bindingIndex].effectivePath != _pathTxt.text)
-                _pathTxt.text = _action.bindings[_bindingIndex].effectivePath;
+            _pathTxt.text = _action.bindings[_bindingIndex].effectivePath;
+            _procText.text = _action.bindings[_bindingIndex].effectiveProcessors;
         }
 
         private void OnRebindClicked()

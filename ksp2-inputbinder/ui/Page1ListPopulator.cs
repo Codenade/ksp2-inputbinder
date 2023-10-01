@@ -1,5 +1,4 @@
-﻿using Castle.Core.Internal;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 
 namespace Codenade.Inputbinder

@@ -1,5 +1,4 @@
 ﻿using KSP;
-using KSP.Logging;
 using System;
 using TMPro;
 using UnityEngine;
@@ -45,6 +44,7 @@ namespace Codenade.Inputbinder
                     var temp = Instantiate(Inputbinder.Instance.BindingUI.Assets[BindingUI.PrefabKeys.ProcessorValueGroupBool], gameObject.transform);
                     if (!_actionManager.ProcBindInfo.Values.ContainsKey(f.Name))
                         _actionManager.ProcBindInfo.Values.Add(f.Name, false);
+                    temp.GetChild("ValueName").GetComponent<TextMeshProUGUI>().text = f.Name;
                     temp.AddComponent<ProcValueGroupControllerBool>().Initialize(f.Name);
                 }
             }
@@ -75,7 +75,7 @@ namespace Codenade.Inputbinder
                     if (float.TryParse(pair[1], out var result))
                         _actionManager.ProcBindInfo.Values.Add(pair[0], result);
                     else
-                        GlobalLog.Warn(LogFilter.UserMod, $"[{Constants.Name}] [Processors] cannot parse {pair[0]} as float");
+                        QLog.Warn($"[Processors] cannot parse {pair[0]} as float");
                     continue;
                 }
                 if (Type.GetTypeCode(type) == TypeCode.Boolean)
@@ -83,12 +83,12 @@ namespace Codenade.Inputbinder
                     if (bool.TryParse(pair[1], out var result))
                         _actionManager.ProcBindInfo.Values.Add(pair[0], result);
                     else
-                        GlobalLog.Warn(LogFilter.UserMod, $"[{Constants.Name}] [Processors] cannot parse {pair[0]} as bool");
+                        QLog.Warn($"[Processors] cannot parse {pair[0]} as bool");
                     continue;
                 }
                 if (Type.GetTypeCode(type) == TypeCode.Object)
                     continue;
-                GlobalLog.Warn(LogFilter.UserMod, $"[{Constants.Name}] [Processors] incompatible field type {type} of {pair[0]}");
+                QLog.Warn($"[Processors] incompatible field type {type} of {pair[0]}");
             }
         }
     }
@@ -102,6 +102,8 @@ namespace Codenade.Inputbinder
             _fieldName = fieldName;
             var slider = gameObject.GetChild("Slider").GetComponent<Slider>();
             slider.value= (float)Inputbinder.Instance.ActionManager.ProcBindInfo.Values[_fieldName];
+            slider.minValue = GlobalConfiguration.SliderMin;
+            slider.maxValue = GlobalConfiguration.SliderMax;
             var inputField = gameObject.GetChild("InputField").GetComponent<TMP_InputField>();
             inputField.GetComponent<TMP_InputField>().text = ((float)Inputbinder.Instance.ActionManager.ProcBindInfo.Values[_fieldName]).ToString();
             slider.onValueChanged.AddListener(SliderChanged);

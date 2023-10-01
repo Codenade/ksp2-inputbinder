@@ -37,6 +37,8 @@ namespace Codenade.Inputbinder
                 binding.overrideProcessors = binding.overrideProcessors.Replace(toReplace, "").Trim(';');
             else
                 return;
+            if (binding.overrideProcessors == "")
+                binding.overrideProcessors = null;
             Inputbinder.Instance.ActionManager.ProcBindInfo.Action.ApplyBindingOverride(Inputbinder.Instance.ActionManager.ProcBindInfo.BindingIndex, binding);
             Destroy(gameObject.transform.parent.gameObject);
         }
