@@ -691,6 +691,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ui\BindingUI.cs" />
     <Compile Include="ui\ResetAllBindingsDialogBehaviour.cs" />
+    <Compile Include="ui\SaveAsDialogBehaviour.cs" />
+    <Compile Include="ui\SaveButtonBehaviour.cs" />
     <Compile Include="ui\SetupVerticalLayout.cs" />
     <Compile Include="Vector2AxisComposite.cs" />
   </ItemGroup>

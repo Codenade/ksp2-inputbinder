@@ -1,6 +1,7 @@
 ﻿using KSP.IO;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Composites;
 using UnityEngine.InputSystem.Controls;
@@ -16,6 +17,9 @@ namespace Codenade.Inputbinder
 
         public RebindInformation RebindInfo => _rebindInfo;
         public ProcRebindInformation ProcBindInfo => _procBindInfo;
+        public string ProfileBasePath { get; set; } = Path.Combine(BepInEx.Paths.ConfigPath, "inputbinder/profiles");
+        public string ProfileName { get; set; } = GlobalConfiguration.DefaultProfile;
+        public string ProfileExtension { get; set; } = ".json";
 
         private RebindInformation _rebindInfo;
         private ProcRebindInformation _procBindInfo;
@@ -157,8 +161,9 @@ namespace Codenade.Inputbinder
             }
         }
 
-        public void LoadOverrides(string path)
+        public void LoadOverrides()
         {
+            string path = Path.Combine(ProfileBasePath, ProfileName + ProfileExtension);
             if (!IOProvider.FileExists(path))
                 return;
             QLog.Info($"Loading settings ...");
@@ -172,9 +177,16 @@ namespace Codenade.Inputbinder
                 QLog.Error($"Failed to load settings ({stopwatch.Elapsed.TotalSeconds}s)");
         }
 
-        public bool SaveOverrides(string path)
+        public bool SaveOverrides()
         {
+            string path = Path.Combine(ProfileBasePath, ProfileName + ProfileExtension);
             return ProfileDefinitions.SaveOverrides(Actions, path);
+        }
+
+        public bool CheckProfileExists(string name)
+        {
+            string path = Path.Combine(ProfileBasePath, name + ProfileExtension);
+            return File.Exists(path);
         }
 
         public void RemoveAllOverrides()

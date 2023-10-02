@@ -61,7 +61,7 @@ namespace Codenade.Inputbinder
             else
                 GlobalConfiguration.Save(cfgpath);
             _actionManager = new InputActionManager();
-            _actionManager.LoadOverrides(Path.Combine(BepInEx.Paths.ConfigPath, "inputbinder/profiles/input.json"));
+            _actionManager.LoadOverrides();
             _actionManager.Actions[Constants.ActionThrottleID].Action.performed += ctx => SetThrottle(ctx.ReadValue<float>());
             _actionManager.Actions[Constants.ActionThrottleID].Action.started += ctx => SetThrottle(ctx.ReadValue<float>());
             _actionManager.Actions[Constants.ActionThrottleID].Action.canceled += ctx => SetThrottle(ctx.ReadValue<float>());
