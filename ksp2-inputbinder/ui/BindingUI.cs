@@ -152,7 +152,16 @@ namespace Codenade.Inputbinder
             var scrollComponent = uiwindowcontent.transform.parent.parent.gameObject.GetComponent<ScrollRect>();
             scrollComponent.scrollSensitivity = 1f;
             scrollComponent.tag = "UI_SCROLL"; // Block the scrollwheel from zooming the camera view using the game's mechanic for it
-            var header = scrollComponent.transform.parent.parent.gameObject.GetChild("GRP-Header");
+            var uipanel = scrollComponent.transform.parent.parent.gameObject;
+            uipanel.GetComponent<VerticalLayoutGroup>().reverseArrangement = true;
+            // reordered children of uigroup to make the save button draw on top in its extended state
+            var header = uipanel.GetChild("GRP-Header");            //foot
+            var body = uipanel.GetChild("GRP-Body");                //resz
+            var footer = uipanel.GetChild("GRP-Footer");            //body
+            var resizehandle = uipanel.GetChild("ResizeHandle");    //head
+            body.transform.SetSiblingIndex(3);
+            footer.transform.SetSiblingIndex(1);
+            header.transform.SetSiblingIndex(4);
             var saveBtnDrp = Instantiate(Assets[PrefabKeys.SaveButtonDropdown], header.transform);
             saveBtnDrp.transform.SetSiblingIndex(3);
             _btnSaveDrp = saveBtnDrp.AddComponent<SaveButtonBehaviour>();
@@ -165,7 +174,7 @@ namespace Codenade.Inputbinder
             var loadBtn = Instantiate(Assets[PrefabKeys.LoadBindingsButton], header.transform);
             loadBtn.transform.SetSiblingIndex(4);
             _btnLoad = loadBtn.GetComponent<Button>();
-            _btnLoad.onClick.AddListener(LoadSettings);
+            _btnLoad.onClick.AddListener(() => ChangeStatus(Status.LoadDialog));
             var loadBtnRT = loadBtn.GetComponent<RectTransform>();
             loadBtnRT.anchoredPosition = new Vector2(220, 20);
             loadBtnRT.sizeDelta = new Vector2(55, 30);

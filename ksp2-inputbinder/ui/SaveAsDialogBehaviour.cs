@@ -35,6 +35,11 @@ namespace Codenade.Inputbinder
             _tglDef.isOn = false;
         }
 
+        private void OnEnable()
+        {
+            _tbName.Select();
+        }
+
         private void OnDisable()
         {
             _tbName.text = string.Empty;
@@ -51,6 +56,7 @@ namespace Codenade.Inputbinder
         private void OnPositive()
         {
             var am = Inputbinder.Instance.ActionManager;
+            var name = _tbName.text.Trim(' ');
             am.ProfileName = _tbName.text;
             if (am.SaveOverrides() && _tglDef.isOn)
             {
@@ -62,7 +68,7 @@ namespace Codenade.Inputbinder
 
         private void TextInputChanged(string value)
         {
-            if (value != string.Empty)
+            if (value != string.Empty && IsValid(value))
             {
                 _warnExist.SetActive(Inputbinder.Instance.ActionManager.CheckProfileExists(value));
                 _btnPos.interactable = true;
@@ -72,6 +78,14 @@ namespace Codenade.Inputbinder
                 _warnExist.SetActive(false);
                 _btnPos.interactable = false;
             }
+        }
+
+        private bool IsValid(string name)
+        {
+            foreach (var c in name)
+                if (c != ' ')
+                    return true;
+            return false;
         }
 
         private void InputFieldSelected(string value) => InputSystem.DisableDevice(Keyboard.current.device);
