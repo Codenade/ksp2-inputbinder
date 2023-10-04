@@ -667,21 +667,21 @@
     <Compile Include="DefaultInputActionDefinitions.cs" />
     <Compile Include="GameInputUtils.cs" />
     <Compile Include="GlobalConfiguration.cs" />
-    <Compile Include="LegacySettingsDatatypes.cs" />
-    <Compile Include="ProfileDatatypes.cs" />
-    <Compile Include="ProfileDefinitions.cs" />
+    <Compile Include="profiles\LegacySettingsDatatypes.cs" />
+    <Compile Include="profiles\ProfileDatatypes.cs" />
+    <Compile Include="profiles\ProfileDefinitions.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="ProcessorUtilities.cs" />
     <Compile Include="QLog.cs" />
     <Compile Include="ui\BindingGroup.cs" />
-    <Compile Include="AppBarButton.cs" />
+    <Compile Include="ui\AppBarButton.cs" />
     <Compile Include="ui\CompositeBindingGroup.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Containers.cs" />
     <Compile Include="ui\ExpandCollapse.cs" />
     <Compile Include="InputActionManager.cs" />
     <Compile Include="Inputbinder.cs" />
-    <Compile Include="MapProcessor.cs" />
+    <Compile Include="inputsystem\MapProcessor.cs" />
     <Compile Include="ui\Page1ListPopulator.cs" />
     <Compile Include="ui\Page2ListPopulator.cs" />
     <Compile Include="ui\Page3ValuesManager.cs" />
@@ -696,7 +696,7 @@
     <Compile Include="ui\SaveAsDialogBehaviour.cs" />
     <Compile Include="ui\SaveButtonBehaviour.cs" />
     <Compile Include="ui\SetupVerticalLayout.cs" />
-    <Compile Include="Vector2AxisComposite.cs" />
+    <Compile Include="inputsystem\Vector2AxisComposite.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

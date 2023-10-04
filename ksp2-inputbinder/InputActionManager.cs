@@ -89,11 +89,41 @@ namespace Codenade.Inputbinder
             var action = _rebindInfo.Operation.action;
             var bindingInfo = _rebindInfo.Binding;
             var wasEnabled = _rebindInfo.WasEnabled;
+            HandleAutoAddingProcessors();
             _rebindInfo.Operation.Dispose();
             _rebindInfo = null;
             if (wasEnabled)
                 action.Enable();
             QLog.Debug($"Binding complete: {action.name} {bindingInfo.name} with path {bindingInfo.effectivePath}");
+        }
+
+        private void HandleAutoAddingProcessors()
+        {
+            var rbInfo = _rebindInfo;
+            var op = rbInfo.Operation;
+            var aapBindings = GlobalConfiguration.aapBindings;
+            foreach (var aapb in aapBindings)
+            {
+                if (aapb.A == op.selectedControl.layout && aapb.B == op.expectedControlType)
+                {
+                    var bi = rbInfo.BindingIndex;
+                    var mod = op.action.bindings[bi];
+                    if (mod.isPartOfComposite)
+                    {
+                        bi = GameInputUtils.GetPreviousCompositeBinding(op.action, bi);
+                        if (bi == -1)
+                            return;
+                        mod = op.action.bindings[bi];
+                    }
+                    if (mod.overrideProcessors is null || mod.overrideProcessors == string.Empty)
+                        mod.overrideProcessors = aapb.ProcessorsToAdd;
+                    else if (!mod.overrideProcessors.Contains(aapb.ProcessorsToAdd))
+                        mod.overrideProcessors += ';' + aapb.ProcessorsToAdd;
+                    else
+                        return;
+                    op.action.ApplyBindingOverride(bi, mod);
+                }
+            }
         }
 
         public void CancelBinding()

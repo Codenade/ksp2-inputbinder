@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Utilities;
 
 namespace Codenade.Inputbinder
 {
@@ -78,11 +79,11 @@ namespace Codenade.Inputbinder
 
         public static bool IsNullOrEmpty(this string s) => s is null || s == string.Empty;
 
-        public static int GetPreviousCompositeBinding(this InputAction action, int startIndex)
+        public static int GetPreviousCompositeBinding(this InputAction action, int fromIndex)
         {
-            if (action.bindings.Count - 1 < startIndex || startIndex < 0)
-                throw new ArgumentOutOfRangeException(nameof(startIndex));
-            for (var j = startIndex; j >= 0; j--)
+            if (action.bindings.Count - 1 < fromIndex || fromIndex < 0)
+                throw new ArgumentOutOfRangeException(nameof(fromIndex));
+            for (var j = fromIndex; j >= 0; j--)
             {
                 if (action.bindings[j].isComposite)
                     return j;
@@ -114,6 +115,17 @@ namespace Codenade.Inputbinder
                     return true;
             }
             return false;
+        }
+
+        public static Dictionary<string, Type> GetInputSystemLayouts()
+        {
+            var im = typeof(InputSystem).GetField("s_Manager", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
+            var col = im.GetType().GetField("m_Layouts", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(im);
+            Dictionary<InternedString, Type> types = (Dictionary<InternedString, Type>)col.GetType().GetField("layoutTypes", BindingFlags.Public | BindingFlags.Instance).GetValue(col);
+            Dictionary<string, Type> nTypes = new Dictionary<string, Type>();
+            foreach (var kvp in types)
+                nTypes.Add(kvp.Key.ToString(), kvp.Value);
+            return nTypes;
         }
     }
 }
