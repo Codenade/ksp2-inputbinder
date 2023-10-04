@@ -6,11 +6,13 @@ namespace Codenade.Inputbinder
 {
     internal static class GlobalConfiguration
     {
+        internal static readonly string path = Path.Combine(BepInEx.Paths.ConfigPath, "inputbinder/inputbinder.cfg");
+
         public static float SliderMin { get; set; } = -2;
         public static float SliderMax { get; set; } = 2;
         public static string DefaultProfile { get; set; } = "input";
 
-        public static void Load(string path)
+        public static void Load()
         {
             if (!File.Exists(path))
                 return;
@@ -48,7 +50,7 @@ namespace Codenade.Inputbinder
             }
         }
 
-        public static void Save(string path)
+        public static void Save()
         {
             try
             {

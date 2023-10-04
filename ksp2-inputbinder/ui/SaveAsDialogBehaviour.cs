@@ -61,7 +61,7 @@ namespace Codenade.Inputbinder
             if (am.SaveOverrides() && _tglDef.isOn)
             {
                 GlobalConfiguration.DefaultProfile = _tbName.text;
-                GlobalConfiguration.Save(Path.Combine(BepInEx.Paths.ConfigPath, "inputbinder/inputbinder.cfg"));
+                GlobalConfiguration.Save();
             }
             Inputbinder.Instance.BindingUI.ChangeStatus(BindingUI.Status.Default);
         }

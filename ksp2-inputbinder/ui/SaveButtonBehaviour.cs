@@ -1,11 +1,11 @@
 ﻿using System;
 using UnityEngine;
-using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Codenade.Inputbinder
 {
-    internal class SaveButtonBehaviour : MonoBehaviour
+    internal class SaveButtonBehaviour : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         public bool Extended
         {
@@ -14,7 +14,6 @@ namespace Codenade.Inputbinder
             {
                 _btnSec.gameObject.SetActive(value);
                 _arrowT.localRotation = Quaternion.Euler(0, 0, value ? 180 : 0);
-                if (!value) _clickAction?.Dispose();
             }
         }
         public bool interactable
@@ -34,7 +33,7 @@ namespace Codenade.Inputbinder
         private Button _btnPri;
         private Button _btnExt;
         private Button _btnSec;
-        private InputAction _clickAction;
+        private ClickListener _clickListener;
         private RectTransform _arrowT;
 
         internal void Init()
@@ -54,29 +53,37 @@ namespace Codenade.Inputbinder
             PrimaryClick?.Invoke();
         }
 
-        private void BtnExtClicked()
-        {
-            Extended = !Extended;
-            if (Extended)
-            {
-                if (_clickAction is object) return;
-                _clickAction = new InputAction
-                {
-                    expectedControlType = "Button"
-                };
-                _clickAction.AddBinding(UnityEngine.InputSystem.Mouse.current.leftButton);
-                _clickAction.AddBinding(UnityEngine.InputSystem.Mouse.current.rightButton);
-                _clickAction.canceled += (_) => Extended = false;
-                //_clickAction.Enable();
-            }
-            else
-                _clickAction?.Dispose();
-        }
+        private void BtnExtClicked() => Extended = !Extended;
 
         private void BtnSecClicked()
         {
             Extended = false;
             SecondaryClick?.Invoke();
+        }
+
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            if (_clickListener != null) Destroy(_clickListener);
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            if (Extended && _clickListener == null)
+            {
+                _clickListener = gameObject.AddComponent<ClickListener>();
+                _clickListener.Click += () => Extended = false;
+            }
+        }
+    }
+
+    internal class ClickListener : MonoBehaviour
+    {
+        internal event Action Click;
+
+        private void Update()
+        {
+            if ((Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1)))
+                Click?.Invoke();
         }
     }
 }

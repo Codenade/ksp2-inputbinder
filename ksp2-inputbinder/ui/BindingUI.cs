@@ -45,6 +45,7 @@ namespace Codenade.Inputbinder
         private GameObject _uiPage3;
         private GameObject _uiOverlayResetAll;
         private GameObject _uiOverlaySaveAs;
+        private GameObject _uiOverlayLoad;
         private SaveButtonBehaviour _btnSaveDrp;
         private Button _btnLoad;
         private Button _btnResetAll;
@@ -148,6 +149,9 @@ namespace Codenade.Inputbinder
             _uiOverlaySaveAs = Instantiate(Assets[PrefabKeys.SaveAsDialogOverlay], ContentRoot.transform.parent.parent);
             _uiOverlaySaveAs.SetActive(false);
             _uiOverlaySaveAs.AddComponent<SaveAsDialogBehaviour>();
+            _uiOverlayLoad = Instantiate(Assets[PrefabKeys.LoadDialogOverlay], ContentRoot.transform.parent.parent);
+            _uiOverlayLoad.SetActive(false);
+            _uiOverlayLoad.AddComponent<ProfileLoadDialogBehaviour>();
             var uiwindowcontent = _uiMain.transform.parent.gameObject;
             var scrollComponent = uiwindowcontent.transform.parent.parent.gameObject.GetComponent<ScrollRect>();
             scrollComponent.scrollSensitivity = 1f;
@@ -169,7 +173,9 @@ namespace Codenade.Inputbinder
             _btnSaveDrp.PrimaryClick += () => Inputbinder.Instance.ActionManager.SaveOverrides();
             _btnSaveDrp.SecondaryClick += () => ChangeStatus(Status.SaveDialog);
             var saveBtnRT = saveBtnDrp.GetComponent<RectTransform>();
-            saveBtnRT.anchoredPosition = new Vector2(-100, 15);
+            saveBtnRT.anchorMin = Vector2.zero;
+            saveBtnRT.anchorMax = Vector2.zero;
+            saveBtnRT.anchoredPosition = new Vector2(150, 35);
             saveBtnRT.sizeDelta = new Vector2(80, 30);
             var loadBtn = Instantiate(Assets[PrefabKeys.LoadBindingsButton], header.transform);
             loadBtn.transform.SetSiblingIndex(4);
@@ -260,6 +266,7 @@ namespace Codenade.Inputbinder
             _uiOverlayRebind.SetActive(false);
             _uiOverlayResetAll.SetActive(false);
             _uiOverlaySaveAs.SetActive(false);
+            _uiOverlayLoad.SetActive(false);
             _uiPage1.SetActive(false);
             _uiPage2.SetActive(false);
             _uiPage3.SetActive(false);
@@ -283,6 +290,8 @@ namespace Codenade.Inputbinder
                     _uiOverlaySaveAs.SetActive(true);
                     break;
                 case Status.LoadDialog:
+                    _uiMain.SetActive(true);
+                    _uiOverlayLoad.SetActive(true);
                     break;
                 case Status.Rebinding:
                     if (!Inputbinder.Instance.ActionManager.IsCurrentlyRebinding)
@@ -372,6 +381,8 @@ namespace Codenade.Inputbinder
             public static readonly string ConfirmResetAllBindingsOverlay =  "Codenade.Inputbinder/ConfirmResetAllDialogOverlay";
             public static readonly string SaveButtonDropdown =              "Codenade.Inputbinder/SaveButtonDropdown";
             public static readonly string SaveAsDialogOverlay =             "Codenade.Inputbinder/SaveAsDialogOverlay";
+            public static readonly string ProfileElement =                  "Codenade.Inputbinder/ProfileElement";
+            public static readonly string LoadDialogOverlay =               "Codenade.Inputbinder/LoadDialogOverlay";
 
             public static string[] AllKeys 
             { 

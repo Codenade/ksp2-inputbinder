@@ -89,6 +89,14 @@ MonoBehaviour:
     m_Address: Codenade.Inputbinder/SaveAsDialogOverlay
     m_ReadOnly: 0
     m_SerializedLabels: []
+  - m_GUID: de17ba491b8fb1c4ba1f5aff484fcce8
+    m_Address: Codenade.Inputbinder/LoadDialogOverlay
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 5b88bb50d321dba40a19b4e4d73d215c
+    m_Address: Codenade.Inputbinder/ProfileElement
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 8644c698111574d4db1297cfbb2f6c1b, type: 2}
   m_SchemaSet:

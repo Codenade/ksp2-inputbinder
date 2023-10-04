@@ -690,6 +690,8 @@
     <Compile Include="ui\ProcRemoveBehaviour.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ui\BindingUI.cs" />
+    <Compile Include="ui\ProfileListPopulator.cs" />
+    <Compile Include="ui\ProfileLoadDialogBehaviour.cs" />
     <Compile Include="ui\ResetAllBindingsDialogBehaviour.cs" />
     <Compile Include="ui\SaveAsDialogBehaviour.cs" />
     <Compile Include="ui\SaveButtonBehaviour.cs" />
