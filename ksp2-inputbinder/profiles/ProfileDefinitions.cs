@@ -14,6 +14,8 @@ namespace Codenade.Inputbinder
             return LoadVersion1(actions, path);
         }
 
+        public static InputProfileData LoadInfoVersion1(string path) => IOProvider.FromJsonFile<InputProfileData>(path);
+
         public static bool LoadVersion1(Dictionary<string, NamedInputAction> actions, string path)
         {
             var content = IOProvider.FromJsonFile<InputProfileData>(path);

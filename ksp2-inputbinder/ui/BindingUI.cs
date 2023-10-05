@@ -1,5 +1,4 @@
 ﻿using KSP.Game;
-using KSP.IO;
 using KSP.UI;
 using KSP.UserInterface;
 using System;
@@ -35,7 +34,6 @@ namespace Codenade.Inputbinder
         }
 
         private InputActionManager _actionManager;
-        private string _modRootPath;
         private KSP2UIWindow _uiWindow;
         private bool _allPrefabsLoaded;
         private bool _allPrefabsQueued;
@@ -46,7 +44,9 @@ namespace Codenade.Inputbinder
         private GameObject _uiPage2;
         private GameObject _uiPage3;
         private GameObject _uiOverlayResetAll;
-        private Button _btnSave;
+        private GameObject _uiOverlaySaveAs;
+        private GameObject _uiOverlayLoad;
+        private SaveButtonBehaviour _btnSaveDrp;
         private Button _btnLoad;
         private Button _btnResetAll;
         private float _scrollRectPosition;
@@ -116,7 +116,6 @@ namespace Codenade.Inputbinder
             _allPrefabsQueued = false;
             _allPrefabsLoaded = false;
             _actionManager = Inputbinder.Instance.ActionManager;
-            _modRootPath = Inputbinder.Instance.ModRootPath;
         }
 
         public void Show() => enabled = true;
@@ -124,11 +123,6 @@ namespace Codenade.Inputbinder
         public void Hide() => enabled = false;
 
         private void LoadSettings() => Inputbinder.Reload();
-
-        private void SaveSettings()
-        {
-            _actionManager.SaveOverrides(IOProvider.JoinPath(BepInEx.Paths.ConfigPath, "inputbinder/profiles/input.json"));
-        }
 
         private void Setup()
         {
@@ -152,31 +146,50 @@ namespace Codenade.Inputbinder
             _uiOverlayResetAll = Instantiate(Assets[PrefabKeys.ConfirmResetAllBindingsOverlay], ContentRoot.transform.parent.parent);
             _uiOverlayResetAll.SetActive(false);
             _uiOverlayResetAll.AddComponent<ResetAllBindingsDialogBehaviour>();
+            _uiOverlaySaveAs = Instantiate(Assets[PrefabKeys.SaveAsDialogOverlay], ContentRoot.transform.parent.parent);
+            _uiOverlaySaveAs.SetActive(false);
+            _uiOverlaySaveAs.AddComponent<SaveAsDialogBehaviour>();
+            _uiOverlayLoad = Instantiate(Assets[PrefabKeys.LoadDialogOverlay], ContentRoot.transform.parent.parent);
+            _uiOverlayLoad.SetActive(false);
+            _uiOverlayLoad.AddComponent<ProfileLoadDialogBehaviour>();
             var uiwindowcontent = _uiMain.transform.parent.gameObject;
             var scrollComponent = uiwindowcontent.transform.parent.parent.gameObject.GetComponent<ScrollRect>();
             scrollComponent.scrollSensitivity = 1f;
             scrollComponent.tag = "UI_SCROLL"; // Block the scrollwheel from zooming the camera view using the game's mechanic for it
-            var header = scrollComponent.transform.parent.parent.gameObject.GetChild("GRP-Header");
-            var saveBtn = Instantiate(Assets[PrefabKeys.ProcessorSaveButton], header.transform);
-            saveBtn.transform.SetSiblingIndex(3);
-            _btnSave = saveBtn.GetComponent<Button>();
-            _btnSave.onClick.AddListener(SaveSettings);
-            var saveBtnRT = saveBtn.GetComponent<RectTransform>();
-            saveBtnRT.anchoredPosition = new Vector2(140, 20);
-            saveBtnRT.sizeDelta = new Vector2(55, 30);
+            var uipanel = scrollComponent.transform.parent.parent.gameObject;
+            uipanel.GetComponent<VerticalLayoutGroup>().reverseArrangement = true;
+            // reordered children of uigroup to make the save button draw on top in its extended state
+            var header = uipanel.GetChild("GRP-Header");            //foot
+            var body = uipanel.GetChild("GRP-Body");                //resz
+            var footer = uipanel.GetChild("GRP-Footer");            //body
+            var resizehandle = uipanel.GetChild("ResizeHandle");    //head
+            body.transform.SetSiblingIndex(3);
+            footer.transform.SetSiblingIndex(1);
+            header.transform.SetSiblingIndex(4);
+            var saveBtnDrp = Instantiate(Assets[PrefabKeys.SaveButtonDropdown], header.transform);
+            saveBtnDrp.transform.SetSiblingIndex(3);
+            _btnSaveDrp = saveBtnDrp.AddComponent<SaveButtonBehaviour>();
+            _btnSaveDrp.Init();
+            _btnSaveDrp.PrimaryClick += () => Inputbinder.Instance.ActionManager.SaveOverrides();
+            _btnSaveDrp.SecondaryClick += () => ChangeStatus(Status.SaveDialog);
+            var saveBtnRT = saveBtnDrp.GetComponent<RectTransform>();
+            saveBtnRT.anchorMin = Vector2.zero;
+            saveBtnRT.anchorMax = Vector2.zero;
+            saveBtnRT.anchoredPosition = new Vector2(150, 35);
+            saveBtnRT.sizeDelta = new Vector2(80, 30);
             var loadBtn = Instantiate(Assets[PrefabKeys.LoadBindingsButton], header.transform);
             loadBtn.transform.SetSiblingIndex(4);
             _btnLoad = loadBtn.GetComponent<Button>();
-            _btnLoad.onClick.AddListener(LoadSettings);
+            _btnLoad.onClick.AddListener(() => ChangeStatus(Status.LoadDialog));
             var loadBtnRT = loadBtn.GetComponent<RectTransform>();
-            loadBtnRT.anchoredPosition = new Vector2(199, 20);
+            loadBtnRT.anchoredPosition = new Vector2(220, 20);
             loadBtnRT.sizeDelta = new Vector2(55, 30);
             var rstAllBdgsBtn = Instantiate(Assets[PrefabKeys.ResetAllBindingsButton], header.transform);
             rstAllBdgsBtn.transform.SetSiblingIndex(5);
             _btnResetAll = rstAllBdgsBtn.GetComponent<Button>();
             _btnResetAll.onClick.AddListener(RemoveAllBindingsButtonClicked);
             var rstAllBdgsBtnRT = rstAllBdgsBtn.GetComponent<RectTransform>();
-            rstAllBdgsBtnRT.anchoredPosition = new Vector2(265, 20);
+            rstAllBdgsBtnRT.anchoredPosition = new Vector2(285, 20);
             rstAllBdgsBtnRT.sizeDelta = new Vector2(70, 30);
             //var rmGpdBdgsBtn = Instantiate(Assets[PrefabKeys.RemoveGamepadBindingsButton], header.transform);
             //rmGpdBdgsBtn.transform.SetSiblingIndex(5);
@@ -252,23 +265,33 @@ namespace Codenade.Inputbinder
             _uiMain.SetActive(false);
             _uiOverlayRebind.SetActive(false);
             _uiOverlayResetAll.SetActive(false);
+            _uiOverlaySaveAs.SetActive(false);
+            _uiOverlayLoad.SetActive(false);
             _uiPage1.SetActive(false);
             _uiPage2.SetActive(false);
             _uiPage3.SetActive(false);
             _btnResetAll.interactable = false;
             _btnLoad.interactable = false;
-            _btnSave.interactable = true;
+            _btnSaveDrp.interactable = false;
             switch (status)
             {
                 case Status.Default:
                     _uiMain.SetActive(true);
+                    _btnSaveDrp.interactable = true;
                     _btnLoad.interactable = true;
                     _btnResetAll.interactable = true;
                     break;
                 case Status.ResetDialog:
                     _uiMain.SetActive(true);
                     _uiOverlayResetAll.SetActive(true);
-                    _btnSave.interactable = false;
+                    break;
+                case Status.SaveDialog:
+                    _uiMain.SetActive(true);
+                    _uiOverlaySaveAs.SetActive(true);
+                    break;
+                case Status.LoadDialog:
+                    _uiMain.SetActive(true);
+                    _uiOverlayLoad.SetActive(true);
                     break;
                 case Status.Rebinding:
                     if (!Inputbinder.Instance.ActionManager.IsCurrentlyRebinding)
@@ -354,8 +377,12 @@ namespace Codenade.Inputbinder
             public static readonly string LoadBindingsButton =              "Codenade.Inputbinder/LoadBindingsButton";
             public static readonly string RemoveGamepadBindingsButton =     "Codenade.Inputbinder/RemoveGamepadBindingsButton";
             public static readonly string CurrentlyBindingOverlay =         "Codenade.Inputbinder/CurrentlyBindingOverlay";
-            public static readonly string ResetAllBindingsButton =          "Codenade.Inputbinder//ResetAllBindingsButton";
+            public static readonly string ResetAllBindingsButton =          "Codenade.Inputbinder/ResetAllBindingsButton";
             public static readonly string ConfirmResetAllBindingsOverlay =  "Codenade.Inputbinder/ConfirmResetAllDialogOverlay";
+            public static readonly string SaveButtonDropdown =              "Codenade.Inputbinder/SaveButtonDropdown";
+            public static readonly string SaveAsDialogOverlay =             "Codenade.Inputbinder/SaveAsDialogOverlay";
+            public static readonly string ProfileElement =                  "Codenade.Inputbinder/ProfileElement";
+            public static readonly string LoadDialogOverlay =               "Codenade.Inputbinder/LoadDialogOverlay";
 
             public static string[] AllKeys 
             { 
@@ -373,6 +400,8 @@ namespace Codenade.Inputbinder
         public enum Status
         {
             Default,
+            SaveDialog,
+            LoadDialog,
             ResetDialog,
             Rebinding,
             ProcessorList,

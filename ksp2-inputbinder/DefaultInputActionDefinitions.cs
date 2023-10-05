@@ -315,6 +315,13 @@ namespace Codenade.Inputbinder
                         FriendlyName = "Quick Load",
                         Setup = DoButtonSetup
                     },
+					new WrappedInputAction()
+					{
+						Source = ActionSource.Game,
+						InputAction = GameManager.Instance.Game.Input.Global.QuickLoadHold,
+						FriendlyName = "Quick Load Hold",
+						Setup = DoButtonSetup
+					},
                     new WrappedInputAction()
                     {
                         Source = ActionSource.Game,

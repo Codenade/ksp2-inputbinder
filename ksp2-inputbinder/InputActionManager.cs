@@ -1,6 +1,7 @@
 ﻿using KSP.IO;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Composites;
 using UnityEngine.InputSystem.Controls;
@@ -16,6 +17,9 @@ namespace Codenade.Inputbinder
 
         public RebindInformation RebindInfo => _rebindInfo;
         public ProcRebindInformation ProcBindInfo => _procBindInfo;
+        public string ProfileBasePath { get; set; } = Path.Combine(BepInEx.Paths.ConfigPath, "inputbinder/profiles");
+        public string ProfileName { get; set; } = GlobalConfiguration.DefaultProfile;
+        public string ProfileExtension { get; set; } = ".json";
 
         private RebindInformation _rebindInfo;
         private ProcRebindInformation _procBindInfo;
@@ -85,11 +89,43 @@ namespace Codenade.Inputbinder
             var action = _rebindInfo.Operation.action;
             var bindingInfo = _rebindInfo.Binding;
             var wasEnabled = _rebindInfo.WasEnabled;
+            var controlA = _rebindInfo.Operation.selectedControl.layout;
+            var controlB = _rebindInfo.Operation.expectedControlType;
+            HandleAutoAddingProcessors();
             _rebindInfo.Operation.Dispose();
             _rebindInfo = null;
             if (wasEnabled)
                 action.Enable();
-            QLog.Debug($"Binding complete: {action.name} {bindingInfo.name} with path {bindingInfo.effectivePath}");
+            QLog.Debug($"Binding complete: {action.name} {bindingInfo.name} with path {bindingInfo.effectivePath}; bound control of type {controlA} to binding of type {controlB}");
+        }
+
+        private void HandleAutoAddingProcessors()
+        {
+            var rbInfo = _rebindInfo;
+            var op = rbInfo.Operation;
+            var aapBindings = GlobalConfiguration.aapBindings;
+            foreach (var aapb in aapBindings)
+            {
+                if ((aapb.A == "*" || aapb.A == "Any" || aapb.A == op.selectedControl.layout) && (aapb.B == "*" || aapb.B == "Any" || aapb.B == op.expectedControlType))
+                {
+                    var bi = rbInfo.BindingIndex;
+                    var mod = op.action.bindings[bi];
+                    if (mod.isPartOfComposite)
+                    {
+                        bi = GameInputUtils.GetPreviousCompositeBinding(op.action, bi);
+                        if (bi == -1)
+                            return;
+                        mod = op.action.bindings[bi];
+                    }
+                    if (mod.overrideProcessors is null || mod.overrideProcessors == string.Empty)
+                        mod.overrideProcessors = aapb.ProcessorsToAdd;
+                    else if (!mod.overrideProcessors.Contains(aapb.ProcessorsToAdd))
+                        mod.overrideProcessors += ';' + aapb.ProcessorsToAdd;
+                    else
+                        return;
+                    op.action.ApplyBindingOverride(bi, mod);
+                }
+            }
         }
 
         public void CancelBinding()
@@ -157,8 +193,9 @@ namespace Codenade.Inputbinder
             }
         }
 
-        public void LoadOverrides(string path)
+        public void LoadOverrides()
         {
+            string path = Path.Combine(ProfileBasePath, ProfileName + ProfileExtension);
             if (!IOProvider.FileExists(path))
                 return;
             QLog.Info($"Loading settings ...");
@@ -172,9 +209,16 @@ namespace Codenade.Inputbinder
                 QLog.Error($"Failed to load settings ({stopwatch.Elapsed.TotalSeconds}s)");
         }
 
-        public bool SaveOverrides(string path)
+        public bool SaveOverrides()
         {
+            string path = Path.Combine(ProfileBasePath, ProfileName + ProfileExtension);
             return ProfileDefinitions.SaveOverrides(Actions, path);
+        }
+
+        public bool CheckProfileExists(string name)
+        {
+            string path = Path.Combine(ProfileBasePath, name + ProfileExtension);
+            return File.Exists(path);
         }
 
         public void RemoveAllOverrides()

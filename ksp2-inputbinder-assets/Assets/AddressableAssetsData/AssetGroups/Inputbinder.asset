@@ -74,11 +74,27 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
   - m_GUID: 4ddceef2c1905f54583ef8690c248c7f
-    m_Address: Codenade.Inputbinder//ResetAllBindingsButton
+    m_Address: Codenade.Inputbinder/ResetAllBindingsButton
     m_ReadOnly: 0
     m_SerializedLabels: []
   - m_GUID: 1fbac85f7d11a6a429f6e6510bc0dbc9
     m_Address: Codenade.Inputbinder/ConfirmResetAllDialogOverlay
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: c5b7aa18e669da64eb7de2f53229b338
+    m_Address: Codenade.Inputbinder/SaveButtonDropdown
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 77c253be46fccc64081f654e6d30dc28
+    m_Address: Codenade.Inputbinder/SaveAsDialogOverlay
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: de17ba491b8fb1c4ba1f5aff484fcce8
+    m_Address: Codenade.Inputbinder/LoadDialogOverlay
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 5b88bb50d321dba40a19b4e4d73d215c
+    m_Address: Codenade.Inputbinder/ProfileElement
     m_ReadOnly: 0
     m_SerializedLabels: []
   m_ReadOnly: 0
