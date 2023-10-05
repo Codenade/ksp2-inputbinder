@@ -11,6 +11,7 @@
   * [Reset the configuration](#reset-the-configuration)
   * [Slider settings](#slider-settings)
   * [Adding more actions from the game to Inputbinder](#adding-more-actions-from-the-game-to-inputbinder)
+  * [Make Inputbinder automatically add processors](#make-inputbinder-automatically-add-processors)
 * [Bug Reports and Feature Requests](#bug-reports-and-feature-requests)
 * [More info](#more-info)
 
@@ -74,9 +75,9 @@ Currently only Windows is supported.
 ## Main features
 
 * Directly modifies the game's bindings using the [InputSystem](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.5/manual/index.html)
-* Change game bindings
 * Add [processors](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.5/manual/Processors.html) to your bindings
-* Makes gamepads usable
+* Save your bindings as different profiles
+* Makes gamepads usable, should also work with other input devices if they are supported by the [InputSystem](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.5/manual/SupportedDevices.html)
 
 ### Custom actions created by Inputbinder
 
@@ -96,9 +97,12 @@ The mod settings can be accessed in-game in the flight view.
 
 ![AppBar](./resources/inputbinder-app-bar.png)
 
+There also is a configuration file for advanced settings: `Kerbal Space Program 2/BepInEx/config/inputbinder/inputbinder.cfg`
+
 ### Where are my bindings stored?
 
-The bindings and processors are stored in the folder `Kerbal Space Program 2/BepInEx/config/inputbinder/profiles` inside `.json` files. Every file holds a complete set of all bindings. You can back up an individual file or rename it and put it back when you need to. By clicking "Load" inside the mod app it loads the file named `input.json`
+The bindings and processors are stored in the folder `Kerbal Space Program 2/BepInEx/config/inputbinder/profiles` inside `.json` files. Every file holds a complete set of all bindings.  
+__These files are referenced as "input profiles" by this mod's documentation.__
 
 ### Reset the configuration
 
@@ -108,7 +112,7 @@ To reset all bindings click the "Reset All" button in the app's title bar.
 
 To change the range of the sliders inside the processor editing menus, open the file `Kerbal Space Program 2/BepInEx/config/inputbinder/inputbinder.cfg` inside a text editor.  
 Now change the values after `SliderMin=` and `SliderMax=` to suit your needs.  
-Then save the file and restart your game.
+Then save the file and load/reload any input profile.
 
 ### Adding more actions from the game to Inputbinder
 
@@ -116,13 +120,50 @@ It is possible to change the bindings for other game actions too.
 
 * Create this file: `Kerbal Space Program 2/BepInEx/config/inputbinder/game_actions_to_add.txt`
 
-* Follow [this page](https://github.com/Codenade/ksp2-inputbinder/wiki/Configuration#game_actions_to_addtxt) to add what you want
+* Follow [this page](https://github.com/Codenade/ksp2-inputbinder/wiki/Configuration#game_actions_to_addtxt) to add what you want, it is also possible to specify how the InputAction should be set up.
 
-* Save the file and restart your game
+* Save the file and load/reload any input profile
+
+### Make Inputbinder automatically add processors
+
+Open `Kerbal Space Program 2/BepInEx/config/inputbinder/inputbinder.cfg` in a text editor  
+_(if you didn't delete it yet there should be a default template commented out by the leading `#` for you to use and modify)_
+
+After the default config values add a section: `[auto-add-processors]`
+
+After this section heading you can configure the automatic adding of processors in the following format:
+
+`When<controlA>MappedTo<controlB>="<processors>"`
+
+The `<control1>` `<control2>` and `<processors>` placeholders should be replaced by the following:
+
+`<controlA>`: The newly bound control must match this control-type, one of: `Axis`, `Button`, `Key`, `Vector2`, `Delta`, `Stick`, `Dpad`, `*`, `Any`
+`<controlB>`: The binding's expected control-type to match, on of: `Axis`, `Button`, `Key`, `Vector2`, `Delta`, `Stick`, `Dpad`, `*`, `Any`
+
+The control types `*` and `Any` match any control
+
+`<processors>`: The processors to add as they are displayed on the main page of the mod's UI.  
+The enclosing quotation marks are required.
+
+If you want to find out what the control types of bindings of controls are you can rebind them and open the game's log `Kerbal Space Program 2/Ksp2.log` and look out for:  
+
+`Binding complete: <action name> <binding name> with path <bound path>; bound control of type <controlA> to binding of type <controlB>`
+
+Your finished configuration file should look something like this:
+
+```ini
+[main]
+SliderMin=-2
+SliderMax=2
+
+[auto-add-processors]
+WhenButtonMappedToAxis="Scale(factor=0.5)"
+WhenAxisMappedToAxis="Scale(factor=0.25);Invert()"
+```
 
 ## Bug Reports and Feature Requests
 
-Found any bugs? Have an idea to improve things? => [Open an issue on GitHub](https://github.com/Codenade/ksp2-inputbinder/issues).
+Found any bugs🦗? Have an idea to improve things💡? → [Open an issue on GitHub](https://github.com/Codenade/ksp2-inputbinder/issues).
 
 ## More info
 

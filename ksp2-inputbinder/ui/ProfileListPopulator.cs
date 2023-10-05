@@ -19,11 +19,21 @@ namespace Codenade.Inputbinder
 
         protected FileSystemWatcher _profileDirWatcher;
         protected Dictionary<string, GameObject> _profiles;
+        protected string _localeName;
 
         private void Awake() => _profiles = new Dictionary<string, GameObject>();
 
         private void OnEnable()
         {
+            try
+            {
+                _localeName = Utils.GetUserLocaleName();
+            }
+            catch (Exception e)
+            {
+                QLog.Error(e);
+                _localeName = null;
+            }
             InputActionManager am = Inputbinder.Instance.ActionManager;
             _profileDirWatcher = new FileSystemWatcher(am.ProfileBasePath, '*' + am.ProfileExtension);
             _profileDirWatcher.Renamed += ProfileDirWatcher_Renamed;
@@ -71,7 +81,7 @@ namespace Codenade.Inputbinder
             btnLoad.onClick.AddListener(() => Load(name));
             if (profile.FileVersion > 0)
             {
-                lblDesc.text = $"{DateTimeOffset.FromUnixTimeSeconds(profile.Timestamp).ToLocalTime().DateTime.ToString(CultureInfo.CurrentCulture)}\n" +
+                lblDesc.text = $"{DateTimeOffset.FromUnixTimeSeconds(profile.Timestamp).ToLocalTime().DateTime.ToString(Utils.GetFullDateTimeFormat(_localeName) ?? CultureInfo.CurrentCulture.DateTimeFormat.FullDateTimePattern)}\n" +
                     $"KSP 2 ver {profile.GameVersion}\n" +
                     $"File ver {profile.FileVersion}";
             }
@@ -97,7 +107,7 @@ namespace Codenade.Inputbinder
         {
             var prevName = GlobalConfiguration.DefaultProfile;
             GlobalConfiguration.DefaultProfile = name;
-            GlobalConfiguration.Save();
+            GlobalConfiguration.SaveDefaultProfile();
             if (_profiles.TryGetValue(prevName, out var prev))
             {
                 prev?.transform.Find("GrpBtns/BtnDflt").gameObject.SetActive(true);
@@ -107,6 +117,7 @@ namespace Codenade.Inputbinder
 
         private void Load(string name)
         {
+            GlobalConfiguration.Load();
             InputActionManager am = Inputbinder.Instance.ActionManager;
             am.ProfileName = name;
             am.LoadOverrides();

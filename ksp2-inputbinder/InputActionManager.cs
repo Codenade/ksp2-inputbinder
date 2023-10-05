@@ -89,12 +89,14 @@ namespace Codenade.Inputbinder
             var action = _rebindInfo.Operation.action;
             var bindingInfo = _rebindInfo.Binding;
             var wasEnabled = _rebindInfo.WasEnabled;
+            var controlA = _rebindInfo.Operation.selectedControl.layout;
+            var controlB = _rebindInfo.Operation.expectedControlType;
             HandleAutoAddingProcessors();
             _rebindInfo.Operation.Dispose();
             _rebindInfo = null;
             if (wasEnabled)
                 action.Enable();
-            QLog.Debug($"Binding complete: {action.name} {bindingInfo.name} with path {bindingInfo.effectivePath}");
+            QLog.Debug($"Binding complete: {action.name} {bindingInfo.name} with path {bindingInfo.effectivePath}; bound control of type {controlA} to binding of type {controlB}");
         }
 
         private void HandleAutoAddingProcessors()
@@ -104,7 +106,7 @@ namespace Codenade.Inputbinder
             var aapBindings = GlobalConfiguration.aapBindings;
             foreach (var aapb in aapBindings)
             {
-                if (aapb.A == op.selectedControl.layout && aapb.B == op.expectedControlType)
+                if ((aapb.A == "*" || aapb.A == "Any" || aapb.A == op.selectedControl.layout) && (aapb.B == "*" || aapb.B == "Any" || aapb.B == op.expectedControlType))
                 {
                     var bi = rbInfo.BindingIndex;
                     var mod = op.action.bindings[bi];

@@ -697,6 +697,7 @@
     <Compile Include="ui\SaveButtonBehaviour.cs" />
     <Compile Include="ui\SetupVerticalLayout.cs" />
     <Compile Include="inputsystem\Vector2AxisComposite.cs" />
+    <Compile Include="Utils.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

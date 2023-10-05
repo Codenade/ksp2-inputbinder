@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace Codenade.Inputbinder
@@ -8,16 +9,32 @@ namespace Codenade.Inputbinder
     internal static class GlobalConfiguration
     {
         internal static readonly string path = Path.Combine(BepInEx.Paths.ConfigPath, "inputbinder/inputbinder.cfg");
+        internal static readonly string profilePath = Path.Combine(BepInEx.Paths.ConfigPath, "inputbinder/defaultprofile.txt");
         public static List<AAPBinding> aapBindings = new List<AAPBinding>();
 
+        [ConfigProperty("main")]
         public static float SliderMin { get; set; } = -2;
+        [ConfigProperty("main")]
         public static float SliderMax { get; set; } = 2;
         public static string DefaultProfile { get; set; } = "input";
 
         public static void Load()
         {
             if (!File.Exists(path))
+            {
+                Create();
                 return;
+            }
+            if (File.Exists(profilePath))
+            {
+                string dp = File.ReadAllText(profilePath);
+                dp.Trim();
+                if (Utils.IsValidFileName(dp))
+                    DefaultProfile = dp;
+            }
+            else
+                SaveDefaultProfile();
+            aapBindings.Clear();
             using (TextReader cr = File.OpenText(path))
             {
                 string cl;
@@ -59,10 +76,13 @@ namespace Codenade.Inputbinder
                     }
                     else if (sectMain)
                     {
-                        var name = cl.Substring(0, nvp).Trim(' ');
-                        var sVal = cl.Substring(nvp + 1).Trim(' ');
-                        foreach (var ts in typeof(GlobalConfiguration).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static))
+                        var name = cl.Substring(0, nvp).Trim();
+                        var sVal = cl.Substring(nvp + 1).Trim();
+                        foreach (var ts in typeof(GlobalConfiguration).GetProperties(BindingFlags.Public | BindingFlags.Static))
                         {
+                            var attr = ts.GetCustomAttribute(typeof(ConfigPropertyAttribute));
+                            if (attr is null || ((ConfigPropertyAttribute)attr).Section != "main")
+                                continue;
                             if (ts.Name == name)
                             {
                                 if (ts.PropertyType == typeof(float) && float.TryParse(sVal, out var result))
@@ -84,24 +104,57 @@ namespace Codenade.Inputbinder
             }
         }
 
-        public static void Save()
+        public static void SaveDefaultProfile()
         {
+            using (var ct = File.CreateText(profilePath))
+            {
+                ct.Write(DefaultProfile);
+            }
+        }
+
+        public static void Create()
+        {
+            if (File.Exists(path))
+                return;
             try
             {
                 using (var cw = File.CreateText(path))
                 {
-                    foreach (var ts in typeof(GlobalConfiguration).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static))
+                    cw.WriteLine("# Documentation available at:");
+                    cw.WriteLine("# https://github.com/Codenade/ksp2-inputbinder/wiki/Configuration");
+                    cw.WriteLine("[main]");
+                    foreach (var ts in typeof(GlobalConfiguration).GetProperties(BindingFlags.Public | BindingFlags.Static))
                     {
+                        var attr = ts.GetCustomAttribute(typeof(ConfigPropertyAttribute));
+                        if (attr is null || ((ConfigPropertyAttribute)attr).Section != "main")
+                            continue;
                         if (ts.PropertyType != typeof(string))
                             cw.WriteLine(ts.Name + "=" + ts.GetValue(null).ToString());
                         else
                             cw.WriteLine(ts.Name + "=\"" + (string)ts.GetValue(null) + '\"');
                     }
+                    cw.WriteLine();
+                    cw.WriteLine("# Uncomment the follwing section to automatically add ");
+                    cw.WriteLine("# a Scale processor with factor = 15 to every binding ");
+                    cw.WriteLine("# where you bind a Button an Axis binding.");
+                    cw.WriteLine("# [auto-add-processors]");
+                    cw.WriteLine("# WhenButtonMappedToAxis=\"Scale(factor=15)\"");
                 }
             }
             catch (Exception e)
             {
                 QLog.ErrorLine(e);
+            }
+            SaveDefaultProfile();
+        }
+
+        protected class ConfigPropertyAttribute : Attribute
+        {
+            public string Section { get; set; }
+
+            public ConfigPropertyAttribute(string section)
+            {
+                Section = section;
             }
         }
     }

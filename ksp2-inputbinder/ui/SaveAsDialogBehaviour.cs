@@ -56,12 +56,12 @@ namespace Codenade.Inputbinder
         private void OnPositive()
         {
             var am = Inputbinder.Instance.ActionManager;
-            var name = _tbName.text.Trim(' ');
+            var name = _tbName.text.Trim();
             am.ProfileName = _tbName.text;
             if (am.SaveOverrides() && _tglDef.isOn)
             {
                 GlobalConfiguration.DefaultProfile = _tbName.text;
-                GlobalConfiguration.Save();
+                GlobalConfiguration.SaveDefaultProfile();
             }
             Inputbinder.Instance.BindingUI.ChangeStatus(BindingUI.Status.Default);
         }
@@ -97,13 +97,13 @@ namespace Codenade.Inputbinder
     {
         public override char Validate(ref string text, ref int pos, char ch)
         {
-            bool invalid = Path.GetInvalidFileNameChars().Contains(ch) || Path.GetInvalidPathChars().Contains(ch);
-            if (!invalid)
+            if (Utils.IsValidFileNameCharacter(ch))
             {
                 text = text.Insert(pos, ch.ToString());
                 pos++;
+                return ch;
             }
-            return invalid ? '\0' : ch;
+            return '\0';
         }
     }
 }
