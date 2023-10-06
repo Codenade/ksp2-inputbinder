@@ -1,11 +1,12 @@
 name: Bug Report
 description: File a bug report.
-title: "[Bug]: "
+title: ""
 labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
+        Before filing a bug report, please make sure to look at open issues in order to not open a duplicate of anothe one.
         Thanks for taking the time to fill out this bug report!
   - type: textarea
     id: description
