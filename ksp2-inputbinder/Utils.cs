@@ -8,7 +8,7 @@ namespace Codenade.Inputbinder
 {
     internal class Utils
     {
-        public static bool IsValidFileName(string name) => name.IndexOfAny(Path.GetInvalidFileNameChars().Concat(Path.GetInvalidPathChars()).ToArray()) >= 0;
+        public static bool IsValidFileName(string name) => name.IndexOfAny(Path.GetInvalidFileNameChars().Concat(Path.GetInvalidPathChars()).ToArray()) < 0;
 
         public static bool IsValidFileNameCharacter(char c) => !(Path.GetInvalidFileNameChars().Contains(c) || Path.GetInvalidPathChars().Contains(c));
 
