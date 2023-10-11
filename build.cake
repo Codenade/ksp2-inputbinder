@@ -29,9 +29,9 @@ Task("Build")
 			NoLogo = true
 		});
 		Information("Copying assembly build productis to output directory");
-		CopyFileToDirectory($"./bin/{configuration}/netstandard2.0/ksp2-inputbinder.dll", Directory("./build/BepInEx/plugins/inputbinder/"));
+		CopyFileToDirectory($"./ksp2-inputbinder/bin/{configuration}/netstandard2.0/ksp2-inputbinder.dll", Directory("./build/BepInEx/plugins/inputbinder/"));
 		if (configuration == "Debug")
-			CopyFileToDirectory($"./bin/{configuration}/netstandard2.0/ksp2-inputbinder.pdb", Directory("./build/BepInEx/plugins/inputbinder/"));
+			CopyFileToDirectory($"./ksp2-inputbinder/bin/{configuration}/netstandard2.0/ksp2-inputbinder.pdb", Directory("./build/BepInEx/plugins/inputbinder/"));
 		// Find unity editor 2020.3.33f1
 		Information("Trying to find Unity Editor version 2020.3.33f1");
 		var unityEditor = FindUnityEditor(2020, 3, 33, 'f');
