@@ -364,6 +364,7 @@ MigrationBackup/
 FodyWeavers.xsd
 
 [Bb]uild
+tools
 
 # do not handle the unity project in this file
 !ksp2-inputbinder-assets/**
