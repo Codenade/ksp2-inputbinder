@@ -57,11 +57,11 @@ __Inputbinder App__
 
 You can see Cake's built-in options by typing `dotnet cake --help`
 
-`dotnet cake [--target {Clean|Build|Pack|Install|Uninstall|Start}] [--configuration {Release|Debug}] [--ksp2-root <path to 'Kerbal Space Program 2'>]`
+`dotnet cake [--target {Clean|Build|Pack|Install|Uninstall|Start}] [--configuration {Release|Debug}] [--ksp2-root <path>]`
   
   | Option                                                   | Description |
   |----------------------------------------------------------|-------------|
-  | --target {Clean\|Build\|Pack\|Install\|Uninstall\|Start}      | Select a build target. The default if not specified is Pack.<br>If any of Install, Uninstall or Start are used the path to your installation of KSP2 must be specified by either: setting an Environment variable called KSP2_PATH or using the argument `--ksp2-root <path to 'Kerbal Space Program 2'>` |
+  | --target {Clean\|Build\|Pack\|Install\|Uninstall\|Start}      | Select a build target. The default if not specified is Pack.<br>If any of Install, Uninstall or Start are used the path to your installation of KSP2 must be specified by either: setting an Environment variable called KSP2_PATH or using the argument `--ksp2-root <path>` |
   | --configuration {Release\|Debug} | Select the build configuration. The default is Release.<br>When the Debug configuration is used a symbols file will be included in the build directory for ease of debugging. |
   | --ksp2-root \<path\>                                            | Used to specify where KSP2 is installed on your computer.<br>Alternatively you can specify the path by setting a new the Environment Variable: `KSP2_PATH` and assigning it the path to your game installation. |
 
