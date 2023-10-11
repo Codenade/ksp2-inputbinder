@@ -40,37 +40,30 @@ __Inputbinder App__
 
 ## How to build
 
-Currently only Windows is supported.
-
 ### Prerequisites
 
-* [Python 3.5 or newer](https://www.python.org/downloads/)
-* [.NET Framework 4.7.2](https://dotnet.microsoft.com/en-us/download/dotnet-framework/net472)
+* [.NET SDK](https://dotnet.microsoft.com/en-us/download)
 * [Unity 2020.3.33](https://unity.com/releases/editor/archive)
-* [BepInEx](https://docs.bepinex.dev/articles/user_guide/installation/index.html) installed to KSP 2
 
 ### Instructions
 
 * Clone this repository to a location of your choice
 
-* Add a new environment variable named `KSP2_PATH` with the value set to the path to your installation of KSP 2 (eg. `C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program 2`)
+* Run `dotnet tool restore`
 
-* Run `build.bat`
+* Run `dotnet cake`
 
-#### build.bat usage
+#### build script custom arguments
 
-`build.py [-h] [-e UNITY_EXECUTABLE] [-i] [-s] [-d] [-n] [--skip-assembly-build] [--skip-assets]`
+You can see Cake's built-in options by typing `dotnet cake --help`
+
+`dotnet cake [--target {Clean|Build|Pack|Install|Uninstall|Start}] [--configuration {Release|Debug}] [--ksp2-root <path to 'Kerbal Space Program 2'>]`
   
   | Option                                                   | Description |
   |----------------------------------------------------------|-------------|
-  | -h, --help                                               | show this help message and exit |
-  | -e UNITY_EXECUTABLE, --unity-executable UNITY_EXECUTABLE |If your unity installation is not located at `C:/Program  Files/Unity/Hub/Editor/2020.3.33f1/Editor/Unity.exe` use this option|
-  |-i, --install                                             |Install this mod|
-  |-s, --start                                               |Install and start this mod, --install is redundant when using this option|
-  |-d, --debug                                               |Produces a debug build with full debug information|
-  |-n, --no-archive                                          |Do not create an archive file when completed|
-  |--skip-assembly-build                                     |Skips the assembly build|
-  |--skip-assets                                             |Skips the addressables build|
+  | --target {Clean\|Build\|Pack\|Install\|Uninstall\|Start}      | Select a build target. The default if not specified is Pack.<br>If any of Install, Uninstall or Start are used the path to your installation of KSP2 must be specified by either: setting an Environment variable called KSP2_PATH or using the argument `--ksp2-root <path to 'Kerbal Space Program 2'>` |
+  | --configuration {Release\|Debug} | Select the build configuration. The default is Release.<br>When the Debug configuration is used a symbols file will be included in the build directory for ease of debugging. |
+  | --ksp2-root \<path\>                                            | Used to specify where KSP2 is installed on your computer.<br>Alternatively you can specify the path by setting a new the Environment Variable: `KSP2_PATH` and assigning it the path to your game installation. |
 
 ## Main features
 
