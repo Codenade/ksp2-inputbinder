@@ -1,11 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
+	<PropertyGroup Label="Basic configuration">
 		<TargetFramework>netstandard2.0</TargetFramework>
-		<Version>0.5.2</Version>
+		<RootNamespace>Codenade.Inputbinder</RootNamespace>
 	</PropertyGroup>
-	<ItemGroup>
+	<PropertyGroup Label="Plugin information. This is read by BepInEx.PluginInfoProps">
+		<Version>0.5.2</Version>
+		<Product>Inputbinder</Product>
+		<AssemblyName>ksp2-inputbinder</AssemblyName>
+		<AssemblyTitle>Inputbinder</AssemblyTitle>
+		<Company>Codenade</Company>
+	</PropertyGroup>
+	<ItemGroup Label="References to NuGet Packages">
 		<PackageReference Include="BepInEx.BaseLib" Version="5.4.21" />
+		<PackageReference Include="BepInEx.PluginInfoProps" Version="2.1.0" />
 		<PackageReference Include="HarmonyX" Version="2.10.2" />
 		<PackageReference Include="KerbalSpaceProgram2.GameLibs" Version="0.1.4" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
