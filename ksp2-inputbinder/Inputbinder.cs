@@ -12,6 +12,7 @@ using UnityEngine.AddressableAssets.ResourceLocators;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using System.Collections;
 using System.IO;
+using KSP.UI;
 
 namespace Codenade.Inputbinder
 {
@@ -67,7 +68,13 @@ namespace Codenade.Inputbinder
             _actionManager.Actions[Constants.ActionRollTrimID].Action.Enable();
             _actionManager.Actions[Constants.ActionYawTrimID].Action.Enable();
             _actionManager.Actions[Constants.ActionTrimResetID].Action.Enable();
-            _bindingUI = gameObject.AddComponent<BindingUI>();
+            var inputSettingsObj = Game.UI.GetPopupCanvas().transform.Find("SettingsMenu(Clone)/Frame/Body/Submenus Scroll/Viewport/Content/InputSettingsMenu").gameObject;
+            var ism = inputSettingsObj.GetComponent<InputRebindingController>();
+            if (ism != null)
+                ism.enabled = false;
+            _bindingUI = inputSettingsObj.gameObject.AddComponent<BindingUI>();
+            if (!_bindingUI.IsInitialized && !_bindingUI.IsInitializing)
+                _bindingUI.Initialize();
             _bindingUI.Hide();
             _bindingUI.VisibilityChanged += OnUiVisibilityChange;
             _isInitialized = true;
@@ -199,8 +206,6 @@ namespace Codenade.Inputbinder
             _vessel = Game.ViewController.GetActiveSimVessel();
             if (_vessel is object)
             {
-                if (!_bindingUI.IsInitialized && !_bindingUI.IsInitializing)
-                    _bindingUI.Initialize(Game.UI.GetPopupCanvas().transform);
                 if (_button is null)
                 {
                     _button = AppBarButton.CreateButton($"BTN-{Constants.ID}", Constants.Name, OnAppBarButtonClicked);
@@ -210,7 +215,7 @@ namespace Codenade.Inputbinder
                         if (_button is object)
                             _button.Icon = op.Result;
                     };
-                    _button.State = _bindingUI.enabled;
+                    _button.State = (_bindingUI?.enabled).GetValueOrDefault();
                 }
             }
             else

@@ -11,7 +11,7 @@ using UnityEngine.UI;
 
 namespace Codenade.Inputbinder
 {
-    public class BindingUI : MonoBehaviour
+    public class BindingUI : SettingsSubMenu
     {
         public event Action<bool> VisibilityChanged;
         public event Action InitializationFinished;
@@ -23,18 +23,12 @@ namespace Codenade.Inputbinder
             get => enabled;
             set => enabled = value;
         }
-        public Dictionary<string, GameObject> Assets { get; private set; }
+        public new Dictionary<string, GameObject> Assets { get; private set; }
         public GameObject ContentRoot { get; private set; }
         public Status CurrentStatus { get; private set; }
         public bool ResetAllBindingsDialogVisible => _uiOverlayResetAll.activeSelf;
-        public Vector2 WindowPosition
-        {
-            get => _uiWindow.gameObject.GetComponent<RectTransform>().anchoredPosition;
-            set => _uiWindow.gameObject.GetComponent<RectTransform>().anchoredPosition = value;
-        }
 
         private InputActionManager _actionManager;
-        private KSP2UIWindow _uiWindow;
         private bool _allPrefabsLoaded;
         private bool _allPrefabsQueued;
         private int _operationsInProgress;
@@ -51,19 +45,19 @@ namespace Codenade.Inputbinder
         private Button _btnResetAll;
         private float _scrollRectPosition;
 
-        public void Initialize(Transform parent)
+        public override void OnShow()
         {
+            base.OnShow();
+        }
+
+        public void Initialize()
+        {
+            Assets = new Dictionary<string, GameObject>();
+            _operationsInProgress = 0;
+            _allPrefabsQueued = false;
+            _allPrefabsLoaded = false;
+            _actionManager = Inputbinder.Instance.ActionManager;
             IsInitializing = true;
-            if (_uiWindow is object)
-                Destroy(_uiWindow);
-            GameManager.Instance.Assets.CreateAsync<GameObject>(
-                (Attribute.GetCustomAttribute(typeof(KSP2UIWindow), typeof(PrefabNameAttribute)) as PrefabNameAttribute).Prefab,
-                parent,
-                (result) =>
-                {
-                    _uiWindow = result.GetComponent<KSP2UIWindow>();
-                    Initialized();
-                });
             foreach (var key in PrefabKeys.AllKeys)
             {
                 _operationsInProgress++;
@@ -91,48 +85,30 @@ namespace Codenade.Inputbinder
 
         private void Initialized()
         {
-            if (_uiWindow is null || !_allPrefabsLoaded)
+            if (!_allPrefabsLoaded)
                 return;
             if (!enabled)
-                _uiWindow.gameObject.SetActive(false);
-            WindowPosition = new Vector2(400, 0);
-            ContentRoot = _uiWindow.gameObject.
-                GetChild("Root").
-                GetChild("UIPanel").
-                GetChild("GRP-Body").
-                GetChild("Scroll View").
-                GetChild("Viewport").
-                GetChild("Content");
+                gameObject.SetActive(false);
+            ContentRoot = gameObject; // was originally parent of this
             Setup();
             IsInitializing = false;
             IsInitialized = true;
             InitializationFinished?.Invoke();
         }
 
-        private void Awake()
-        {
-            Assets = new Dictionary<string, GameObject>();
-            _operationsInProgress = 0;
-            _allPrefabsQueued = false;
-            _allPrefabsLoaded = false;
-            _actionManager = Inputbinder.Instance.ActionManager;
-        }
-
         public void Show() => enabled = true;
 
         public void Hide() => enabled = false;
 
-        private void LoadSettings() => Inputbinder.Reload();
+        //private void LoadSettings() => Inputbinder.Reload();
 
         private void Setup()
         {
-            if (!_uiWindow || !_allPrefabsLoaded)
+            if (!_allPrefabsLoaded)
                 return;
             for (var j = ContentRoot.transform.childCount - 1; j >= 0 ; j--)
                 DestroyImmediate(ContentRoot.transform.GetChild(j).gameObject);
-            _uiWindow.gameObject.name = "BindingUI";
-            _uiWindow.MinSize = new Vector2(480, 300);
-            _uiWindow.MaxSize = new Vector2(1200, 800);
+            gameObject.name = "BindingUI";
             _uiMain = Instantiate(new GameObject("Main", typeof(SetupVerticalLayout)), ContentRoot.transform);
             _uiMain.SetActive(false);
             _uiOverlayRebind = Instantiate(Assets[PrefabKeys.CurrentlyBindingOverlay], ContentRoot.transform.parent.parent);
@@ -152,65 +128,21 @@ namespace Codenade.Inputbinder
             _uiOverlayLoad = Instantiate(Assets[PrefabKeys.LoadDialogOverlay], ContentRoot.transform.parent.parent);
             _uiOverlayLoad.SetActive(false);
             _uiOverlayLoad.AddComponent<ProfileLoadDialogBehaviour>();
-            var uiwindowcontent = _uiMain.transform.parent.gameObject;
-            var scrollComponent = uiwindowcontent.transform.parent.parent.gameObject.GetComponent<ScrollRect>();
-            scrollComponent.scrollSensitivity = 1f;
-            scrollComponent.tag = "UI_SCROLL"; // Block the scrollwheel from zooming the camera view using the game's mechanic for it
-            var uipanel = scrollComponent.transform.parent.parent.gameObject;
-            uipanel.GetComponent<VerticalLayoutGroup>().reverseArrangement = true;
-            // reordered children of uigroup to make the save button draw on top in its extended state
-            var header = uipanel.GetChild("GRP-Header");            //foot
-            var body = uipanel.GetChild("GRP-Body");                //resz
-            var footer = uipanel.GetChild("GRP-Footer");            //body
-            var resizehandle = uipanel.GetChild("ResizeHandle");    //head
-            body.transform.SetSiblingIndex(3);
-            footer.transform.SetSiblingIndex(1);
-            header.transform.SetSiblingIndex(4);
+            var header = new GameObject("Inputbinder interaction");
+            header.transform.SetParent(Game.UI.GetPopupCanvas().transform.Find("SettingsMenu(Clone)/Frame/Body/Info Panel"));
+            var hVlg = header.AddComponent<VerticalLayoutGroup>();
+            hVlg.childForceExpandHeight = false;
             var saveBtnDrp = Instantiate(Assets[PrefabKeys.SaveButtonDropdown], header.transform);
-            saveBtnDrp.transform.SetSiblingIndex(3);
             _btnSaveDrp = saveBtnDrp.AddComponent<SaveButtonBehaviour>();
             _btnSaveDrp.Init();
             _btnSaveDrp.PrimaryClick += () => Inputbinder.Instance.ActionManager.SaveOverrides();
             _btnSaveDrp.SecondaryClick += () => ChangeStatus(Status.SaveDialog);
-            var saveBtnRT = saveBtnDrp.GetComponent<RectTransform>();
-            saveBtnRT.anchorMin = Vector2.zero;
-            saveBtnRT.anchorMax = Vector2.zero;
-            saveBtnRT.anchoredPosition = new Vector2(150, 35);
-            saveBtnRT.sizeDelta = new Vector2(80, 30);
             var loadBtn = Instantiate(Assets[PrefabKeys.LoadBindingsButton], header.transform);
-            loadBtn.transform.SetSiblingIndex(4);
             _btnLoad = loadBtn.GetComponent<Button>();
             _btnLoad.onClick.AddListener(() => ChangeStatus(Status.LoadDialog));
-            var loadBtnRT = loadBtn.GetComponent<RectTransform>();
-            loadBtnRT.anchoredPosition = new Vector2(220, 20);
-            loadBtnRT.sizeDelta = new Vector2(55, 30);
             var rstAllBdgsBtn = Instantiate(Assets[PrefabKeys.ResetAllBindingsButton], header.transform);
-            rstAllBdgsBtn.transform.SetSiblingIndex(5);
             _btnResetAll = rstAllBdgsBtn.GetComponent<Button>();
             _btnResetAll.onClick.AddListener(RemoveAllBindingsButtonClicked);
-            var rstAllBdgsBtnRT = rstAllBdgsBtn.GetComponent<RectTransform>();
-            rstAllBdgsBtnRT.anchoredPosition = new Vector2(285, 20);
-            rstAllBdgsBtnRT.sizeDelta = new Vector2(70, 30);
-            //var rmGpdBdgsBtn = Instantiate(Assets[PrefabKeys.RemoveGamepadBindingsButton], header.transform);
-            //rmGpdBdgsBtn.transform.SetSiblingIndex(5);
-            //rmGpdBdgsBtn.GetComponent<Button>().onClick.AddListener(Inputbinder.Instance.RemoveKSPsGamepadBindings);
-            //var rmGpdBdgBtnRT = rmGpdBdgsBtn.GetComponent<RectTransform>();
-            //rmGpdBdgBtnRT.anchoredPosition= new Vector2(320, 20);
-            //rmGpdBdgBtnRT.sizeDelta = new Vector2(180, 30);
-            var closeBtn = header.GetChild("KSP2ButtonText");
-            closeBtn.GetComponent<ButtonExtended>().onClick.AddListener(Hide);
-            var windowTitle = header.GetChild("TXT-Title");
-            windowTitle.GetComponent<TextMeshProUGUI>().text = "Inputbinder";
-            var uiwc_rect = uiwindowcontent.GetComponent<RectTransform>();
-            uiwc_rect.offsetMin = new Vector2(0, uiwc_rect.offsetMin.y);
-            uiwc_rect.offsetMax = new Vector2(-20, uiwc_rect.offsetMax.y);
-            var uiwc_csf = uiwindowcontent.GetComponent<ContentSizeFitter>();
-            uiwc_csf.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
-            uiwc_csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-            var uiwc_vlg = uiwindowcontent.GetComponent<VerticalLayoutGroup>();
-            uiwc_vlg.childControlWidth = true;
-            uiwc_vlg.childControlHeight = true;
-            uiwc_vlg.childAlignment = TextAnchor.UpperCenter;
             foreach (var item in _actionManager.Actions)
             {
                 var actionObj = Instantiate(Assets[PrefabKeys.ActionGroup], _uiMain.transform);
@@ -257,11 +189,6 @@ namespace Codenade.Inputbinder
 
         public void ChangeStatus(Status status)
         {
-            if (status != Status.Default && CurrentStatus == Status.Default)
-            {
-                var scrollRect = _uiMain.transform.parent.parent.parent.gameObject.GetComponent<ScrollRect>();
-                _scrollRectPosition = scrollRect.verticalNormalizedPosition;
-            }
             _uiMain.SetActive(false);
             _uiOverlayRebind.SetActive(false);
             _uiOverlayResetAll.SetActive(false);
@@ -316,18 +243,7 @@ namespace Codenade.Inputbinder
                     _uiPage3.SetActive(true);
                     break;
             }
-            if (status == Status.Default && CurrentStatus != Status.Default)
-            {
-                StartCoroutine(SetScrollRectPosOnNextFrame());
-            }
             CurrentStatus = status;
-        }
-
-        private IEnumerator SetScrollRectPosOnNextFrame()
-        {
-            yield return null;
-            var scrollRect = _uiMain.transform.parent.parent.parent.gameObject.GetComponent<ScrollRect>();
-            scrollRect.verticalNormalizedPosition = _scrollRectPosition;
         }
 
         private void RemoveAllBindingsButtonClicked()
@@ -339,27 +255,19 @@ namespace Codenade.Inputbinder
 
         private void OnEnable()
         {
-            if (_uiWindow is object)
-                _uiWindow.gameObject.SetActive(true);
+            gameObject.SetActive(true);
             VisibilityChanged?.Invoke(true);
         }
 
         private void OnDisable()
         {
-            if (_uiWindow is object)
-                _uiWindow.gameObject.SetActive(false);
+            gameObject.SetActive(false);
             if (!IsInitialized)
                 return;
             ChangeStatus(Status.Default);
             _actionManager.CancelBinding();
             _actionManager.CompleteChangeProcessors();
             VisibilityChanged?.Invoke(false);
-        }
-
-        private void OnDestroy()
-        {
-            if (_uiWindow is object)
-                Destroy(_uiWindow.gameObject);
         }
 
         public static class PrefabKeys
