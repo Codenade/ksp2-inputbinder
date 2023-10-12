@@ -1,4 +1,5 @@
 ﻿using KSP.IO;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -11,6 +12,8 @@ namespace Codenade.Inputbinder
 {
     public class InputActionManager
     {
+        internal event Action RebindComplete;
+
         public Dictionary<string, NamedInputAction> Actions { get; private set; }
         public bool IsCurrentlyRebinding => _rebindInfo is object;
         public bool IsChangingProc => _procBindInfo is object;
@@ -89,6 +92,7 @@ namespace Codenade.Inputbinder
             var action = _rebindInfo.Operation.action;
             var bindingInfo = _rebindInfo.Binding;
             var wasEnabled = _rebindInfo.WasEnabled;
+            var success = _rebindInfo.Operation.completed;
             var controlA = _rebindInfo.Operation.selectedControl.layout;
             var controlB = _rebindInfo.Operation.expectedControlType;
             HandleAutoAddingProcessors();
@@ -96,6 +100,8 @@ namespace Codenade.Inputbinder
             _rebindInfo = null;
             if (wasEnabled)
                 action.Enable();
+            if (success)
+                RebindComplete?.Invoke();
             QLog.Debug($"Binding complete: {action.name} {bindingInfo.name} with path {bindingInfo.effectivePath}; bound control of type {controlA} to binding of type {controlB}");
         }
 

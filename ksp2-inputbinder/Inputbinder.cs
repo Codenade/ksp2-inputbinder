@@ -12,7 +12,6 @@ using UnityEngine.AddressableAssets.ResourceLocators;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using System.Collections;
 using System.IO;
-using KSP.UI;
 
 namespace Codenade.Inputbinder
 {

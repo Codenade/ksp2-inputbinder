@@ -1,8 +1,6 @@
 ﻿using KSP.Game;
 using KSP.UI;
-using KSP.UserInterface;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -26,7 +24,6 @@ namespace Codenade.Inputbinder
         public new Dictionary<string, GameObject> Assets { get; private set; }
         public GameObject ContentRoot { get; private set; }
         public Status CurrentStatus { get; private set; }
-        public bool ResetAllBindingsDialogVisible => _uiOverlayResetAll.activeSelf;
 
         private InputActionManager _actionManager;
         private bool _allPrefabsLoaded;
@@ -37,18 +34,13 @@ namespace Codenade.Inputbinder
         private GameObject _uiPage1;
         private GameObject _uiPage2;
         private GameObject _uiPage3;
-        private GameObject _uiOverlayResetAll;
         private GameObject _uiOverlaySaveAs;
         private GameObject _uiOverlayLoad;
+        private GameObject _grpBtns;
         private SaveButtonBehaviour _btnSaveDrp;
         private Button _btnLoad;
-        private Button _btnResetAll;
-        private float _scrollRectPosition;
 
-        public override void OnShow()
-        {
-            base.OnShow();
-        }
+        public override void Revert() => _actionManager.RemoveAllOverrides();
 
         public void Initialize()
         {
@@ -89,8 +81,9 @@ namespace Codenade.Inputbinder
                 return;
             if (!enabled)
                 gameObject.SetActive(false);
-            ContentRoot = gameObject; // was originally parent of this
+            ContentRoot = gameObject;
             Setup();
+            _actionManager.RebindComplete += () => Game.SettingsMenuManager.ShowChangesAppliedNotification();
             IsInitializing = false;
             IsInitialized = true;
             InitializationFinished?.Invoke();
@@ -99,8 +92,6 @@ namespace Codenade.Inputbinder
         public void Show() => enabled = true;
 
         public void Hide() => enabled = false;
-
-        //private void LoadSettings() => Inputbinder.Reload();
 
         private void Setup()
         {
@@ -119,30 +110,23 @@ namespace Codenade.Inputbinder
             _uiPage2.SetActive(false);
             _uiPage3 = Instantiate(Assets[PrefabKeys.WindowProcessorsContent].GetChild("Viewport").GetChild("Content").GetChild("Page3"), ContentRoot.transform);
             _uiPage3.SetActive(false);
-            _uiOverlayResetAll = Instantiate(Assets[PrefabKeys.ConfirmResetAllBindingsOverlay], ContentRoot.transform.parent.parent);
-            _uiOverlayResetAll.SetActive(false);
-            _uiOverlayResetAll.AddComponent<ResetAllBindingsDialogBehaviour>();
             _uiOverlaySaveAs = Instantiate(Assets[PrefabKeys.SaveAsDialogOverlay], ContentRoot.transform.parent.parent);
             _uiOverlaySaveAs.SetActive(false);
             _uiOverlaySaveAs.AddComponent<SaveAsDialogBehaviour>();
             _uiOverlayLoad = Instantiate(Assets[PrefabKeys.LoadDialogOverlay], ContentRoot.transform.parent.parent);
             _uiOverlayLoad.SetActive(false);
             _uiOverlayLoad.AddComponent<ProfileLoadDialogBehaviour>();
-            var header = new GameObject("Inputbinder interaction");
-            header.transform.SetParent(Game.UI.GetPopupCanvas().transform.Find("SettingsMenu(Clone)/Frame/Body/Info Panel"));
-            var hVlg = header.AddComponent<VerticalLayoutGroup>();
-            hVlg.childForceExpandHeight = false;
-            var saveBtnDrp = Instantiate(Assets[PrefabKeys.SaveButtonDropdown], header.transform);
+            _grpBtns = new GameObject("Inputbinder interaction");
+            _grpBtns.transform.SetParent(Game.UI.GetPopupCanvas().transform.Find("SettingsMenu(Clone)/Frame/Body/Categories/Menu controls"));
+            var btnsVlg = _grpBtns.AddComponent<VerticalLayoutGroup>();
+            var saveBtnDrp = Instantiate(Assets[PrefabKeys.SaveButtonDropdown], _grpBtns.transform);
             _btnSaveDrp = saveBtnDrp.AddComponent<SaveButtonBehaviour>();
             _btnSaveDrp.Init();
             _btnSaveDrp.PrimaryClick += () => Inputbinder.Instance.ActionManager.SaveOverrides();
             _btnSaveDrp.SecondaryClick += () => ChangeStatus(Status.SaveDialog);
-            var loadBtn = Instantiate(Assets[PrefabKeys.LoadBindingsButton], header.transform);
+            var loadBtn = Instantiate(Assets[PrefabKeys.LoadBindingsButton], _grpBtns.transform);
             _btnLoad = loadBtn.GetComponent<Button>();
             _btnLoad.onClick.AddListener(() => ChangeStatus(Status.LoadDialog));
-            var rstAllBdgsBtn = Instantiate(Assets[PrefabKeys.ResetAllBindingsButton], header.transform);
-            _btnResetAll = rstAllBdgsBtn.GetComponent<Button>();
-            _btnResetAll.onClick.AddListener(RemoveAllBindingsButtonClicked);
             foreach (var item in _actionManager.Actions)
             {
                 var actionObj = Instantiate(Assets[PrefabKeys.ActionGroup], _uiMain.transform);
@@ -191,13 +175,11 @@ namespace Codenade.Inputbinder
         {
             _uiMain.SetActive(false);
             _uiOverlayRebind.SetActive(false);
-            _uiOverlayResetAll.SetActive(false);
             _uiOverlaySaveAs.SetActive(false);
             _uiOverlayLoad.SetActive(false);
             _uiPage1.SetActive(false);
             _uiPage2.SetActive(false);
             _uiPage3.SetActive(false);
-            _btnResetAll.interactable = false;
             _btnLoad.interactable = false;
             _btnSaveDrp.interactable = false;
             switch (status)
@@ -206,11 +188,6 @@ namespace Codenade.Inputbinder
                     _uiMain.SetActive(true);
                     _btnSaveDrp.interactable = true;
                     _btnLoad.interactable = true;
-                    _btnResetAll.interactable = true;
-                    break;
-                case Status.ResetDialog:
-                    _uiMain.SetActive(true);
-                    _uiOverlayResetAll.SetActive(true);
                     break;
                 case Status.SaveDialog:
                     _uiMain.SetActive(true);
@@ -246,22 +223,18 @@ namespace Codenade.Inputbinder
             CurrentStatus = status;
         }
 
-        private void RemoveAllBindingsButtonClicked()
-        {
-            if (Inputbinder.Instance.ActionManager.IsCurrentlyRebinding || Inputbinder.Instance.ActionManager.IsChangingProc)
-                return;
-            ChangeStatus(Status.ResetDialog);
-        }
 
         private void OnEnable()
         {
             gameObject.SetActive(true);
+            _grpBtns.SetActive(true);
             VisibilityChanged?.Invoke(true);
         }
 
         private void OnDisable()
         {
             gameObject.SetActive(false);
+            _grpBtns.SetActive(false);
             if (!IsInitialized)
                 return;
             ChangeStatus(Status.Default);
@@ -310,7 +283,6 @@ namespace Codenade.Inputbinder
             Default,
             SaveDialog,
             LoadDialog,
-            ResetDialog,
             Rebinding,
             ProcessorList,
             ProcessorAdd,

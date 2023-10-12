@@ -16,166 +16,125 @@ namespace Codenade.Inputbinder
     {
         private void Awake()
         {
-            // Plugin startup logic
             var harmony = new Harmony("codenade-inputbinder");
-            harmony.PatchAll(typeof(Patches.LoadMod));
-            harmony.PatchAll(typeof(Patches.NoControllerAutoremove));
-            //harmony.PatchAll(typeof(Patches.NoMouseGlitch));
-            harmony.PatchAll(typeof(Patches.NoMouseGlitch2));
+            harmony.PatchAll(typeof(LoadMod));
+            harmony.PatchAll(typeof(NoMouseGlitch2));
+            harmony.PatchAll(typeof(NoControllerAutoremove));
+            harmony.PatchAll(typeof(PatchSettingsMenuManager));
             enabled = false;
         }
     }
 
-    public class Patches
+    [HarmonyPatch(typeof(KSP2ModManager), nameof(KSP2ModManager.LoadAllMods))]
+    public static class LoadMod
     {
-        [HarmonyPatch(typeof(KSP2ModManager), nameof(KSP2ModManager.LoadAllMods))]
-        public class LoadMod
+        static void Postfix()
         {
-            static void Postfix()
-            {
-                GameObject o = new GameObject("Codenade.Inputbinder");
-                o.AddComponent<Inputbinder>();
-                o.SetActive(true);
-            }
+            GameObject o = new GameObject("Codenade.Inputbinder");
+            o.AddComponent<Inputbinder>();
+            o.SetActive(true);
         }
+    }
 
-        [HarmonyPatch(typeof(global::Mouse), nameof(global::Mouse.Update))]
-        public class NoMouseGlitch2
+    [HarmonyPatch(typeof(global::Mouse), nameof(global::Mouse.Update))]
+    public static class NoMouseGlitch2
+    {
+        static bool Prefix(ref Mouse.ControlScheme ____controlScheme)
         {
-            static bool Prefix(ref Mouse.ControlScheme ____controlScheme)
+            if (UnityEngine.InputSystem.Mouse.current.HasMouseInput())
             {
-                if (UnityEngine.InputSystem.Mouse.current.HasMouseInput())
+                ____controlScheme = global::Mouse.ControlScheme.Mouse;
+                if (!global::Mouse.IsProcessingEvents)
                 {
-                    ____controlScheme = global::Mouse.ControlScheme.Mouse;
-                    if (!global::Mouse.IsProcessingEvents)
-                    {
-                        global::Mouse.SetActive(true);
-                    }
+                    global::Mouse.SetActive(true);
                 }
-                return false;
             }
+            return false;
         }
+    }
 
-        [HarmonyPatch(typeof(global::Mouse), "set_Position")]
-        public class NoMouseGlitch
+    [HarmonyPatch(typeof(global::Mouse), "set_Position")]
+    public static class NoMouseGlitch
+    {
+        static bool Prefix(Vector2 value, ref Vector2 ___systemPosition)
         {
-            static bool Prefix(Vector2 value, ref Vector2 ___systemPosition)
-            {
-                ___systemPosition = value;
-                return false;
-            }
+            ___systemPosition = value;
+            return false;
         }
+    }
 
-        [HarmonyPatch(typeof(SettingsMenuManager), "ShowInputSettings")]
-        public class PatchSettingsMenuManager
+    [HarmonyPatch(typeof(SettingsMenuManager), "ShowInputSettings")]
+    public static class PatchSettingsMenuManager
+    {
+        static bool Prefix(SettingsMenuManager __instance)
         {
-            static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
-            {
-                var log = global::BepInEx.Logging.Logger.CreateLogSource("codenade-inputbinder");
-                var sequenceFound = false;
-                var startIndex = -1;
+            typeof(SettingsMenuManager).GetMethod("ToggleMenu", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).Invoke(__instance, new object[] { Inputbinder.Instance.BindingUI });
+            typeof(SettingsMenuManager).GetMethod("UpdateResetButton", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).Invoke(__instance, new object[] { "Input" });
+            return false;
+        }
+    }
 
-                var codes = new List<CodeInstruction>(instructions);
-                for (var i = 0; i < codes.Count; i++)
+    [HarmonyPatch(typeof(InputManager), "Awake")]
+    public static class NoControllerAutoremove
+    {
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var log = global::BepInEx.Logging.Logger.CreateLogSource("codenade-inputbinder");
+            var sequenceFound = false;
+            var startIndex = -1;
+
+            var codes = new List<CodeInstruction>(instructions);
+            for (var i = 0; i < codes.Count; i++)
+            {
+                if (codes[i].opcode == OpCodes.Ret)
+                    break;
+                if (startIndex != -1)
                 {
-                    if (codes[i].opcode == OpCodes.Ret)
+                    if (codes[i].opcode != seq[i - startIndex])
+                        startIndex = -1;
+                    else if (i - startIndex + 1 == seq.Length)
+                    {
+                        sequenceFound = true;
                         break;
-                    if (startIndex != -1)
-                    {
-                        if (codes[i].opcode != seq[i - startIndex])
-                            startIndex = -1;
-                        else if (i - startIndex + 1 == seq.Length)
-                        {
-                            sequenceFound = true;
-                            break;
-                        }
                     }
-                    else if (codes[i].opcode == seq[0])
-                        startIndex = i;
                 }
-                if (sequenceFound)
-                {
-                    codes.RemoveRange(startIndex, 1);
-                    codes.InsertRange(startIndex, new List<CodeInstruction>()
-                    {
-                        CodeInstruction.Call(typeof(Inputbinder), "get_Instance"),
-                        CodeInstruction.Call(typeof(Inputbinder), "get_BindingUI")
-                    });
-                }
-                else
-                    log.LogError("Could not patch SettingsMenuManager");
-                return codes.AsEnumerable();
+                else if (codes[i].opcode == seq[0])
+                    startIndex = i;
             }
-
-            private static readonly OpCode[] seq =
+            if (sequenceFound)
             {
-                OpCodes.Ldfld,
-                OpCodes.Call
-            };
+                codes.RemoveRange(startIndex, seq.Length);
+            }
+            else
+                log.LogError("Could not remove KSP's Gamepad removal code");
+            return codes.AsEnumerable();
         }
 
-        [HarmonyPatch(typeof(InputManager), "Awake")]
-        public class NoControllerAutoremove
+        private static readonly OpCode[] seq =
         {
-            static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
-            {
-                var log = global::BepInEx.Logging.Logger.CreateLogSource("codenade-inputbinder");
-                var sequenceFound = false;
-                var startIndex = -1;
-
-                var codes = new List<CodeInstruction>(instructions);
-                for (var i = 0; i < codes.Count; i++)
-                {
-                    if (codes[i].opcode == OpCodes.Ret)
-                        break;
-                    if (startIndex != -1)
-                    {
-                        if (codes[i].opcode != seq[i - startIndex])
-                            startIndex = -1;
-                        else if (i - startIndex + 1 == seq.Length)
-                        {
-                            sequenceFound = true;
-                            break;
-                        }
-                    }
-                    else if (codes[i].opcode == seq[0])
-                        startIndex = i;
-                }
-                if (sequenceFound)
-                {
-                    codes.RemoveRange(startIndex, seq.Length);
-                }
-                else
-                    log.LogError("Could not remove KSP's Gamepad removal code");
-                return codes.AsEnumerable();
-            }
-
-            private static readonly OpCode[] seq =
-            {
-                OpCodes.Ldloca_S,
-                OpCodes.Call,
-                OpCodes.Stloc_1,
-                OpCodes.Ldc_I4_0,
-                OpCodes.Stloc_2,
-                OpCodes.Br,
-                OpCodes.Ldloc_1,
-                OpCodes.Ldloc_2,
-                OpCodes.Ldelem_Ref,
-                OpCodes.Call,
-                OpCodes.Ldloc_2,
-                OpCodes.Ldc_I4_1,
-                OpCodes.Add,
-                OpCodes.Stloc_2,
-                OpCodes.Ldloc_2,
-                OpCodes.Ldloc_1,
-                OpCodes.Ldlen,
-                OpCodes.Conv_I4,
-                OpCodes.Blt,
-                OpCodes.Ldarg_0,
-                OpCodes.Ldftn,
-                OpCodes.Newobj,
-                OpCodes.Call
-            };
-        }
+            OpCodes.Ldloca_S,
+            OpCodes.Call,
+            OpCodes.Stloc_1,
+            OpCodes.Ldc_I4_0,
+            OpCodes.Stloc_2,
+            OpCodes.Br,
+            OpCodes.Ldloc_1,
+            OpCodes.Ldloc_2,
+            OpCodes.Ldelem_Ref,
+            OpCodes.Call,
+            OpCodes.Ldloc_2,
+            OpCodes.Ldc_I4_1,
+            OpCodes.Add,
+            OpCodes.Stloc_2,
+            OpCodes.Ldloc_2,
+            OpCodes.Ldloc_1,
+            OpCodes.Ldlen,
+            OpCodes.Conv_I4,
+            OpCodes.Blt,
+            OpCodes.Ldarg_0,
+            OpCodes.Ldftn,
+            OpCodes.Newobj,
+            OpCodes.Call
+        };
     }
 }

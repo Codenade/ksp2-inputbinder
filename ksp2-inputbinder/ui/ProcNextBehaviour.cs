@@ -112,6 +112,7 @@ namespace Codenade.Inputbinder
                 _actionManager.ProcBindInfo.Values.Clear();
                 Inputbinder.Instance.BindingUI.ChangeStatus(BindingUI.Status.ProcessorList);
             }
+            KSP.Game.GameManager.Instance.Game.SettingsMenuManager.ShowChangesAppliedNotification();
         }
     }
 }
