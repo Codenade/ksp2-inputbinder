@@ -10,23 +10,25 @@ using System.Reflection.Emit;
 
 namespace Codenade.Inputbinder
 {
-    [BepInPlugin("codenade-inputbinder", MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
+    [BepInPlugin(id, displayName, MyPluginInfo.PLUGIN_VERSION)]
     public class Plugin : BaseUnityPlugin
     {
+        public const string id = "codenade-inputbinder";
+        public const string displayName = "Inputbinder";
+        public static System.Version version = System.Version.Parse(MyPluginInfo.PLUGIN_VERSION);
+
         private void Awake()
         {
-            // Plugin startup logic
-            var harmony = new Harmony("codenade-inputbinder");
-            harmony.PatchAll(typeof(LoadMod));
-            harmony.PatchAll(typeof(NoControllerAutoremove));
-            //harmony.PatchAll(typeof(NoMouseGlitch));
-            harmony.PatchAll(typeof(NoMouseGlitch2));
+            var harmony = new Harmony(id);
+            harmony.PatchAll(typeof(PatchLoadMod));
+            harmony.PatchAll(typeof(PatchNoControllerAutoremove));
+            harmony.PatchAll(typeof(PatchNoMouseGlitch));
             enabled = false;
         }
     }
 
     [HarmonyPatch(typeof(KSP2ModManager), nameof(KSP2ModManager.LoadAllMods))]
-    public class LoadMod
+    internal static class PatchLoadMod
     {
         static void Postfix()
         {
@@ -36,35 +38,25 @@ namespace Codenade.Inputbinder
         }
     }
 
-    [HarmonyPatch(typeof(global::Mouse), nameof(global::Mouse.Update))]
-    public class NoMouseGlitch2
+    [HarmonyPatch(typeof(Mouse), nameof(Mouse.Update))]
+    internal static class PatchNoMouseGlitch
     {
         static bool Prefix(ref Mouse.ControlScheme ____controlScheme)
         {
             if (UnityEngine.InputSystem.Mouse.current.HasMouseInput())
             {
-                ____controlScheme = global::Mouse.ControlScheme.Mouse;
-                if (!global::Mouse.IsProcessingEvents)
+                ____controlScheme = Mouse.ControlScheme.Mouse;
+                if (!Mouse.IsProcessingEvents)
                 {
-                    global::Mouse.SetActive(true);
+                    Mouse.SetActive(true);
                 }
             }
             return false;
         }
     }
 
-    [HarmonyPatch(typeof(global::Mouse), "set_Position")]
-    public class NoMouseGlitch
-    {
-        static bool Prefix(Vector2 value, ref Vector2 ___systemPosition)
-        {
-            ___systemPosition = value;
-            return false;
-        }
-    }
-
     [HarmonyPatch(typeof(InputManager), "Awake")]
-    public class NoControllerAutoremove
+    internal static class PatchNoControllerAutoremove
     {
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {

@@ -79,19 +79,23 @@ namespace Codenade.Inputbinder
             Directory.CreateDirectory(Path.Combine(BepInEx.Paths.ConfigPath, "inputbinder"));
             Directory.CreateDirectory(Path.Combine(BepInEx.Paths.ConfigPath, "inputbinder/profiles"));
             if (File.Exists(Path.Combine(_modRootPath, "input.json")))
-                File.Move(Path.Combine(_modRootPath, "input.json"), Path.Combine(BepInEx.Paths.ConfigPath, "inputbinder/profiles/input.json"));
+                File.Move(Path.Combine(_modRootPath, "input.json"), Path.Combine(BepInEx.Paths.ConfigPath, "inputbinder", "profiles", "input.json"));
         }
 
         private void Awake()
         {
             DontDestroyOnLoad(this);
-            gameObject.tag = "Game Manager";
             _modRootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             if (_modRootPath == null || _modRootPath == string.Empty)
                 QLog.Error($"ModRootPath empty!");
             StopKSPFromRemovingGamepads();
             RemoveKSPsGamepadBindings();
-            if (!_notFirstLoad)
+            if (_notFirstLoad)
+            {
+                Initialize();
+                VehicleStateChanged(null);
+            }
+            else
             {
                 InputSystem.RegisterProcessor<Processors.MapProcessor>("Map");
                 InputSystem.RegisterBindingComposite<Composites.Vector2AxisComposite>("2DAxis");
@@ -99,11 +103,6 @@ namespace Codenade.Inputbinder
                 Game.Messages.Subscribe<GameStateEnteredMessage>(OnGameStateEntered);
                 StartCoroutine(LoadCatalog());
                 _notFirstLoad = true;
-            }
-            else
-            {
-                Initialize();
-                VehicleStateChanged(null);
             }
         }
 
@@ -143,25 +142,25 @@ namespace Codenade.Inputbinder
         {
             _vessel?.ApplyFlightCtrlState(new KSP.Sim.State.FlightCtrlStateIncremental()
             {
-                pitchTrim = _vessel.flightCtrlState.pitchTrim + _actionManager.Actions[Constants.ActionPitchTrimID].Action.ReadValue<float>() * Time.deltaTime,
-                rollTrim = _vessel.flightCtrlState.rollTrim + _actionManager.Actions[Constants.ActionRollTrimID].Action.ReadValue<float>() * Time.deltaTime,
-                yawTrim = _vessel.flightCtrlState.yawTrim + _actionManager.Actions[Constants.ActionYawTrimID].Action.ReadValue<float>() * Time.deltaTime
+                pitchTrim = _vessel.flightCtrlState.pitchTrim + _actionManager.Actions[Constants.ActionPitchTrimID].Action.ReadValue<float>() * Time.unscaledDeltaTime,
+                rollTrim = _vessel.flightCtrlState.rollTrim + _actionManager.Actions[Constants.ActionRollTrimID].Action.ReadValue<float>() * Time.unscaledDeltaTime,
+                yawTrim = _vessel.flightCtrlState.yawTrim + _actionManager.Actions[Constants.ActionYawTrimID].Action.ReadValue<float>() * Time.unscaledDeltaTime
             });
         }
 
-        private void StopKSPFromRemovingGamepads()
+        private static void StopKSPFromRemovingGamepads()
         {
             QLog.Info($"Stopping KSP from automatically removing Gamepads...");
             var eventInfo = typeof(InputSystem).GetEvent(nameof(InputSystem.onDeviceChange), BindingFlags.Static | BindingFlags.Public);
             var method = typeof(InputManager).GetMethod("RemoveGamepadCallback", BindingFlags.NonPublic | BindingFlags.Instance);
-            var handler = Delegate.CreateDelegate(eventInfo.EventHandlerType, Game.InputManager, method);
+            var handler = Delegate.CreateDelegate(eventInfo.EventHandlerType, GameManager.Instance.Game.InputManager, method);
             eventInfo.RemoveEventHandler(null, handler);
         }
 
         public void RemoveKSPsGamepadBindings()
         {
             QLog.Info($"Removing KSP's Gamepad bindings...");
-            foreach (var action in Game.Input)
+            foreach (var action in GameManager.Instance.Game.Input)
             {
                 for (var i = 0; i < action.bindings.Count; i++)
                 {

@@ -7,7 +7,7 @@
 	<PropertyGroup Label="Plugin information. This is read by BepInEx.PluginInfoProps">
 		<Version>0.5.2</Version>
 		<Product>Inputbinder</Product>
-		<AssemblyName>ksp2-inputbinder</AssemblyName>
+		<AssemblyName>Inputbinder</AssemblyName>
 		<AssemblyTitle>Inputbinder</AssemblyTitle>
 		<Company>Codenade</Company>
 	</PropertyGroup>
