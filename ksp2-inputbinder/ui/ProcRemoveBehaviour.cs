@@ -40,6 +40,7 @@ namespace Codenade.Inputbinder
             if (binding.overrideProcessors == "")
                 binding.overrideProcessors = null;
             Inputbinder.Instance.ActionManager.ProcBindInfo.Action.ApplyBindingOverride(Inputbinder.Instance.ActionManager.ProcBindInfo.BindingIndex, binding);
+            KSP.Game.GameManager.Instance.Game.SettingsMenuManager.ShowChangesAppliedNotification();
             Destroy(gameObject.transform.parent.gameObject);
         }
     }

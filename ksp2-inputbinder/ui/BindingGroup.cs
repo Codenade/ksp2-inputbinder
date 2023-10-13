@@ -54,6 +54,7 @@ namespace Codenade.Inputbinder
         private void OnClearClicked()
         {
             InputActionManager.ClearBinding(_action.bindings[_bindingIndex], _action);
+            KSP.Game.GameManager.Instance.Game.SettingsMenuManager.ShowChangesAppliedNotification();
         }
     }
 }

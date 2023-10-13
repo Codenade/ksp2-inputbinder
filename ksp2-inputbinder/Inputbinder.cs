@@ -28,7 +28,6 @@ namespace Codenade.Inputbinder
         private static bool _notFirstLoad;
         private VesselComponent _vessel;
         private InputActionManager _actionManager;
-        private AppBarButton _button;
         private BindingUI _bindingUI;
         private string _modRootPath;
         private bool _isInitialized;
@@ -75,7 +74,6 @@ namespace Codenade.Inputbinder
             if (!_bindingUI.IsInitialized && !_bindingUI.IsInitializing)
                 _bindingUI.Initialize();
             _bindingUI.Hide();
-            _bindingUI.VisibilityChanged += OnUiVisibilityChange;
             _isInitialized = true;
             Initialized?.Invoke();
         }
@@ -122,12 +120,6 @@ namespace Codenade.Inputbinder
             else
                 GameManager.Instance.Assets.RegisterResourceLocator(operation.Result);
             yield break;
-        }
-
-        private void OnUiVisibilityChange(bool visible)
-        {
-            if (_button is object)
-                _button.State = visible;
         }
 
         public void SetThrottle(float value)
@@ -183,50 +175,9 @@ namespace Codenade.Inputbinder
             }
         }
 
-        private void OnEnable()
-        {
-            GameManager.Instance.Game.Messages.PersistentSubscribe<VesselChangingMessage>(VehicleStateChanged);
-            GameManager.Instance.Game.Messages.PersistentSubscribe<VesselChangedMessage>(VehicleStateChanged);
-        }
-
-        private void OnDestroy()
-        {
-            _button?.Destroy();
-        }
-
-        private void OnDisable()
-        {
-            GameManager.Instance.Game.Messages.Unsubscribe<VesselChangingMessage>(VehicleStateChanged);
-            GameManager.Instance.Game.Messages.Unsubscribe<VesselChangedMessage>(VehicleStateChanged);
-        }
-
         private void VehicleStateChanged(MessageCenterMessage msg)
         {
             _vessel = Game.ViewController.GetActiveSimVessel();
-            if (_vessel is object)
-            {
-                if (_button is null)
-                {
-                    _button = AppBarButton.CreateButton($"BTN-{Constants.ID}", Constants.Name, OnAppBarButtonClicked);
-                    _button.Destroying += () => _button = null;
-                    Assets.LoadRaw<Sprite>(Constants.AppBarIconAssetKey).Completed += op =>
-                    {
-                        if (_button is object)
-                            _button.Icon = op.Result;
-                    };
-                    _button.State = (_bindingUI?.enabled).GetValueOrDefault();
-                }
-            }
-            else
-            {
-                _button?.Destroy();
-                _bindingUI.Hide();
-            }
-        }
-
-        private void OnAppBarButtonClicked(bool state)
-        {
-            _bindingUI.enabled = state;
         }
 
         public static void Load()
