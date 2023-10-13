@@ -13,8 +13,6 @@ namespace Codenade.Inputbinder
 {
     internal class ProfileListPopulator : MonoBehaviour
     {
-        internal GameObject prefabProfileElement;
-
         internal event Action<string> DeletionRequested;
 
         protected FileSystemWatcher _profileDirWatcher;
