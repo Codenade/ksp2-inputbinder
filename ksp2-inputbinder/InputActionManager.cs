@@ -1,4 +1,5 @@
 ﻿using KSP.IO;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -11,20 +12,61 @@ namespace Codenade.Inputbinder
 {
     public class InputActionManager
     {
-        public Dictionary<string, NamedInputAction> Actions { get; private set; }
-        public bool IsCurrentlyRebinding => _rebindInfo is object;
-        public bool IsChangingProc => _procBindInfo is object;
+        /// <summary>
+        /// Use this event to add your <see cref="InputAction"/>s before a profile is loaded.
+        /// </summary>
+        public static event Action<InputActionManager> BeforeRegisterActions;
 
+        /// <summary>
+        /// Inputbinder's registered <see cref="InputAction"/>s.
+        /// </summary>
+        public Dictionary<string, NamedInputAction> Actions { get; private set; }
+
+        /// <summary>
+        /// Is the user currently rebinding?
+        /// </summary>
+        /// <value>
+        /// <c>false</c> if <see cref="RebindInfo"/> is <c>null</c>
+        /// </value>
+        public bool IsCurrentlyRebinding => _rebindInfo is object;
+
+        /// <summary>
+        /// Is the user currently editing processors?
+        /// </summary>
+        /// <value>
+        /// <c>false</c> if <see cref="ProcBindInfo"/> is <c>null</c>
+        /// </value>
+        public bool IsEditingProcessors => _procBindInfo is object;
+
+        /// <summary>
+        /// This property is used to store information about an ongoing rebind operation.
+        /// </summary>
         public RebindInformation RebindInfo => _rebindInfo;
-        public ProcRebindInformation ProcBindInfo => _procBindInfo;
+
+        /// <summary>
+        /// This property is used to store information about editing processors. Mostly used by the mod's GUI.
+        /// </summary>
+        public ProcEditInformation ProcBindInfo => _procBindInfo;
+
+        /// <summary>
+        /// The path to the directory where Inputbinder stores profiles.
+        /// </summary>
         public string ProfileBasePath { get; set; } = Path.Combine(BepInEx.Paths.ConfigPath, "inputbinder/profiles");
+        
+        /// <summary>
+        /// The name of the profile to use when loading or saving.
+        /// </summary>
         public string ProfileName { get; set; } = GlobalConfiguration.DefaultProfile;
+
+        /// <summary>
+        /// The file extension to use for profile files.
+        /// </summary>
         public string ProfileExtension { get; set; } = ".json";
 
         private RebindInformation _rebindInfo;
-        private ProcRebindInformation _procBindInfo;
+        private ProcEditInformation _procBindInfo;
 
-        public InputActionManager()
+        internal InputActionManager()
         {
             Actions = new Dictionary<string, NamedInputAction>();
             _rebindInfo = null;
@@ -32,29 +74,9 @@ namespace Codenade.Inputbinder
             RegisterActions();
         }
 
-        public void AddAction(InputAction action, bool isFromGame = false) => AddAction(action, action.name, isFromGame);
-
-        public void AddAction(InputAction action, string friendlyName, bool isFromGame = false)
+        internal void Rebind(InputAction action, int bindingIndex)
         {
-            Actions.Add(action.name, new NamedInputAction(action, friendlyName, isFromGame));
-            if (Inputbinder.Instance.BindingUI is object && Inputbinder.Instance.BindingUI.IsVisible)
-            {
-                Inputbinder.Instance.BindingUI.Hide();
-                Inputbinder.Instance.BindingUI.Show();
-            }
-        }
-
-        public bool ContainsAction(string name) => Actions.ContainsKey(name);
-
-        public bool TryGetAction(string name, out NamedInputAction val) => Actions.TryGetValue(name, out val);
-
-        public void RemoveAction(InputAction action) => Actions.Remove(action.name);
-
-        public void RemoveAction(string name) => Actions.Remove(name);
-
-        public void Rebind(InputAction action, int bindingIndex)
-        {
-            if (IsCurrentlyRebinding || IsChangingProc)
+            if (IsCurrentlyRebinding || IsEditingProcessors)
                 return;
             QLog.Debug("Rebind starting");
             var wasEnabled = action.enabled;
@@ -81,7 +103,7 @@ namespace Codenade.Inputbinder
                 Inputbinder.Instance.BindingUI.ChangeStatus(BindingUI.Status.Rebinding);
         }
 
-        public void BindingComplete()
+        internal void BindingComplete()
         {
             if (!IsCurrentlyRebinding)
                 return;
@@ -128,7 +150,7 @@ namespace Codenade.Inputbinder
             }
         }
 
-        public void CancelBinding()
+        internal void CancelBinding()
         {
             if (!IsCurrentlyRebinding)
                 return;
@@ -136,21 +158,13 @@ namespace Codenade.Inputbinder
             BindingComplete();
         }
 
-        public static void ClearBinding(InputBinding binding, InputAction action)
-        {
-            var modifiedBinding = binding;
-            var idx = action.bindings.IndexOf(bdg => binding == bdg);
-            modifiedBinding.overridePath = Constants.BindingClearPath;
-            action.ApplyBindingOverride(idx, modifiedBinding);
-        }
+        internal void ChangeProcessors(InputAction action) => ChangeProcessors(action, -1);
 
-        public void ChangeProcessors(InputAction action) => ChangeProcessors(action, -1);
-
-        public void ChangeProcessors(InputAction action, int bindingIndex)
+        internal void ChangeProcessors(InputAction action, int bindingIndex)
         {
             if (IsCurrentlyRebinding)
                 return;
-            if (!IsChangingProc)
+            if (!IsEditingProcessors)
             {
                 var chgIdx = 0;
                 if (bindingIndex < 0)
@@ -163,7 +177,7 @@ namespace Codenade.Inputbinder
                     }
                 else
                     chgIdx = bindingIndex;
-                _procBindInfo = new ProcRebindInformation(chgIdx, action);
+                _procBindInfo = new ProcEditInformation(chgIdx, action);
             }
             else if (action != _procBindInfo.Action || (bindingIndex >= 0 && _procBindInfo.Binding != action.bindings[bindingIndex]))
             {
@@ -174,25 +188,29 @@ namespace Codenade.Inputbinder
                 CompleteChangeProcessors();
         }
 
-        public void CompleteChangeProcessors()
+        internal void CompleteChangeProcessors()
         {
             _procBindInfo = null;
         }
 
         private void RegisterActions()
         {
+            BeforeRegisterActions?.Invoke(this);
             foreach (var wia in DefaultInputActionDefinitions.WrappedInputActions)
             {
                 wia.Setup?.Invoke(wia);
                 Actions.Add(wia.InputAction.name, new NamedInputAction(wia.InputAction, wia.FriendlyName, wia.Source == ActionSource.Game));
             }
-            foreach (var wia in GameInputUtils.Load(IOProvider.JoinPath(BepInEx.Paths.ConfigPath, "inputbinder/game_actions_to_add.txt")))
+            foreach (var wia in GameInputUtils.LoadGameActionsToAdd(IOProvider.JoinPath(BepInEx.Paths.ConfigPath, "inputbinder/game_actions_to_add.txt")))
             {
                 wia.Setup?.Invoke(wia);
                 Actions.Add(wia.InputAction.name, new NamedInputAction(wia.InputAction, wia.FriendlyName, wia.Source == ActionSource.Game));
             }
         }
 
+        /// <summary>
+        /// Load the profile set by <see cref="ProfileName"/>.
+        /// </summary>
         public void LoadOverrides()
         {
             string path = Path.Combine(ProfileBasePath, ProfileName + ProfileExtension);
@@ -209,18 +227,30 @@ namespace Codenade.Inputbinder
                 QLog.Error($"Failed to load settings ({stopwatch.Elapsed.TotalSeconds}s)");
         }
 
+        /// <summary>
+        /// Save the profile <see cref="ProfileName"/>.
+        /// </summary>
+        /// <returns></returns>
         public bool SaveOverrides()
         {
             string path = Path.Combine(ProfileBasePath, ProfileName + ProfileExtension);
             return ProfileDefinitions.SaveOverrides(Actions, path);
         }
 
+        /// <summary>
+        /// Check if a profile with the given <paramref name="name"/> exists.
+        /// </summary>
+        /// <param name="name">The profile name to check for.</param>
+        /// <returns></returns>
         public bool CheckProfileExists(string name)
         {
             string path = Path.Combine(ProfileBasePath, name + ProfileExtension);
             return File.Exists(path);
         }
 
+        /// <summary>
+        /// Set all overrides to <c>null</c>.
+        /// </summary>
         public void RemoveAllOverrides()
         {
             foreach (var action in Actions.Values)

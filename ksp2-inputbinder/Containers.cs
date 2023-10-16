@@ -4,6 +4,9 @@ using static UnityEngine.InputSystem.InputActionRebindingExtensions;
 
 namespace Codenade.Inputbinder
 {
+    /// <summary>
+    /// Stores information about an ongoing rebinding.
+    /// </summary>
     public class RebindInformation
     {
         public int BindingIndex => _bindingIndex;
@@ -25,7 +28,10 @@ namespace Codenade.Inputbinder
         public override string ToString() => $"{_operation.action.name}, index: {_bindingIndex}";
     }
 
-    public class ProcRebindInformation
+    /// <summary>
+    /// Stores information about the currently edited processors.
+    /// </summary>
+    public class ProcEditInformation
     {
         public int BindingIndex => _bindingIndex;
         public InputBinding Binding => _action.bindings[_bindingIndex];
@@ -36,7 +42,7 @@ namespace Codenade.Inputbinder
         private readonly int _bindingIndex;
         private readonly InputAction _action;
 
-        public ProcRebindInformation(int bindingIndex, InputAction action)
+        public ProcEditInformation(int bindingIndex, InputAction action)
         {
             _bindingIndex = bindingIndex; ;
             _action = action;
@@ -45,6 +51,9 @@ namespace Codenade.Inputbinder
         }
     }
 
+    /// <summary>
+    /// Aside from and <see cref="InputAction"/> this type contains the "friendly" name as well as the source.
+    /// </summary>
     public class NamedInputAction
     {
         public InputAction Action { get; set; }

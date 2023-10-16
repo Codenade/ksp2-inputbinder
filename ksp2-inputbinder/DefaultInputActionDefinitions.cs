@@ -27,7 +27,7 @@ namespace Codenade.Inputbinder
         Internal, Game
     }
 
-    public static class DefaultInputActionDefinitions
+    internal static class DefaultInputActionDefinitions
     {
         public static WrappedInputAction[] WrappedInputActions
         {

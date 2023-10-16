@@ -332,7 +332,7 @@ namespace Codenade.Inputbinder
 
         private void RemoveAllBindingsButtonClicked()
         {
-            if (Inputbinder.Instance.ActionManager.IsCurrentlyRebinding || Inputbinder.Instance.ActionManager.IsChangingProc)
+            if (Inputbinder.Instance.ActionManager.IsCurrentlyRebinding || Inputbinder.Instance.ActionManager.IsEditingProcessors)
                 return;
             ChangeStatus(Status.ResetDialog);
         }

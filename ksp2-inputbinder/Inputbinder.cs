@@ -15,14 +15,14 @@ using System.IO;
 
 namespace Codenade.Inputbinder
 {
+    /// <summary>
+    /// Main class of the Inputbinder mod.
+    /// </summary>
     public sealed class Inputbinder : KerbalMonoBehaviour
     {
-        public static event Action Initialized;
         public InputActionManager ActionManager => _actionManager;
         public BindingUI BindingUI => _bindingUI;
         public static Inputbinder Instance => _instance;
-        public string ModRootPath => _modRootPath;
-        public bool IsInitialized => _isInitialized;
 
         private static Inputbinder _instance;
         private static bool _notFirstLoad;
@@ -30,10 +30,8 @@ namespace Codenade.Inputbinder
         private InputActionManager _actionManager;
         private AppBarButton _button;
         private BindingUI _bindingUI;
-        private string _modRootPath;
-        private bool _isInitialized;
 
-        public Inputbinder()
+        internal Inputbinder()
         {
             if (_instance is null)
                 _instance = this;
@@ -70,23 +68,22 @@ namespace Codenade.Inputbinder
             _bindingUI = gameObject.AddComponent<BindingUI>();
             _bindingUI.Hide();
             _bindingUI.VisibilityChanged += OnUiVisibilityChange;
-            _isInitialized = true;
-            Initialized?.Invoke();
         }
 
         private void SetupConfigDir()
         {
             Directory.CreateDirectory(Path.Combine(BepInEx.Paths.ConfigPath, "inputbinder"));
             Directory.CreateDirectory(Path.Combine(BepInEx.Paths.ConfigPath, "inputbinder/profiles"));
-            if (File.Exists(Path.Combine(_modRootPath, "input.json")))
-                File.Move(Path.Combine(_modRootPath, "input.json"), Path.Combine(BepInEx.Paths.ConfigPath, "inputbinder", "profiles", "input.json"));
+            var modRootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            if (File.Exists(Path.Combine(modRootPath, "input.json")))
+                File.Move(Path.Combine(modRootPath, "input.json"), Path.Combine(BepInEx.Paths.ConfigPath, "inputbinder", "profiles", "input.json"));
         }
 
         private void Awake()
         {
             DontDestroyOnLoad(this);
-            _modRootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            if (_modRootPath == null || _modRootPath == string.Empty)
+            var modRootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            if (modRootPath == null || modRootPath == string.Empty)
                 QLog.Error($"ModRootPath empty!");
             StopKSPFromRemovingGamepads();
             RemoveKSPsGamepadBindings();
@@ -123,11 +120,18 @@ namespace Codenade.Inputbinder
                 _button.State = visible;
         }
 
+        /// <summary>
+        /// Set the throttle of the current vessel.
+        /// </summary>
+        /// <param name="value">Range 0 ... 1</param>
         public void SetThrottle(float value)
         {
             _vessel?.ApplyFlightCtrlState(new KSP.Sim.State.FlightCtrlStateIncremental() { mainThrottle = Mathf.Clamp01(value) });
         }
 
+        /// <summary>
+        /// Reset trim.
+        /// </summary>
         public void ResetTrim()
         {
             _vessel?.ApplyFlightCtrlState(new KSP.Sim.State.FlightCtrlStateIncremental()
@@ -157,7 +161,7 @@ namespace Codenade.Inputbinder
             eventInfo.RemoveEventHandler(null, handler);
         }
 
-        public void RemoveKSPsGamepadBindings()
+        private static void RemoveKSPsGamepadBindings()
         {
             QLog.Info($"Removing KSP's Gamepad bindings...");
             foreach (var action in GameManager.Instance.Game.Input)
@@ -224,12 +228,18 @@ namespace Codenade.Inputbinder
             _bindingUI.enabled = state;
         }
 
+        /// <summary>
+        /// Loads the mod if not loaded.
+        /// </summary>
         public static void Load()
         {
-            if (_instance is object) Reload();
+            if (_instance is object) return;
             else new GameObject("Codenade.Inputbinder", typeof(Inputbinder));
         }
 
+        /// <summary>
+        /// Unloads the mod.
+        /// </summary>
         public static void Unload()
         {
             if (_instance is object)
@@ -240,6 +250,9 @@ namespace Codenade.Inputbinder
             }
         }
 
+        /// <summary>
+        /// Reloads the mod.
+        /// </summary>
         public static void Reload()
         {
             if (_instance is null)

@@ -9,10 +9,9 @@ using UnityEngine.InputSystem.Utilities;
 
 namespace Codenade.Inputbinder
 {
-    internal static class GameInputUtils
+    public static class GameInputUtils
     {
-        // Handling for game_actions_to_add.txt
-        public static List<WrappedInputAction> Load(string path)
+        internal static List<WrappedInputAction> LoadGameActionsToAdd(string path)
         {
             var outList = new List<WrappedInputAction>();
             if (!File.Exists(path))
@@ -34,7 +33,7 @@ namespace Codenade.Inputbinder
             return outList;
         }
 
-        public static WrappedInputAction ParseSingleAction(string input)
+        internal static WrappedInputAction ParseSingleAction(string input)
         {
             var flagChangeBindings = input.Contains("#");
             string sfDef;
@@ -77,9 +76,9 @@ namespace Codenade.Inputbinder
             return default;
         }
 
-        public static bool IsNullOrEmpty(this string s) => s is null || s == string.Empty;
+        internal static bool IsNullOrEmpty(this string s) => s is null || s == string.Empty;
 
-        public static int GetPreviousCompositeBinding(this InputAction action, int fromIndex)
+        internal static int GetPreviousCompositeBinding(this InputAction action, int fromIndex)
         {
             if (action.bindings.Count - 1 < fromIndex || fromIndex < 0)
                 throw new ArgumentOutOfRangeException(nameof(fromIndex));
@@ -91,7 +90,7 @@ namespace Codenade.Inputbinder
             return -1;
         }
 
-        public static int FindNamedCompositePart(this InputAction action, int startIndex, string name)
+        internal static int FindNamedCompositePart(this InputAction action, int startIndex, string name)
         {
             if (action.bindings.Count - 1 < startIndex || startIndex < 0)
                 throw new ArgumentOutOfRangeException(nameof(startIndex));
@@ -107,6 +106,11 @@ namespace Codenade.Inputbinder
             return -1;
         }
 
+        /// <summary>
+        /// Extenmsion to <see cref="InputAction"/> to find out wherther any of its <see cref="InputBinding"/>s has any overrides.
+        /// </summary>
+        /// <param name="action"></param>
+        /// <returns>True if the <see cref="InputAction"/> has any overrides.</returns>
         public static bool HasAnyOverrides(this InputAction action)
         {
             foreach (var bdg in action.bindings)
@@ -117,6 +121,10 @@ namespace Codenade.Inputbinder
             return false;
         }
 
+        /// <summary>
+        /// Retrieve the list of available InputSystem contol layouts.
+        /// </summary>
+        /// <returns>List of available InputSystem contol layouts.</returns>
         public static Dictionary<string, Type> GetInputSystemLayouts()
         {
             var im = typeof(InputSystem).GetField("s_Manager", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
@@ -126,6 +134,19 @@ namespace Codenade.Inputbinder
             foreach (var kvp in types)
                 nTypes.Add(kvp.Key.ToString(), kvp.Value);
             return nTypes;
+        }
+
+        /// <summary>
+        /// Set <see cref="InputBinding.overridePath"/> to <see cref="Constants.BindingClearPath"/>.
+        /// </summary>
+        /// <param name="binding">The <see cref="InputBinding"/> to clear.</param>
+        /// <param name="action">The <see cref="InputAction"/> containing <paramref name="binding"/>.</param>
+        public static void ClearBinding(InputBinding binding, InputAction action)
+        {
+            var modifiedBinding = binding;
+            var idx = action.bindings.IndexOf(bdg => binding == bdg);
+            modifiedBinding.overridePath = Constants.BindingClearPath;
+            action.ApplyBindingOverride(idx, modifiedBinding);
         }
     }
 }

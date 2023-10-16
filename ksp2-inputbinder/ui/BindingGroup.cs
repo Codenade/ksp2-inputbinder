@@ -48,12 +48,12 @@ namespace Codenade.Inputbinder
         private void OnModifyClicked()
         {
             Inputbinder.Instance.ActionManager.ChangeProcessors(_action, _bindingIndex);
-            if (Inputbinder.Instance.ActionManager.IsChangingProc) Inputbinder.Instance.BindingUI.ChangeStatus(BindingUI.Status.ProcessorList);
+            if (Inputbinder.Instance.ActionManager.IsEditingProcessors) Inputbinder.Instance.BindingUI.ChangeStatus(BindingUI.Status.ProcessorList);
         }
 
         private void OnClearClicked()
         {
-            InputActionManager.ClearBinding(_action.bindings[_bindingIndex], _action);
+            GameInputUtils.ClearBinding(_action.bindings[_bindingIndex], _action);
         }
     }
 }
