@@ -367,6 +367,7 @@ namespace Codenade.Inputbinder
             {
                 QLog.ErrorLine("d.InputAction cannot be null");
             }
+            bool wasEnabled = d.InputAction.enabled;
             d.InputAction.expectedControlType = "Button";
             if (d.Source == ActionSource.Internal)
             {
@@ -392,6 +393,8 @@ namespace Codenade.Inputbinder
                     d.InputAction.AddBinding(path: null).WithName("Device 2");
                 }
             }
+            if (wasEnabled)
+                d.InputAction.Enable();
         }
 
         public static void DoAxisSetup(WrappedInputAction d)
@@ -400,6 +403,7 @@ namespace Codenade.Inputbinder
             {
                 QLog.ErrorLine("d.InputAction cannot be null");
             }
+            bool wasEnabled = d.InputAction.enabled;
             d.InputAction.expectedControlType = "Axis";
             if (d.Source == ActionSource.Internal)
             {
@@ -426,6 +430,8 @@ namespace Codenade.Inputbinder
                     d.InputAction.AddBinding(path: null).WithName("Device 2");
                 }
             }
+            if (wasEnabled)
+                d.InputAction.Enable();
         }
 
         public static void DoAxis1C1NSetup(WrappedInputAction d)
@@ -434,6 +440,7 @@ namespace Codenade.Inputbinder
             {
                 QLog.ErrorLine("d.InputAction cannot be null");
             }
+            bool wasEnabled = d.InputAction.enabled;
             d.InputAction.expectedControlType = "Axis";
             if (d.Source == ActionSource.Internal)
             {
@@ -491,6 +498,8 @@ namespace Codenade.Inputbinder
                     d.InputAction.AddBinding(path: statusCode == 1 ? defaultPathA : null).WithName("Axis");
                 }
             }
+            if (wasEnabled)
+                d.InputAction.Enable();
         }
 
         public static void DoAxis2C1NSetup(WrappedInputAction d)
@@ -499,6 +508,7 @@ namespace Codenade.Inputbinder
             {
                 QLog.ErrorLine("d.InputAction cannot be null");
             }
+            bool wasEnabled = d.InputAction.enabled;
             d.InputAction.expectedControlType = "Axis";
             if (d.Source == ActionSource.Internal)
             {
@@ -563,6 +573,8 @@ namespace Codenade.Inputbinder
                     d.InputAction.AddBinding(path: statusCode == 1 ? defaultPathA : null).WithName("Axis");
                 }
             }
+            if (wasEnabled)
+                d.InputAction.Enable();
         }
 
         public static void DoVector2dSetup(WrappedInputAction d)
@@ -571,6 +583,7 @@ namespace Codenade.Inputbinder
             {
                 QLog.ErrorLine("d.InputAction cannot be null");
             }
+            bool wasEnabled = d.InputAction.enabled;
             d.InputAction.expectedControlType = "Vector2";
             for (var jb = d.InputAction.bindings.Count - 1; jb >= 0; jb--)
                 d.InputAction.ChangeBinding(jb).Erase();
@@ -582,6 +595,8 @@ namespace Codenade.Inputbinder
             d.InputAction.AddCompositeBinding("2DAxis")
                 .With("x", null)
                 .With("y", null);
+            if (wasEnabled)
+                d.InputAction.Enable();
         }
 
         public static void DoCameraZoomSetup(WrappedInputAction d)
@@ -590,6 +605,7 @@ namespace Codenade.Inputbinder
             {
                 QLog.ErrorLine("d.InputAction cannot be null");
             }
+            bool wasEnabled = d.InputAction.enabled;
             d.InputAction.expectedControlType = "Vector2";
             for (var jb = d.InputAction.bindings.Count - 1; jb >= 0; jb--)
                 d.InputAction.ChangeBinding(jb).Erase();
@@ -605,6 +621,8 @@ namespace Codenade.Inputbinder
             //ovrd.overrideProcessors = "ScaleVector2(x=0,y=0.0005)";
             //d.InputAction.ApplyBindingOverride(5, ovrd);
             d.InputAction.ChangeBinding(5).WithProcessors("ScaleVector2(x=0,y=0.0005)");
+            if (wasEnabled)
+                d.InputAction.Enable();
         }
     }
 }
