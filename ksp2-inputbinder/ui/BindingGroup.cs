@@ -34,7 +34,7 @@ namespace Codenade.Inputbinder
             modifyBindingGroup.GetChild("ClearButton").GetComponent<Button>().onClick.AddListener(OnClearClicked);
         }
 
-        private void FixedUpdate()
+        private void Update()
         {
             _pathTxt.text = _action.bindings[_bindingIndex].effectivePath;
             _procText.text = _action.bindings[_bindingIndex].effectiveProcessors;

@@ -28,7 +28,7 @@ namespace Codenade.Inputbinder
             if (Inputbinder.Instance.ActionManager.IsChangingProc) Inputbinder.Instance.BindingUI.ChangeStatus(BindingUI.Status.ProcessorList);
         }
 
-        private void FixedUpdate()
+        private void Update()
         {
             _txtProc.text = _action.bindings[_bindingIndex].effectiveProcessors;
         }
