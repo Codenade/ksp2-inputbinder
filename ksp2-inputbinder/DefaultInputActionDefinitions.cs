@@ -198,6 +198,90 @@ namespace Codenade.Inputbinder
                     },
                     new WrappedInputAction()
                     {
+                        Source = ActionSource.Internal,
+                        InputAction = new InputAction(Constants.ActionAPStabilityID),
+                        FriendlyName = "AP Stability Assist",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Internal,
+                        InputAction = new InputAction(Constants.ActionAPProgradeID),
+                        FriendlyName = "AP Prograde",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Internal,
+                        InputAction = new InputAction(Constants.ActionAPRetrogradeID),
+                        FriendlyName = "AP Retrograde",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Internal,
+                        InputAction = new InputAction(Constants.ActionAPRadialInID),
+                        FriendlyName = "AP Radial In",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Internal,
+                        InputAction = new InputAction(Constants.ActionAPRadialOutID),
+                        FriendlyName = "AP Radial Out",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Internal,
+                        InputAction = new InputAction(Constants.ActionAPNormalID),
+                        FriendlyName = "AP Normal",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Internal,
+                        InputAction = new InputAction(Constants.ActionAPAntinormalID),
+                        FriendlyName = "AP Antinormal",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Internal,
+                        InputAction = new InputAction(Constants.ActionAPTargetID),
+                        FriendlyName = "AP Target",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Internal,
+                        InputAction = new InputAction(Constants.ActionAPAntiTargetID),
+                        FriendlyName = "AP Anti Target",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Internal,
+                        InputAction = new InputAction(Constants.ActionAPManeuverID),
+                        FriendlyName = "AP Maneuver",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Internal,
+                        InputAction = new InputAction(Constants.ActionAPNavigationID),
+                        FriendlyName = "AP Navigation",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Internal,
+                        InputAction = new InputAction(Constants.ActionAPAutopilotID),
+                        FriendlyName = "AP Autopilot",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
                         Source = ActionSource.Game,
                         InputAction = GameManager.Instance.Game.Input.Flight.TriggerActionGroup1,
                         FriendlyName = "Trigger Action Group 1",
