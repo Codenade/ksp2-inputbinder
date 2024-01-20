@@ -269,6 +269,90 @@ namespace Codenade.Inputbinder
                     new WrappedInputAction()
                     {
                         Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.Flight.Interact,
+                        FriendlyName = "Interact",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.Flight.InteractAlt,
+                        FriendlyName = "Interact Alt",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.Flight.InteractAlt2,
+                        FriendlyName = "Interact Alt 2",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.EVA.Jump,
+                        FriendlyName = "EVA Jump",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.EVA.Run,
+                        FriendlyName = "EVA Run",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.EVA.MoveFrontBack,
+                        FriendlyName = "EVA Move Forward / Backward",
+                        Setup = DoAxis2C1NSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.EVA.MoveLeftRight,
+                        FriendlyName = "EVA Move Left / Right",
+                        Setup = DoAxis2C1NSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.EVA.MoveStrafeLeftRight,
+                        FriendlyName = "EVA Strafe Left / Right",
+                        Setup = DoAxis2C1NSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.EVA.MoveUpDown,
+                        FriendlyName = "EVA Move Up / Down",
+                        Setup = DoAxis2C1NSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.EVA.RotatePitch,
+                        FriendlyName = "EVA Rotate Pitch",
+                        Setup = DoAxis2C1NSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.EVA.RotateYaw,
+                        FriendlyName = "EVA Rotate Yaw",
+                        Setup = DoAxis2C1NSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.EVA.RotateRoll,
+                        FriendlyName = "EVA Rotate Roll",
+                        Setup = DoAxis2C1NSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
                         InputAction = GameManager.Instance.Game.Input.Flight.CameraPitchGamepad,
                         FriendlyName = "Camera Pitch",
                         Setup = DoAxis2C1NSetup

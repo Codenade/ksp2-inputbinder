@@ -28,7 +28,7 @@ Task("Build")
 			Configuration = configuration,
 			NoLogo = true
 		});
-		Information("Copying assembly build productis to output directory");
+		Information("Copying assembly build products to output directory");
 		CopyFileToDirectory($"./ksp2-inputbinder/bin/{configuration}/netstandard2.0/Inputbinder.dll", Directory("./build/BepInEx/plugins/inputbinder/"));
 		if (configuration == "Debug")
 			CopyFileToDirectory($"./ksp2-inputbinder/bin/{configuration}/netstandard2.0/Inputbinder.pdb", Directory("./build/BepInEx/plugins/inputbinder/"));
