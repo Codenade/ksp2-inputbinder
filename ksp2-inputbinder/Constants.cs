@@ -14,10 +14,10 @@
         public static readonly string ActionAPStabilityID = "inputbinder/ap_stability";
         public static readonly string ActionAPProgradeID = "inputbinder/ap_prograde";
         public static readonly string ActionAPRetrogradeID = "inputbinder/ap_retrograde";
-        public static readonly string ActionAPRadialInID = "inputbinder/ap_radial_in";
-        public static readonly string ActionAPRadialOutID = "inputbinder/ap_radial_out";
         public static readonly string ActionAPNormalID = "inputbinder/ap_normal";
         public static readonly string ActionAPAntinormalID = "inputbinder/ap_antinormal";
+        public static readonly string ActionAPRadialInID = "inputbinder/ap_radial_in";
+        public static readonly string ActionAPRadialOutID = "inputbinder/ap_radial_out";
         public static readonly string ActionAPTargetID = "inputbinder/ap_target";
         public static readonly string ActionAPAntiTargetID = "inputbinder/ap_anti_target";
         public static readonly string ActionAPManeuverID = "inputbinder/ap_maneuver";

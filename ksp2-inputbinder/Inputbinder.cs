@@ -66,10 +66,10 @@ namespace Codenade.Inputbinder
             _actionManager.Actions[Constants.ActionAPStabilityID].Action.performed += ctx => SetAPMode(AutopilotMode.StabilityAssist);
             _actionManager.Actions[Constants.ActionAPProgradeID].Action.performed += ctx => SetAPMode(AutopilotMode.Prograde);
             _actionManager.Actions[Constants.ActionAPRetrogradeID].Action.performed += ctx => SetAPMode(AutopilotMode.Retrograde);
-            _actionManager.Actions[Constants.ActionAPRadialInID].Action.performed += ctx => SetAPMode(AutopilotMode.RadialIn);
-            _actionManager.Actions[Constants.ActionAPRadialOutID].Action.performed += ctx => SetAPMode(AutopilotMode.RadialOut);
             _actionManager.Actions[Constants.ActionAPNormalID].Action.performed += ctx => SetAPMode(AutopilotMode.Normal);
             _actionManager.Actions[Constants.ActionAPAntinormalID].Action.performed += ctx => SetAPMode(AutopilotMode.Antinormal);
+            _actionManager.Actions[Constants.ActionAPRadialInID].Action.performed += ctx => SetAPMode(AutopilotMode.RadialIn);
+            _actionManager.Actions[Constants.ActionAPRadialOutID].Action.performed += ctx => SetAPMode(AutopilotMode.RadialOut);
             _actionManager.Actions[Constants.ActionAPTargetID].Action.performed += ctx => SetAPMode(AutopilotMode.Target);
             _actionManager.Actions[Constants.ActionAPAntiTargetID].Action.performed += ctx => SetAPMode(AutopilotMode.AntiTarget);
             _actionManager.Actions[Constants.ActionAPManeuverID].Action.performed += ctx => SetAPMode(AutopilotMode.Maneuver);
@@ -83,10 +83,10 @@ namespace Codenade.Inputbinder
             _actionManager.Actions[Constants.ActionAPStabilityID].Action.Enable();
             _actionManager.Actions[Constants.ActionAPProgradeID].Action.Enable();
             _actionManager.Actions[Constants.ActionAPRetrogradeID].Action.Enable();
-            _actionManager.Actions[Constants.ActionAPRadialInID].Action.Enable();
-            _actionManager.Actions[Constants.ActionAPRadialOutID].Action.Enable();
             _actionManager.Actions[Constants.ActionAPNormalID].Action.Enable();
             _actionManager.Actions[Constants.ActionAPAntinormalID].Action.Enable();
+            _actionManager.Actions[Constants.ActionAPRadialInID].Action.Enable();
+            _actionManager.Actions[Constants.ActionAPRadialOutID].Action.Enable();
             _actionManager.Actions[Constants.ActionAPTargetID].Action.Enable();
             _actionManager.Actions[Constants.ActionAPAntiTargetID].Action.Enable();
             _actionManager.Actions[Constants.ActionAPManeuverID].Action.Enable();
