@@ -177,6 +177,90 @@ namespace Codenade.Inputbinder
                     },
                     new WrappedInputAction()
                     {
+                        Source = ActionSource.Internal,
+                        InputAction = new InputAction(Constants.ActionAPStabilityID),
+                        FriendlyName = "Set AP Mode Stability Assist",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Internal,
+                        InputAction = new InputAction(Constants.ActionAPProgradeID),
+                        FriendlyName = "Set AP Mode Prograde",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Internal,
+                        InputAction = new InputAction(Constants.ActionAPRetrogradeID),
+                        FriendlyName = "Set AP Mode Retrograde",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Internal,
+                        InputAction = new InputAction(Constants.ActionAPNormalID),
+                        FriendlyName = "Set AP Mode Normal",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Internal,
+                        InputAction = new InputAction(Constants.ActionAPAntinormalID),
+                        FriendlyName = "Set AP Mode Antinormal",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Internal,
+                        InputAction = new InputAction(Constants.ActionAPRadialInID),
+                        FriendlyName = "Set AP Mode Radial In",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Internal,
+                        InputAction = new InputAction(Constants.ActionAPRadialOutID),
+                        FriendlyName = "Set AP Mode Radial Out",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Internal,
+                        InputAction = new InputAction(Constants.ActionAPTargetID),
+                        FriendlyName = "Set AP Mode Target",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Internal,
+                        InputAction = new InputAction(Constants.ActionAPAntiTargetID),
+                        FriendlyName = "Set AP Mode Anti Target",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Internal,
+                        InputAction = new InputAction(Constants.ActionAPManeuverID),
+                        FriendlyName = "Set AP Mode Maneuver",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Internal,
+                        InputAction = new InputAction(Constants.ActionAPNavigationID),
+                        FriendlyName = "Set AP Mode Navigation",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Internal,
+                        InputAction = new InputAction(Constants.ActionAPAutopilotID),
+                        FriendlyName = "Set AP Mode Autopilot",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
                         Source = ActionSource.Game,
                         InputAction = GameManager.Instance.Game.Input.Flight.TranslateX,
                         FriendlyName = "Translate X",

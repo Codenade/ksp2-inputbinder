@@ -12,6 +12,7 @@ using UnityEngine.AddressableAssets.ResourceLocators;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using System.Collections;
 using System.IO;
+using KSP.Sim;
 
 namespace Codenade.Inputbinder
 {
@@ -62,11 +63,35 @@ namespace Codenade.Inputbinder
             _actionManager.Actions[Constants.ActionThrottleID].Action.started += ctx => SetThrottle(ctx.ReadValue<float>());
             _actionManager.Actions[Constants.ActionThrottleID].Action.canceled += ctx => SetThrottle(ctx.ReadValue<float>());
             _actionManager.Actions[Constants.ActionTrimResetID].Action.performed += ctx => ResetTrim();
+            _actionManager.Actions[Constants.ActionAPStabilityID].Action.performed += ctx => SetAPMode(AutopilotMode.StabilityAssist);
+            _actionManager.Actions[Constants.ActionAPProgradeID].Action.performed += ctx => SetAPMode(AutopilotMode.Prograde);
+            _actionManager.Actions[Constants.ActionAPRetrogradeID].Action.performed += ctx => SetAPMode(AutopilotMode.Retrograde);
+            _actionManager.Actions[Constants.ActionAPNormalID].Action.performed += ctx => SetAPMode(AutopilotMode.Normal);
+            _actionManager.Actions[Constants.ActionAPAntinormalID].Action.performed += ctx => SetAPMode(AutopilotMode.Antinormal);
+            _actionManager.Actions[Constants.ActionAPRadialInID].Action.performed += ctx => SetAPMode(AutopilotMode.RadialIn);
+            _actionManager.Actions[Constants.ActionAPRadialOutID].Action.performed += ctx => SetAPMode(AutopilotMode.RadialOut);
+            _actionManager.Actions[Constants.ActionAPTargetID].Action.performed += ctx => SetAPMode(AutopilotMode.Target);
+            _actionManager.Actions[Constants.ActionAPAntiTargetID].Action.performed += ctx => SetAPMode(AutopilotMode.AntiTarget);
+            _actionManager.Actions[Constants.ActionAPManeuverID].Action.performed += ctx => SetAPMode(AutopilotMode.Maneuver);
+            _actionManager.Actions[Constants.ActionAPNavigationID].Action.performed += ctx => SetAPMode(AutopilotMode.Navigation);
+            _actionManager.Actions[Constants.ActionAPAutopilotID].Action.performed += ctx => SetAPMode(AutopilotMode.Autopilot);
             _actionManager.Actions[Constants.ActionThrottleID].Action.Enable();
             _actionManager.Actions[Constants.ActionPitchTrimID].Action.Enable();
             _actionManager.Actions[Constants.ActionRollTrimID].Action.Enable();
             _actionManager.Actions[Constants.ActionYawTrimID].Action.Enable();
             _actionManager.Actions[Constants.ActionTrimResetID].Action.Enable();
+            _actionManager.Actions[Constants.ActionAPStabilityID].Action.Enable();
+            _actionManager.Actions[Constants.ActionAPProgradeID].Action.Enable();
+            _actionManager.Actions[Constants.ActionAPRetrogradeID].Action.Enable();
+            _actionManager.Actions[Constants.ActionAPNormalID].Action.Enable();
+            _actionManager.Actions[Constants.ActionAPAntinormalID].Action.Enable();
+            _actionManager.Actions[Constants.ActionAPRadialInID].Action.Enable();
+            _actionManager.Actions[Constants.ActionAPRadialOutID].Action.Enable();
+            _actionManager.Actions[Constants.ActionAPTargetID].Action.Enable();
+            _actionManager.Actions[Constants.ActionAPAntiTargetID].Action.Enable();
+            _actionManager.Actions[Constants.ActionAPManeuverID].Action.Enable();
+            _actionManager.Actions[Constants.ActionAPNavigationID].Action.Enable();
+            _actionManager.Actions[Constants.ActionAPAutopilotID].Action.Enable();
             _bindingUI = gameObject.AddComponent<BindingUI>();
             _bindingUI.Hide();
             _bindingUI.VisibilityChanged += OnUiVisibilityChange;
@@ -126,6 +151,11 @@ namespace Codenade.Inputbinder
         public void SetThrottle(float value)
         {
             _vessel?.ApplyFlightCtrlState(new KSP.Sim.State.FlightCtrlStateIncremental() { mainThrottle = Mathf.Clamp01(value) });
+        }
+
+        public void SetAPMode(AutopilotMode mode)
+        {
+            _vessel?.SetAutopilotMode(mode);
         }
 
         public void ResetTrim()
