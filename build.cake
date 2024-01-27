@@ -29,9 +29,9 @@ Task("Build")
 			NoLogo = true
 		});
 		Information("Copying assembly build products to output directory");
-		CopyFileToDirectory($"./ksp2-inputbinder/bin/{configuration}/netstandard2.0/Inputbinder.dll", Directory("./build/BepInEx/plugins/inputbinder/"));
+		CopyFileToDirectory($"./ksp2-inputbinder/bin/{configuration}/netstandard2.1/Inputbinder.dll", Directory("./build/BepInEx/plugins/inputbinder/"));
 		if (configuration == "Debug")
-			CopyFileToDirectory($"./ksp2-inputbinder/bin/{configuration}/netstandard2.0/Inputbinder.pdb", Directory("./build/BepInEx/plugins/inputbinder/"));
+			CopyFileToDirectory($"./ksp2-inputbinder/bin/{configuration}/netstandard2.1/Inputbinder.pdb", Directory("./build/BepInEx/plugins/inputbinder/"));
 		// Find unity editor 2022.3.5f1
 		Information("Trying to find Unity Editor version 2022.3.5f1");
 		var unityEditor = FindUnityEditor(2022, 3, 5, 'f');
