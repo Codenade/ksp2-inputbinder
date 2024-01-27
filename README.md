@@ -77,6 +77,13 @@ You can see Cake's built-in options by typing `dotnet cake --help`
 #### Throttle
 * Throttle Axis: Control your throttle as an axis
 
+> [!NOTE]
+> __Throttle Axis Behavior:__
+> - When the throttle level axis is moved, it is marked as _active_.
+> - When the throttle delta buttons (default `Shift` and `Ctrl`) are pressed, the throttle level axis is marked as _inactive_.
+> - While held, the throttle max and cutoff buttons (default `Z`/`X`) take priority over the throttle level axis.
+> - When the throttle max and cutoff buttons are released, the throttle level is set back to the axis level if it is active.
+
 #### Trim
 Dedicated actions to change the trim
 * Pitch Trim
@@ -84,12 +91,19 @@ Dedicated actions to change the trim
 * Yaw Trim
 * Trim Reset
 
-### Throttle Axis Behavior
-
-- When the throttle level axis is moved, it is marked as _active_.
-- When the throttle delta buttons (default `Shift` and `Ctrl`) are pressed, the throttle level axis is marked as _inactive_.
-- While held, the throttle max and cutoff buttons (default `Z`/`X`) take priority over the throttle level axis.
-- When the throttle max and cutoff buttons are released, the throttle level is set back to the axis level if it is active.
+#### SAS Mode (AP Mode)
+* Set AP Mode Stability Assist
+* Set AP Mode Prograde
+* Set AP Mode Retrograde
+* Set AP Mode Normal
+* Set AP Mode Antinormal
+* Set AP Mode Radial In
+* Set AP Mode Radial Out
+* Set AP Mode Target
+* Set AP Mode Anti Target
+* Set AP Mode Maneuver
+* Set AP Mode Navigation
+* Set AP Mode Autopilot
 
 ## Configuration
 
@@ -101,7 +115,7 @@ There also is a configuration file for advanced settings: `Kerbal Space Program 
 
 ### Where are my bindings stored?
 
-The bindings and processors are stored in the folder `Kerbal Space Program 2/BepInEx/config/inputbinder/profiles` inside `.json` files. Every file holds a complete set of all bindings.  
+The bindings and processors are stored in the folder `Kerbal Space Program 2/BepInEx/config/inputbinder/profiles` inside `.json` files. Every file holds a set of bindings.  
 __These files are referenced as "input profiles" by this mod's documentation.__
 
 ### Reset the configuration
