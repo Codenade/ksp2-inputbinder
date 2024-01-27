@@ -148,8 +148,21 @@ namespace Codenade.Inputbinder
                 _button.State = visible;
         }
 
-        public void SetThrottle(float value)
+
+        /// <summary>
+        /// Sets the throttle level of the active vessel.
+        ///
+        /// By default, this does nothing if the throttle cutoff or max buttons are pressed.
+        /// Set `force` to `true` to override this behavior.
+        /// </summary>
+        /// <param name="value">The throttle level, clamped between 0 and 1.</param>
+        /// <param name="force">`true` proceeds setting the throttle level even when the throttle cutoff and max input buttons are pressed.</param>
+        public void SetThrottle(float value, bool force = false)
         {
+            // Prioritize throttle cutoff and max buttons over a throttle axis input.
+            var flight = GameManager.Instance.Game.Input.Flight;
+            if (!force && (flight.ThrottleCutoff.IsPressed() || flight.ThrottleMax.IsPressed()))
+                return;
             _vessel?.ApplyFlightCtrlState(new KSP.Sim.State.FlightCtrlStateIncremental() { mainThrottle = Mathf.Clamp01(value) });
         }
 
