@@ -16,16 +16,6 @@ using KSP.Sim;
 
 namespace Codenade.Inputbinder
 {
-    public static class OnStateChangeExtension
-    {
-        public static void OnStateChange(this InputAction action, Action<InputAction.CallbackContext> func)
-        {
-            action.started += func;
-            action.performed += func;
-            action.canceled += func;
-        }
-    }
-
     public sealed class Inputbinder : KerbalMonoBehaviour
     {
         public static event Action Initialized;
@@ -43,7 +33,6 @@ namespace Codenade.Inputbinder
         private BindingUI _bindingUI;
         private string _modRootPath;
         private bool _isInitialized;
-
         private bool _isThrottleAxisActive = false;
 
         public Inputbinder()
@@ -64,7 +53,6 @@ namespace Codenade.Inputbinder
             }
         }
 
-
         private void Initialize()
         {
             RemoveKSPsGamepadBindings();
@@ -77,7 +65,6 @@ namespace Codenade.Inputbinder
             GameManager.Instance.Game.Input.Flight.ThrottleMax.canceled += _ => ResetThrottle();
             GameManager.Instance.Game.Input.Flight.ThrottleCutoff.canceled += _ => ResetThrottle();
             _actionManager.Actions[Constants.ActionThrottleID].Action.OnStateChange(ctx => SetThrottleFromAxis(ctx.ReadValue<float>()));
-
             _actionManager.Actions[Constants.ActionTrimResetID].Action.performed += ctx => ResetTrim();
             _actionManager.Actions[Constants.ActionAPStabilityID].Action.performed += ctx => SetAPMode(AutopilotMode.StabilityAssist);
             _actionManager.Actions[Constants.ActionAPProgradeID].Action.performed += ctx => SetAPMode(AutopilotMode.Prograde);

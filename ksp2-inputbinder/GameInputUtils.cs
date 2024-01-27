@@ -117,6 +117,13 @@ namespace Codenade.Inputbinder
             return false;
         }
 
+        public static void OnStateChange(this InputAction action, Action<InputAction.CallbackContext> func)
+        {
+            action.started += func;
+            action.performed += func;
+            action.canceled += func;
+        }
+
         public static Dictionary<string, Type> GetInputSystemLayouts()
         {
             var im = typeof(InputSystem).GetField("s_Manager", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
