@@ -16,6 +16,16 @@ using KSP.Sim;
 
 namespace Codenade.Inputbinder
 {
+    public static class OnStateChangeExtension
+    {
+        public static void OnStateChange(this InputAction action, Action<InputAction.CallbackContext> func)
+        {
+            action.started += func;
+            action.performed += func;
+            action.canceled += func;
+        }
+    }
+
     public sealed class Inputbinder : KerbalMonoBehaviour
     {
         public static event Action Initialized;
@@ -33,6 +43,8 @@ namespace Codenade.Inputbinder
         private BindingUI _bindingUI;
         private string _modRootPath;
         private bool _isInitialized;
+
+        private bool _isThrottleAxisActive = false;
 
         public Inputbinder()
         {
@@ -52,6 +64,7 @@ namespace Codenade.Inputbinder
             }
         }
 
+
         private void Initialize()
         {
             RemoveKSPsGamepadBindings();
@@ -59,9 +72,12 @@ namespace Codenade.Inputbinder
             GlobalConfiguration.Load();
             _actionManager = new InputActionManager();
             _actionManager.LoadOverrides();
-            _actionManager.Actions[Constants.ActionThrottleID].Action.performed += ctx => SetThrottle(ctx.ReadValue<float>());
-            _actionManager.Actions[Constants.ActionThrottleID].Action.started += ctx => SetThrottle(ctx.ReadValue<float>());
-            _actionManager.Actions[Constants.ActionThrottleID].Action.canceled += ctx => SetThrottle(ctx.ReadValue<float>());
+
+            GameManager.Instance.Game.Input.Flight.ThrottleDelta.OnStateChange(_ => _isThrottleAxisActive = false);
+            GameManager.Instance.Game.Input.Flight.ThrottleMax.canceled += _ => ResetThrottle();
+            GameManager.Instance.Game.Input.Flight.ThrottleCutoff.canceled += _ => ResetThrottle();
+            _actionManager.Actions[Constants.ActionThrottleID].Action.OnStateChange(ctx => SetThrottleFromAxis(ctx.ReadValue<float>()));
+
             _actionManager.Actions[Constants.ActionTrimResetID].Action.performed += ctx => ResetTrim();
             _actionManager.Actions[Constants.ActionAPStabilityID].Action.performed += ctx => SetAPMode(AutopilotMode.StabilityAssist);
             _actionManager.Actions[Constants.ActionAPProgradeID].Action.performed += ctx => SetAPMode(AutopilotMode.Prograde);
@@ -148,6 +164,26 @@ namespace Codenade.Inputbinder
                 _button.State = visible;
         }
 
+        /// <summary>
+        /// If the throttle axis is in use, reset the throttle to its value.
+        /// </summary>
+        public void ResetThrottle()
+        {
+            if (_isThrottleAxisActive)
+            {
+                SetThrottle(_actionManager.Actions[Constants.ActionThrottleID].Action.ReadValue<float>(), true);
+            }
+        }
+
+        /// <summary>
+        /// Sets the throttle axis as in use and sets the throttle to value.
+        /// </summary>
+        /// <param name="value">The throttle value, 0-1</param>
+        public void SetThrottleFromAxis(float value)
+        {
+            _isThrottleAxisActive = true;
+            SetThrottle(value, false);
+        }
 
         /// <summary>
         /// Sets the throttle level of the active vessel.
