@@ -32,12 +32,12 @@ Task("Build")
 		CopyFileToDirectory($"./ksp2-inputbinder/bin/{configuration}/netstandard2.0/Inputbinder.dll", Directory("./build/BepInEx/plugins/inputbinder/"));
 		if (configuration == "Debug")
 			CopyFileToDirectory($"./ksp2-inputbinder/bin/{configuration}/netstandard2.0/Inputbinder.pdb", Directory("./build/BepInEx/plugins/inputbinder/"));
-		// Find unity editor 2020.3.33f1
-		Information("Trying to find Unity Editor version 2020.3.33f1");
-		var unityEditor = FindUnityEditor(2020, 3, 33, 'f');
+		// Find unity editor 2022.3.5f1
+		Information("Trying to find Unity Editor version 2022.3.5f1");
+		var unityEditor = FindUnityEditor(2022, 3, 5, 'f');
 		if (unityEditor is null && !BuildSystem.GitHubActions.IsRunningOnGitHubActions)
 		{
-			throw new CakeException("Could not find Unity Editor 2020.3.33f1");
+			throw new CakeException("Could not find Unity Editor 2022.3.5f1");
 		}
 		else if (BuildSystem.GitHubActions.IsRunningOnGitHubActions)
 		{

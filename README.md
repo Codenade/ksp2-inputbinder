@@ -43,7 +43,7 @@ __Inputbinder App__
 ### Prerequisites
 
 * [.NET SDK](https://dotnet.microsoft.com/en-us/download)
-* [Unity 2020.3.33](https://unity.com/releases/editor/archive)
+* [Unity 2022.3.5](https://unity.com/releases/editor/archive)
 
 ### Instructions
 
@@ -67,8 +67,8 @@ You can see Cake's built-in options by typing `dotnet cake --help`
 
 ## Main features
 
-* Directly modifies the game's bindings using the [InputSystem](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.5/manual/index.html)
-* Add [processors](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.5/manual/Processors.html) to your bindings
+* Directly modifies the game's bindings using the [InputSystem](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.3/manual/index.html)
+* Add [processors](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.3/manual/Processors.html) to your bindings
 * Save your bindings as different profiles
 * Makes gamepads usable, should also work with other input devices if they are supported by the [InputSystem](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.5/manual/SupportedDevices.html)
 
