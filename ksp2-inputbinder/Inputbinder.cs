@@ -33,6 +33,7 @@ namespace Codenade.Inputbinder
         private BindingUI _bindingUI;
         private string _modRootPath;
         private bool _isInitialized;
+        private bool _isThrottleAxisActive = false;
 
         public Inputbinder()
         {
@@ -59,9 +60,11 @@ namespace Codenade.Inputbinder
             GlobalConfiguration.Load();
             _actionManager = new InputActionManager();
             _actionManager.LoadOverrides();
-            _actionManager.Actions[Constants.ActionThrottleID].Action.performed += ctx => SetThrottle(ctx.ReadValue<float>());
-            _actionManager.Actions[Constants.ActionThrottleID].Action.started += ctx => SetThrottle(ctx.ReadValue<float>());
-            _actionManager.Actions[Constants.ActionThrottleID].Action.canceled += ctx => SetThrottle(ctx.ReadValue<float>());
+
+            GameManager.Instance.Game.Input.Flight.ThrottleDelta.OnStateChange(_ => _isThrottleAxisActive = false);
+            GameManager.Instance.Game.Input.Flight.ThrottleMax.canceled += _ => ResetThrottle();
+            GameManager.Instance.Game.Input.Flight.ThrottleCutoff.canceled += _ => ResetThrottle();
+            _actionManager.Actions[Constants.ActionThrottleID].Action.OnStateChange(ctx => SetThrottleFromAxis(ctx.ReadValue<float>()));
             _actionManager.Actions[Constants.ActionTrimResetID].Action.performed += ctx => ResetTrim();
             _actionManager.Actions[Constants.ActionAPStabilityID].Action.performed += ctx => SetAPMode(AutopilotMode.StabilityAssist);
             _actionManager.Actions[Constants.ActionAPProgradeID].Action.performed += ctx => SetAPMode(AutopilotMode.Prograde);
@@ -148,8 +151,41 @@ namespace Codenade.Inputbinder
                 _button.State = visible;
         }
 
-        public void SetThrottle(float value)
+        /// <summary>
+        /// If the throttle axis is in use, reset the throttle to its value.
+        /// </summary>
+        public void ResetThrottle()
         {
+            if (_isThrottleAxisActive)
+            {
+                SetThrottle(_actionManager.Actions[Constants.ActionThrottleID].Action.ReadValue<float>(), true);
+            }
+        }
+
+        /// <summary>
+        /// Sets the throttle axis as in use and sets the throttle to value.
+        /// </summary>
+        /// <param name="value">The throttle value, 0-1</param>
+        public void SetThrottleFromAxis(float value)
+        {
+            _isThrottleAxisActive = true;
+            SetThrottle(value, false);
+        }
+
+        /// <summary>
+        /// Sets the throttle level of the active vessel.
+        ///
+        /// By default, this does nothing if the throttle cutoff or max buttons are pressed.
+        /// Set `force` to `true` to override this behavior.
+        /// </summary>
+        /// <param name="value">The throttle level, clamped between 0 and 1.</param>
+        /// <param name="force">`true` proceeds setting the throttle level even when the throttle cutoff and max input buttons are pressed.</param>
+        public void SetThrottle(float value, bool force = false)
+        {
+            // Prioritize throttle cutoff and max buttons over a throttle axis input.
+            var flight = GameManager.Instance.Game.Input.Flight;
+            if (!force && (flight.ThrottleCutoff.IsPressed() || flight.ThrottleMax.IsPressed()))
+                return;
             _vessel?.ApplyFlightCtrlState(new KSP.Sim.State.FlightCtrlStateIncremental() { mainThrottle = Mathf.Clamp01(value) });
         }
 

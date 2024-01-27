@@ -84,6 +84,13 @@ Dedicated actions to change the trim
 * Yaw Trim
 * Trim Reset
 
+### Throttle Axis Behavior
+
+- When the throttle level axis is moved, it is marked as _active_.
+- When the throttle delta buttons (default `Shift` and `Ctrl`) are pressed, the throttle level axis is marked as _inactive_.
+- While held, the throttle max and cutoff buttons (default `Z`/`X`) take priority over the throttle level axis.
+- When the throttle max and cutoff buttons are released, the throttle level is set back to the axis level if it is active.
+
 ## Configuration
 
 The mod settings can be accessed in-game in the flight view.
