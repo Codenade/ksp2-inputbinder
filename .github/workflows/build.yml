@@ -25,7 +25,7 @@ jobs:
         UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
       with:
         targetPlatform: StandaloneWindows64
-        unityVersion: 2020.3.33f1
+        unityVersion: 2022.3.5f1
         projectPath: ksp2-inputbinder-assets
         buildMethod: BuildAssets.PerformBuild
 

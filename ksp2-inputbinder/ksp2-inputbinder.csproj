@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup Label="Basic configuration">
-		<TargetFramework>netstandard2.0</TargetFramework>
+		<TargetFramework>netstandard2.1</TargetFramework>
 		<RootNamespace>Codenade.Inputbinder</RootNamespace>
 	</PropertyGroup>
 	<PropertyGroup Label="Plugin information. This is read by BepInEx.PluginInfoProps">
@@ -15,9 +15,9 @@
 		<PackageReference Include="BepInEx.BaseLib" Version="5.4.21" />
 		<PackageReference Include="BepInEx.PluginInfoProps" Version="2.1.0" />
 		<PackageReference Include="HarmonyX" Version="2.10.2" />
-		<PackageReference Include="KerbalSpaceProgram2.GameLibs" Version="0.1.4" />
+		<PackageReference Include="KerbalSpaceProgram2.GameLibs" Version="0.2.1" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<!-- NOTE: using UnityEngine.Modules 2020.3.33.1 because the newer versions make GitHub Actions fail to build -->
 		<PackageReference Include="UnityEngine.Modules" Version="2020.3.33.1" />
-		<PackageReference Include="Unity.InputSystem" Version="1.5.0" />
 	</ItemGroup>
 </Project>
