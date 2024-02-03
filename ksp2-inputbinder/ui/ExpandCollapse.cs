@@ -8,13 +8,18 @@ namespace Codenade.Inputbinder
     {
         bool _expanded;
         TextMeshProUGUI _text;
-        GameObject _bindings;
+        GameObject _target;
 
         public void Initialize(bool expanded)
         {
+            Initialize(expanded, null);
+        }
+
+        public void Initialize(bool expanded, GameObject target)
+        {
             _expanded = expanded;
-            _bindings = gameObject.transform.parent.parent.gameObject.GetChild("Bindings");
-            _bindings.SetActive(expanded);
+            _target = target ?? gameObject.transform.parent.parent.gameObject.GetChild("Bindings");
+            _target.SetActive(expanded);
             _text = GetComponentInChildren<TextMeshProUGUI>();
             if (_expanded)
                 _text.text = "Collapse";
@@ -30,7 +35,7 @@ namespace Codenade.Inputbinder
 
         public void SetExpanded(bool expanded)
         {
-            _bindings.SetActive(expanded);
+            _target.SetActive(expanded);
             _text.text = expanded ? "Collapse" : "Expand";
             _expanded = expanded;
         }

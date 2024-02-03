@@ -211,37 +211,30 @@ namespace Codenade.Inputbinder
             uiwc_vlg.childControlWidth = true;
             uiwc_vlg.childControlHeight = true;
             uiwc_vlg.childAlignment = TextAnchor.UpperCenter;
-            foreach (var item in _actionManager.Actions)
+            GameObject catObj = null;
+            foreach (var item in _actionManager.OrganizedInputActionData)
             {
-                var actionObj = Instantiate(Assets[PrefabKeys.ActionGroup], _uiMain.transform);
-                actionObj.name = item.Value.Name;
-                var actionHeader = actionObj.GetChild("ActionHeader");
-                var actionName = actionHeader.GetChild("ActionName").GetComponent<TextMeshProUGUI>();
-                actionName.text = item.Value.FriendlyName;
-                var actionExpBtn = actionHeader.GetChild("ExpandableButton");
-                actionExpBtn.AddComponent<ExpandCollapse>().Initialize(false);
-                var actionBindings = actionObj.GetChild("Bindings");
-                for (var idx = 0; idx < item.Value.Action.bindings.Count; idx++)
+                if (item is Category cat)
                 {
-                    var binding = item.Value.Action.bindings[idx];
-                    if (binding.isComposite)
-                    {
-                        var compositeRoot = Instantiate(Assets[PrefabKeys.BindingGroupComposite], actionBindings.transform);
-                        compositeRoot.AddComponent<CompositeBindingGroup>().Initialize(item.Value.Action, idx);
-                        var bindingsContainer = compositeRoot.GetChild("Bindings");
-                        for (var i = idx + 1; i < item.Value.Action.bindings.Count; i++)
-                        {
-                            var mBinding = item.Value.Action.bindings[i];
-                            if (mBinding.isComposite || !mBinding.isPartOfComposite)
-                                break;
-                            Instantiate(Assets[PrefabKeys.BindingGroup], bindingsContainer.transform).AddComponent<BindingGroup>().Initialize(item.Value.Action, i);
-                            idx = i;
-                        }
-                    }
-                    else
-                    {
-                        Instantiate(Assets[PrefabKeys.BindingGroup], actionBindings.transform).AddComponent<BindingGroup>().Initialize(item.Value.Action, idx);
-                    }
+                    catObj = Instantiate(Assets[PrefabKeys.CategoryGroup], _uiMain.transform);
+                    catObj.name = "Category_" + cat.FriendlyName;
+                    var actionHeader = catObj.GetChild("CategoryHeader");
+                    var actionName = actionHeader.GetChild("CategoryName").GetComponent<TextMeshProUGUI>();
+                    actionName.text = cat.FriendlyName;
+                    var actionExpBtn = actionHeader.GetChild("ExpandableButton");
+                    catObj = catObj.GetChild("Actions");
+                    actionExpBtn.AddComponent<ExpandCollapse>().Initialize(false, catObj);
+                    continue;
+                }
+                else if (item is CategoryEnd)
+                {
+                    catObj = null;
+                    continue;
+                }
+                else if (item is WrappedInputAction action)
+                {
+                    CreateInputActionElement(action, catObj?.transform);
+                    continue;
                 }
             }
             _uiPage1.GetChild("ProcessorCancelButton").AddComponent<ProcCancelBehaviour>();
@@ -253,6 +246,40 @@ namespace Codenade.Inputbinder
             _uiPage2.GetChild("Processors").AddComponent<Page2ListPopulator>();
             _uiPage3.GetChild("Values").AddComponent<Page3ValuesManager>();
             ChangeStatus(Status.Default);
+        }
+
+        private void CreateInputActionElement(WrappedInputAction action, Transform parent = null)
+        {
+            var actionObj = Instantiate(Assets[PrefabKeys.ActionGroup], parent ?? _uiMain.transform);
+            actionObj.name = action.InputAction.name;
+            var actionHeader = actionObj.GetChild("ActionHeader");
+            var actionName = actionHeader.GetChild("ActionName").GetComponent<TextMeshProUGUI>();
+            actionName.text = action.FriendlyName;
+            var actionExpBtn = actionHeader.GetChild("ExpandableButton");
+            actionExpBtn.AddComponent<ExpandCollapse>().Initialize(false);
+            var actionBindings = actionObj.GetChild("Bindings");
+            for (var idx = 0; idx < action.InputAction.bindings.Count; idx++)
+            {
+                var binding = action.InputAction.bindings[idx];
+                if (binding.isComposite)
+                {
+                    var compositeRoot = Instantiate(Assets[PrefabKeys.BindingGroupComposite], actionBindings.transform);
+                    compositeRoot.AddComponent<CompositeBindingGroup>().Initialize(action.InputAction, idx);
+                    var bindingsContainer = compositeRoot.GetChild("Bindings");
+                    for (var i = idx + 1; i < action.InputAction.bindings.Count; i++)
+                    {
+                        var mBinding = action.InputAction.bindings[i];
+                        if (mBinding.isComposite || !mBinding.isPartOfComposite)
+                            break;
+                        Instantiate(Assets[PrefabKeys.BindingGroup], bindingsContainer.transform).AddComponent<BindingGroup>().Initialize(action.InputAction, i);
+                        idx = i;
+                    }
+                }
+                else
+                {
+                    Instantiate(Assets[PrefabKeys.BindingGroup], actionBindings.transform).AddComponent<BindingGroup>().Initialize(action.InputAction, idx);
+                }
+            }
         }
 
         public void ChangeStatus(Status status)
@@ -383,6 +410,7 @@ namespace Codenade.Inputbinder
             public static readonly string SaveAsDialogOverlay =             "Codenade.Inputbinder/SaveAsDialogOverlay";
             public static readonly string ProfileElement =                  "Codenade.Inputbinder/ProfileElement";
             public static readonly string LoadDialogOverlay =               "Codenade.Inputbinder/LoadDialogOverlay";
+            public static readonly string CategoryGroup =                   "Codenade.Inputbinder/CategoryGroup";
 
             public static string[] AllKeys 
             { 
