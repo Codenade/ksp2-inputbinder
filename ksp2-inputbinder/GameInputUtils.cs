@@ -3,6 +3,7 @@ using KSP.Input;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Utilities;
@@ -133,6 +134,40 @@ namespace Codenade.Inputbinder
             foreach (var kvp in types)
                 nTypes.Add(kvp.Key.ToString(), kvp.Value);
             return nTypes;
+        }
+
+        public static string GetInputActionContainerName(InputAction action)
+        {
+            var gameInput = GameManager.Instance.Game.Input;
+            List<object> searchTargets = new List<object>()
+            {
+                gameInput.Audio,
+                gameInput.ConsoleToolbox,
+                gameInput.Cursor,
+                gameInput.EVA,
+                gameInput.Flight,
+                gameInput.Global,
+                gameInput.KSC,
+                gameInput.MapView,
+                gameInput.Navigation_Move_DPad,
+                gameInput.Navigation_Move_LeftStick,
+                gameInput.Navigation_Quit,
+                gameInput.Navigation_Scroll,
+                gameInput.Navigation_Slider,
+                gameInput.Navigation_Submit,
+                gameInput.RD,
+                gameInput.VAB
+            };
+            
+            foreach (var target in searchTargets)
+            {
+                foreach (var prop in target.GetType().GetProperties().Where((x) => x.PropertyType == typeof(InputAction)))
+                {
+                    if (prop.GetValue(target) == action)
+                        return typeof(GameInput).GetProperties().Where((x) => x.PropertyType == target.GetType()).First().Name;
+                }
+            }
+            return null;
         }
     }
 }

@@ -87,8 +87,15 @@ namespace Codenade.Inputbinder
                     new WrappedInputAction()
                     {
                         Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.Flight.ToggleRotLinControls,
+                        FriendlyName = "Toggle Docking Controls",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
                         InputAction = GameManager.Instance.Game.Input.Flight.TogglePrecisionMode,
-                        FriendlyName = "Toggle Precision Mode",
+                        FriendlyName = "Toggle Precision Controls",
                         Setup = DoButtonSetup
                     },
                     new WrappedInputAction()
@@ -458,6 +465,55 @@ namespace Codenade.Inputbinder
                     new WrappedInputAction()
                     {
                         Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.Flight.FocusNext,
+                        FriendlyName = "Focus Next Vessel",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.Flight.FocusPrev,
+                        FriendlyName = "Focus Previous Vessel",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.Flight.CycleCameraMode,
+                        FriendlyName = "Cycle Camera Mode",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.Flight.CameraFineMovement,
+                        FriendlyName = "Camera Fine Movement",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.Flight.ToggleMouselook,
+                        FriendlyName = "Toggle Mouse Look",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.Flight.ToggleVesselLabels,
+                        FriendlyName = "Toggle Vessel Labels",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.Flight.ToggleFreeCamera,
+                        FriendlyName = "Toggle Free Camera",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
                         InputAction = GameManager.Instance.Game.Input.Flight.ShowMap,
                         FriendlyName = "Show Map",
                         Setup = DoButtonSetup
@@ -467,6 +523,13 @@ namespace Codenade.Inputbinder
                         Source = ActionSource.Game,
                         InputAction = GameManager.Instance.Game.Input.MapView.HideMap,
                         FriendlyName = "Hide Map",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.MapView.resetCamera,
+                        FriendlyName = "Map Reset Camera",
                         Setup = DoButtonSetup
                     },
                     new WrappedInputAction()
@@ -487,7 +550,7 @@ namespace Codenade.Inputbinder
 					{
 						Source = ActionSource.Game,
 						InputAction = GameManager.Instance.Game.Input.Global.QuickLoadHold,
-						FriendlyName = "Quick Load Hold",
+						FriendlyName = "Quick Load (Hold)",
 						Setup = DoButtonSetup
 					},
                     new WrappedInputAction()
@@ -521,9 +584,165 @@ namespace Codenade.Inputbinder
                     new WrappedInputAction()
                     {
                         Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.Global.TogglePlayerCheatMenu,
+                        FriendlyName = "Toggle Cheat Menu",
+                        Setup = DoButton1MSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
                         InputAction = GameManager.Instance.Game.Input.Global.ToggleUIVisibility,
                         FriendlyName = "Toggle UI Visibility",
                         Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.Global.ConfirmDialogue,
+                        FriendlyName = "Confirm Dialogue",
+                        Setup = DoButtonSetup
+                    },
+                    // VAB -------------
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.VAB.delete,
+                        FriendlyName = "VAB Delete",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.VAB.nextSymmetryMode,
+                        FriendlyName = "Cycle Symmetry Mode Forward",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.VAB.previousSymmetryMode,
+                        FriendlyName = "Cycle Symmetry Mode Back",
+                        Setup = DoButton1MSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.VAB.toggleAngleSnap,
+                        FriendlyName = "Toggle Angle Snap",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.VAB.disableStackAttachment,
+                        FriendlyName = "Disable Stack Attachment",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.VAB.resetPartRotation,
+                        FriendlyName = "Reset Part Orientation",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.VAB.resetCamera,
+                        FriendlyName = "VAB Reset Camera",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.VAB.copy,
+                        FriendlyName = "Copy Selected Assembly",
+                        Setup = DoButton1MSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.VAB.paste,
+                        FriendlyName = "Paste Copied Assembly",
+                        Setup = DoButton1MSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.VAB.search,
+                        FriendlyName = "Search Parts",
+                        Setup = DoButton1MSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.VAB.undo,
+                        FriendlyName = "Undo",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.VAB.redo,
+                        FriendlyName = "Redo",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.VAB.cameraFastModifier,
+                        FriendlyName = "Fast Camera Mode",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.VAB.rotatePitch,
+                        FriendlyName = "Pitch Part",
+                        Setup = DoAxis2C1NSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.VAB.rotateYaw,
+                        FriendlyName = "Yaw Part",
+                        Setup = DoAxis2C1NSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.VAB.rotateRoll,
+                        FriendlyName = "Roll Part",
+                        Setup = DoAxis2C1NSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.VAB.toggleFrameOfReference,
+                        FriendlyName = "Toggle Frame of Reference",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.VAB.selectAllPrimaryAssembly,
+                        FriendlyName = "Select Launch Assembly",
+                        Setup = DoButton1MSetup
+                    },
+                    // R&D -----------
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.RD.expandPartInfoTooltip,
+                        FriendlyName = "Expand Part Info Tooltip",
+                        Setup = DoButtonSetup
+                    },
+                    new WrappedInputAction()
+                    {
+                        Source = ActionSource.Game,
+                        InputAction = GameManager.Instance.Game.Input.RD.ScrollTechTree,
+                        FriendlyName = "Tech Tree Scroll",
+                        Setup = DoAxis2C1NSetup
                     }
                 };
             }
@@ -555,10 +774,56 @@ namespace Codenade.Inputbinder
                 else
                 {
                     string defaultPath = d.InputAction.bindings[0].path;
+                    string defaultPath2 = d.InputAction.bindings.Count >= 2 ? d.InputAction.bindings[1].path : null;
                     for (var jb = d.InputAction.bindings.Count - 1; jb >= 0; jb--)
                         d.InputAction.ChangeBinding(jb).Erase();
                     d.InputAction.AddBinding(path: defaultPath).WithName("Device 1");
-                    d.InputAction.AddBinding(path: null).WithName("Device 2");
+                    d.InputAction.AddBinding(path: defaultPath2).WithName("Device 2");
+                }
+            }
+            if (wasEnabled)
+                d.InputAction.Enable();
+        }
+
+        public static void DoButton1MSetup(WrappedInputAction d)
+        {
+            if (d.InputAction is null)
+            {
+                QLog.ErrorLine("d.InputAction cannot be null");
+            }
+            bool wasEnabled = d.InputAction.enabled;
+            d.InputAction.expectedControlType = "Button";
+            if (d.Source == ActionSource.Internal)
+            {
+                for (var jb = d.InputAction.bindings.Count - 1; jb >= 0; jb--)
+                    d.InputAction.ChangeBinding(jb).Erase();
+                d.InputAction.AddCompositeBinding("OneModifier")
+                    .With("modifier", null)
+                    .With("binding", null);
+                d.InputAction.AddCompositeBinding("OneModifier")
+                    .With("modifier", null)
+                    .With("binding", null);
+            }
+            else if (d.Source == ActionSource.Game)
+            {
+                if (d.InputAction.bindings.Count < 3 || !d.InputAction.bindings[0].isComposite)
+                {
+                    QLog.WarnLine($"Cannot load default path for {d.InputAction.name} - {d.InputAction.id}");
+                    d.Source = ActionSource.Internal;
+                    DoButtonSetup(d);
+                }
+                else
+                {
+                    string defaultModifier = d.InputAction.bindings[d.InputAction.FindNamedCompositePart(0, "modifier")].path;
+                    string defaultBinding = d.InputAction.bindings[d.InputAction.FindNamedCompositePart(0, "binding")].path;
+                    for (var jb = d.InputAction.bindings.Count - 1; jb >= 0; jb--)
+                        d.InputAction.ChangeBinding(jb).Erase();
+                    d.InputAction.AddCompositeBinding("OneModifier")
+                        .With("modifier", defaultModifier)
+                        .With("binding", defaultBinding);
+                    d.InputAction.AddCompositeBinding("OneModifier")
+                        .With("modifier", null)
+                        .With("binding", null);
                 }
             }
             if (wasEnabled)

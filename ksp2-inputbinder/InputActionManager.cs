@@ -184,7 +184,22 @@ namespace Codenade.Inputbinder
             foreach (var wia in DefaultInputActionDefinitions.WrappedInputActions)
             {
                 wia.Setup?.Invoke(wia);
-                Actions.Add(wia.InputAction.name, new NamedInputAction(wia.InputAction, wia.FriendlyName, wia.Source == ActionSource.Game));
+                string substituteKey = null;
+                if (Actions.ContainsKey(wia.InputAction.name))
+                {
+                    if (wia.Source == ActionSource.Game)
+                    {
+                        var contName = GameInputUtils.GetInputActionContainerName(wia.InputAction);
+                        if (contName is null)
+                            substituteKey = null;
+                        else
+                            substituteKey = contName + '/' + wia.InputAction.name;
+                    }
+                    substituteKey ??= wia.InputAction.id.ToString();
+                    Actions.Add(substituteKey, new NamedInputAction(wia.InputAction, wia.FriendlyName, wia.Source == ActionSource.Game));
+                }
+                else
+                    Actions.Add(wia.InputAction.name, new NamedInputAction(wia.InputAction, wia.FriendlyName, wia.Source == ActionSource.Game));
             }
             foreach (var wia in GameInputUtils.Load(IOProvider.JoinPath(BepInEx.Paths.ConfigPath, "inputbinder/game_actions_to_add.txt")))
             {
@@ -201,7 +216,6 @@ namespace Codenade.Inputbinder
             QLog.Info($"Loading settings ...");
             var stopwatch = Stopwatch.StartNew();
             bool flag = ProfileDefinitions.LoadDefault(Actions, path);
-            if (!flag) flag = ProfileDefinitions.LoadLegacy(Actions, path);
             stopwatch.Stop();
             if (flag)
                 QLog.Info($"Loaded settings ({stopwatch.Elapsed.TotalSeconds}s)");
