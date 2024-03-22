@@ -176,8 +176,8 @@ namespace Codenade.Inputbinder
             var resizehandle = uipanel.GetChild("ResizeHandle");    //head
             var toolbar1 = Instantiate(new GameObject("GRP-Toolbar1", typeof(LayoutElement), typeof(HorizontalLayoutGroup)), uipanel.transform);
             var toolbar2 = Instantiate(new GameObject("GRP-Toolbar2", typeof(HorizontalLayoutGroup)), uipanel.transform);
-            toolbar1.AddComponent<Image>().color = Color.black;
-            toolbar2.AddComponent<Image>().color = Color.black;
+            toolbar1.AddComponent<Image>().color = new Color(0.0314f, 0.0471f, 0.051f, 0.7843f);
+            toolbar2.AddComponent<Image>().color = new Color(0.0314f, 0.0471f, 0.051f, 0.7843f);
             body.transform.SetSiblingIndex(3);
             footer.transform.SetSiblingIndex(1);
             header.transform.SetSiblingIndex(4);
