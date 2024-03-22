@@ -10,7 +10,6 @@ namespace Codenade.Inputbinder
         {
             var vlg = gameObject.GetComponent<VerticalLayoutGroup>();
             vlg.childAlignment = TextAnchor.UpperCenter;
-            vlg.padding = new RectOffset(4, 4, 4, 4);
             vlg.childControlHeight = true;
             vlg.childControlWidth = true;
             vlg.childForceExpandWidth = true;

@@ -12,6 +12,7 @@ namespace Codenade.Inputbinder
     public class InputActionManager
     {
         public Dictionary<string, NamedInputAction> Actions { get; private set; }
+        internal List<IWrappedInputAction> OrganizedInputActionData { get; private set; }
         public bool IsCurrentlyRebinding => _rebindInfo is object;
         public bool IsChangingProc => _procBindInfo is object;
 
@@ -27,6 +28,7 @@ namespace Codenade.Inputbinder
         public InputActionManager()
         {
             Actions = new Dictionary<string, NamedInputAction>();
+            OrganizedInputActionData = new List<IWrappedInputAction>();
             _rebindInfo = null;
             _procBindInfo = null;
             RegisterActions();
@@ -181,13 +183,19 @@ namespace Codenade.Inputbinder
 
         private void RegisterActions()
         {
-            foreach (var wia in DefaultInputActionDefinitions.WrappedInputActions)
+            foreach (var dia in DefaultInputActionDefinitions.WrappedInputActions)
             {
+                OrganizedInputActionData.Add(dia);
+                if (!(dia is WrappedInputAction)) continue;
+                var wia = (WrappedInputAction)dia;
                 wia.Setup?.Invoke(wia);
                 Actions.Add(wia.InputAction.name, new NamedInputAction(wia.InputAction, wia.FriendlyName, wia.Source == ActionSource.Game));
             }
-            foreach (var wia in GameInputUtils.Load(IOProvider.JoinPath(BepInEx.Paths.ConfigPath, "inputbinder/game_actions_to_add.txt")))
+            foreach (var dia in GameInputUtils.Load(IOProvider.JoinPath(BepInEx.Paths.ConfigPath, "inputbinder/game_actions_to_add.txt")))
             {
+                OrganizedInputActionData.Add(dia);
+                if (!(dia is WrappedInputAction)) continue;
+                var wia = (WrappedInputAction)dia;
                 wia.Setup?.Invoke(wia);
                 Actions.Add(wia.InputAction.name, new NamedInputAction(wia.InputAction, wia.FriendlyName, wia.Source == ActionSource.Game));
             }
