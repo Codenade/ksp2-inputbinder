@@ -713,14 +713,14 @@ namespace Codenade.Inputbinder
                     Source = ActionSource.Game,
                     InputAction = GameManager.Instance.Game.Input.VAB.undo,
                     FriendlyName = "Undo",
-                    Setup = DoButtonSetup
+                    Setup = DoButton1N1MSetup
                 },
                 new WrappedInputAction()
                 {
                     Source = ActionSource.Game,
                     InputAction = GameManager.Instance.Game.Input.VAB.redo,
                     FriendlyName = "Redo",
-                    Setup = DoButtonSetup
+                    Setup = DoButton1N1MSetup
                 },
                 new WrappedInputAction()
                 {
@@ -856,6 +856,56 @@ namespace Codenade.Inputbinder
                     d.InputAction.AddCompositeBinding("OneModifier")
                         .With("modifier", defaultModifier)
                         .With("binding", defaultBinding);
+                    d.InputAction.AddCompositeBinding("OneModifier")
+                        .With("modifier", null)
+                        .With("binding", null);
+                }
+            }
+            if (wasEnabled)
+                d.InputAction.Enable();
+        }
+
+        public static void DoButton1N1MSetup(WrappedInputAction d)
+        {
+            if (d.InputAction is null)
+            {
+                QLog.ErrorLine("d.InputAction cannot be null");
+            }
+            bool wasEnabled = d.InputAction.enabled;
+            d.InputAction.expectedControlType = "Button";
+            if (d.Source == ActionSource.Internal)
+            {
+                for (var jb = d.InputAction.bindings.Count - 1; jb >= 0; jb--)
+                    d.InputAction.ChangeBinding(jb).Erase();
+                d.InputAction.AddBinding(path: null).WithName("Button 1");
+                d.InputAction.AddCompositeBinding("OneModifier")
+                    .With("modifier", null)
+                    .With("binding", null);
+                d.InputAction.AddBinding(path: null).WithName("Button 2");
+                d.InputAction.AddCompositeBinding("OneModifier")
+                    .With("modifier", null)
+                    .With("binding", null);
+            }
+            else if (d.Source == ActionSource.Game)
+            {
+                if (d.InputAction.bindings.Count < 4 || !d.InputAction.bindings[1].isComposite)
+                {
+                    QLog.WarnLine($"Cannot load default path for {d.InputAction.name} - {d.InputAction.id}");
+                    d.Source = ActionSource.Internal;
+                    DoButtonSetup(d);
+                }
+                else
+                {
+                    string defaultB1 = d.InputAction.bindings[0].path;
+                    string defaultModifier = d.InputAction.bindings[d.InputAction.FindNamedCompositePart(1, "modifier")].path;
+                    string defaultBinding = d.InputAction.bindings[d.InputAction.FindNamedCompositePart(1, "binding")].path;
+                    for (var jb = d.InputAction.bindings.Count - 1; jb >= 0; jb--)
+                        d.InputAction.ChangeBinding(jb).Erase();
+                    d.InputAction.AddBinding(defaultB1).WithName("Button 1");
+                    d.InputAction.AddCompositeBinding("OneModifier")
+                        .With("modifier", defaultModifier)
+                        .With("binding", defaultBinding);
+                    d.InputAction.AddBinding(path: null).WithName("Button 2");
                     d.InputAction.AddCompositeBinding("OneModifier")
                         .With("modifier", null)
                         .With("binding", null);
