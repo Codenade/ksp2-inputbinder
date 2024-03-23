@@ -49,9 +49,11 @@ namespace Codenade.Inputbinder
         public static Category CategoryBasicFlight = new Category("Basic Controls");
         public static Category CategoryActionGroups = new Category("Action Groups");
         public static Category CategoryAPMode = new Category("SAS Modes");
+        public static Category CategoryFlightCamera = new Category("Flight Camera Controls");
         public static Category CategoryEVA = new Category("EVA");
         public static Category CategoryOAB = new Category("OAB");
         public static Category CategoryRD = new Category("R&D");
+        public static Category CategoryMap = new Category("Map");
         public static Category CategoryGeneral = new Category("General");
         public static Category CategoryCustom = new Category("Custom");
 
@@ -388,6 +390,78 @@ namespace Codenade.Inputbinder
                     Setup = DoButtonSetup
                 },
                 new CategoryEnd(),
+                CategoryFlightCamera,
+                new WrappedInputAction()
+                {
+                    Source = ActionSource.Game,
+                    InputAction = GameManager.Instance.Game.Input.Flight.CameraPitchGamepad,
+                    FriendlyName = "Camera Pitch",
+                    Setup = DoAxis2C1NSetup
+                },
+                new WrappedInputAction()
+                {
+                    Source = ActionSource.Game,
+                    InputAction = GameManager.Instance.Game.Input.Flight.CameraYawGamepad,
+                    FriendlyName = "Camera Yaw",
+                    Setup = DoAxis2C1NSetup
+                },
+                new WrappedInputAction()
+                {
+                    Source = ActionSource.Game,
+                    InputAction = GameManager.Instance.Game.Input.Flight.CameraZoom,
+                    FriendlyName = "Camera Zoom",
+                    Setup = DoCameraZoomSetup
+                },
+                new WrappedInputAction()
+                {
+                    Source = ActionSource.Game,
+                    InputAction = GameManager.Instance.Game.Input.Flight.FocusNext,
+                    FriendlyName = "Focus Next Vessel",
+                    Setup = DoButtonSetup
+                },
+                new WrappedInputAction()
+                {
+                    Source = ActionSource.Game,
+                    InputAction = GameManager.Instance.Game.Input.Flight.FocusPrev,
+                    FriendlyName = "Focus Previous Vessel",
+                    Setup = DoButtonSetup
+                },
+                new WrappedInputAction()
+                {
+                    Source = ActionSource.Game,
+                    InputAction = GameManager.Instance.Game.Input.Flight.CycleCameraMode,
+                    FriendlyName = "Cycle Camera Mode",
+                    Setup = DoButtonSetup
+                },
+                new WrappedInputAction()
+                {
+                    Source = ActionSource.Game,
+                    InputAction = GameManager.Instance.Game.Input.Flight.CameraFineMovement,
+                    FriendlyName = "Camera Fine Movement",
+                    Setup = DoButtonSetup
+                },
+                new WrappedInputAction()
+                {
+                    Source = ActionSource.Game,
+                    InputAction = GameManager.Instance.Game.Input.Flight.ToggleMouselook,
+                    FriendlyName = "Toggle Mouse Look",
+                    Setup = DoButtonSetup
+                },
+                new WrappedInputAction()
+                {
+                    Source = ActionSource.Game,
+                    InputAction = GameManager.Instance.Game.Input.Flight.ToggleVesselLabels,
+                    FriendlyName = "Toggle Vessel Labels",
+                    Setup = DoButtonSetup
+                },
+                new WrappedInputAction()
+                {
+                    Source = ActionSource.Game,
+                    InputAction = GameManager.Instance.Game.Input.Flight.ToggleFreeCamera,
+                    FriendlyName = "Toggle Free Camera",
+                    Setup = DoButtonSetup
+                },
+                new CategoryEnd(),
                 CategoryEVA,
                 new WrappedInputAction()
                 {
@@ -474,77 +548,7 @@ namespace Codenade.Inputbinder
                     Setup = DoAxis2C1NSetup
                 },
                 new CategoryEnd(),
-                CategoryGeneral,
-                new WrappedInputAction()
-                {
-                    Source = ActionSource.Game,
-                    InputAction = GameManager.Instance.Game.Input.Flight.CameraPitchGamepad,
-                    FriendlyName = "Camera Pitch",
-                    Setup = DoAxis2C1NSetup
-                },
-                new WrappedInputAction()
-                {
-                    Source = ActionSource.Game,
-                    InputAction = GameManager.Instance.Game.Input.Flight.CameraYawGamepad,
-                    FriendlyName = "Camera Yaw",
-                    Setup = DoAxis2C1NSetup
-                },
-                new WrappedInputAction()
-                {
-                    Source = ActionSource.Game,
-                    InputAction = GameManager.Instance.Game.Input.Flight.CameraZoom,
-                    FriendlyName = "Camera Zoom",
-                    Setup = DoCameraZoomSetup
-                },
-                new WrappedInputAction()
-                {
-                    Source = ActionSource.Game,
-                    InputAction = GameManager.Instance.Game.Input.Flight.FocusNext,
-                    FriendlyName = "Focus Next Vessel",
-                    Setup = DoButtonSetup
-                },
-                new WrappedInputAction()
-                {
-                    Source = ActionSource.Game,
-                    InputAction = GameManager.Instance.Game.Input.Flight.FocusPrev,
-                    FriendlyName = "Focus Previous Vessel",
-                    Setup = DoButtonSetup
-                },
-                new WrappedInputAction()
-                {
-                    Source = ActionSource.Game,
-                    InputAction = GameManager.Instance.Game.Input.Flight.CycleCameraMode,
-                    FriendlyName = "Cycle Camera Mode",
-                    Setup = DoButtonSetup
-                },
-                new WrappedInputAction()
-                {
-                    Source = ActionSource.Game,
-                    InputAction = GameManager.Instance.Game.Input.Flight.CameraFineMovement,
-                    FriendlyName = "Camera Fine Movement",
-                    Setup = DoButtonSetup
-                },
-                new WrappedInputAction()
-                {
-                    Source = ActionSource.Game,
-                    InputAction = GameManager.Instance.Game.Input.Flight.ToggleMouselook,
-                    FriendlyName = "Toggle Mouse Look",
-                    Setup = DoButtonSetup
-                },
-                new WrappedInputAction()
-                {
-                    Source = ActionSource.Game,
-                    InputAction = GameManager.Instance.Game.Input.Flight.ToggleVesselLabels,
-                    FriendlyName = "Toggle Vessel Labels",
-                    Setup = DoButtonSetup
-                },
-                new WrappedInputAction()
-                {
-                    Source = ActionSource.Game,
-                    InputAction = GameManager.Instance.Game.Input.Flight.ToggleFreeCamera,
-                    FriendlyName = "Toggle Free Camera",
-                    Setup = DoButtonSetup
-                },
+                CategoryMap,
                 new WrappedInputAction()
                 {
                     Source = ActionSource.Game,
@@ -564,76 +568,6 @@ namespace Codenade.Inputbinder
                     Source = ActionSource.Game,
                     InputAction = GameManager.Instance.Game.Input.MapView.resetCamera,
                     FriendlyName = "Map Reset Camera",
-                    Setup = DoButtonSetup
-                },
-                new WrappedInputAction()
-                {
-                    Source = ActionSource.Game,
-                    InputAction = GameManager.Instance.Game.Input.Global.QuickSave,
-                    FriendlyName = "Quick Save",
-                    Setup = DoButtonSetup
-                },
-                new WrappedInputAction()
-                {
-                    Source = ActionSource.Game,
-                    InputAction = GameManager.Instance.Game.Input.Global.QuickLoad,
-                    FriendlyName = "Quick Load",
-                    Setup = DoButtonSetup
-                },
-                new WrappedInputAction()
-                {
-                    Source = ActionSource.Game,
-                    InputAction = GameManager.Instance.Game.Input.Global.QuickLoadHold,
-                    FriendlyName = "Quick Load (Hold)",
-                    Setup = DoButtonSetup
-                },
-                new WrappedInputAction()
-                {
-                    Source = ActionSource.Game,
-                    InputAction = GameManager.Instance.Game.Input.Global.TimeWarpDecrease,
-                    FriendlyName = "Time Warp Decrease",
-                    Setup = DoButtonSetup
-                },
-                new WrappedInputAction()
-                {
-                    Source = ActionSource.Game,
-                    InputAction = GameManager.Instance.Game.Input.Global.TimeWarpIncrease,
-                    FriendlyName = "Time Warp Increase",
-                    Setup = DoButtonSetup
-                },
-                new WrappedInputAction()
-                {
-                    Source = ActionSource.Game,
-                    InputAction = GameManager.Instance.Game.Input.Global.TimeWarpStop,
-                    FriendlyName = "Time Warp Stop",
-                    Setup = DoButtonSetup
-                },
-                new WrappedInputAction()
-                {
-                    Source = ActionSource.Game,
-                    InputAction = GameManager.Instance.Game.Input.Global.TogglePauseMenu,
-                    FriendlyName = "Toggle Pause Menu",
-                    Setup = DoButtonSetup
-                },
-                new WrappedInputAction()
-                {
-                    Source = ActionSource.Game,
-                    InputAction = GameManager.Instance.Game.Input.Global.TogglePlayerCheatMenu,
-                    FriendlyName = "Toggle Cheat Menu",
-                    Setup = DoButton1MSetup
-                },
-                new WrappedInputAction()
-                {
-                    Source = ActionSource.Game,
-                    InputAction = GameManager.Instance.Game.Input.Global.ToggleUIVisibility,
-                    FriendlyName = "Toggle UI Visibility",
-                    Setup = DoButtonSetup
-                },
-                new WrappedInputAction()
-                {
-                    Source = ActionSource.Game,
-                    InputAction = GameManager.Instance.Game.Input.Global.ConfirmDialogue,
-                    FriendlyName = "Confirm Dialogue",
                     Setup = DoButtonSetup
                 },
                 new CategoryEnd(),
@@ -779,6 +713,78 @@ namespace Codenade.Inputbinder
                     InputAction = GameManager.Instance.Game.Input.RD.ScrollTechTree,
                     FriendlyName = "Tech Tree Scroll",
                     Setup = DoAxis2C1NSetup
+                },
+                new CategoryEnd(),
+                CategoryGeneral,
+                new WrappedInputAction()
+                {
+                    Source = ActionSource.Game,
+                    InputAction = GameManager.Instance.Game.Input.Global.QuickSave,
+                    FriendlyName = "Quick Save",
+                    Setup = DoButtonSetup
+                },
+                new WrappedInputAction()
+                {
+                    Source = ActionSource.Game,
+                    InputAction = GameManager.Instance.Game.Input.Global.QuickLoad,
+                    FriendlyName = "Quick Load",
+                    Setup = DoButtonSetup
+                },
+                new WrappedInputAction()
+                {
+                    Source = ActionSource.Game,
+                    InputAction = GameManager.Instance.Game.Input.Global.QuickLoadHold,
+                    FriendlyName = "Quick Load (Hold)",
+                    Setup = DoButtonSetup
+                },
+                new WrappedInputAction()
+                {
+                    Source = ActionSource.Game,
+                    InputAction = GameManager.Instance.Game.Input.Global.TimeWarpDecrease,
+                    FriendlyName = "Time Warp Decrease",
+                    Setup = DoButtonSetup
+                },
+                new WrappedInputAction()
+                {
+                    Source = ActionSource.Game,
+                    InputAction = GameManager.Instance.Game.Input.Global.TimeWarpIncrease,
+                    FriendlyName = "Time Warp Increase",
+                    Setup = DoButtonSetup
+                },
+                new WrappedInputAction()
+                {
+                    Source = ActionSource.Game,
+                    InputAction = GameManager.Instance.Game.Input.Global.TimeWarpStop,
+                    FriendlyName = "Time Warp Stop",
+                    Setup = DoButtonSetup
+                },
+                new WrappedInputAction()
+                {
+                    Source = ActionSource.Game,
+                    InputAction = GameManager.Instance.Game.Input.Global.TogglePauseMenu,
+                    FriendlyName = "Toggle Pause Menu",
+                    Setup = DoButtonSetup
+                },
+                new WrappedInputAction()
+                {
+                    Source = ActionSource.Game,
+                    InputAction = GameManager.Instance.Game.Input.Global.TogglePlayerCheatMenu,
+                    FriendlyName = "Toggle Cheat Menu",
+                    Setup = DoButton1MSetup
+                },
+                new WrappedInputAction()
+                {
+                    Source = ActionSource.Game,
+                    InputAction = GameManager.Instance.Game.Input.Global.ToggleUIVisibility,
+                    FriendlyName = "Toggle UI Visibility",
+                    Setup = DoButtonSetup
+                },
+                new WrappedInputAction()
+                {
+                    Source = ActionSource.Game,
+                    InputAction = GameManager.Instance.Game.Input.Global.ConfirmDialogue,
+                    FriendlyName = "Confirm Dialogue",
+                    Setup = DoButtonSetup
                 },
                 new CategoryEnd()
         };
