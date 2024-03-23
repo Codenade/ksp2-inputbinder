@@ -221,6 +221,7 @@ namespace Codenade.Inputbinder
             string path = Path.Combine(ProfileBasePath, ProfileName + ProfileExtension);
             if (!IOProvider.FileExists(path))
                 return;
+            RemoveAllOverrides();
             QLog.Info($"Loading settings ...");
             var stopwatch = Stopwatch.StartNew();
             bool flag = ProfileDefinitions.LoadDefault(Actions, path);
