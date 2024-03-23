@@ -11,7 +11,11 @@ namespace Codenade.Inputbinder
     {
         public static bool LoadDefault(Dictionary<string, NamedInputAction> actions, string path)
         {
-            return LoadVersion1(actions, path);
+            if (LoadVersion1(actions, path))
+                return true;
+            if (LoadLegacy(actions, path))
+                return true;
+            return false;
         }
 
         public static InputProfileData LoadInfoVersion1(string path) => IOProvider.FromJsonFile<InputProfileData>(path);

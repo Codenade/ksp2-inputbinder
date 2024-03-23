@@ -61,6 +61,9 @@ namespace Codenade.Inputbinder
             _actionManager = new InputActionManager();
             _actionManager.LoadOverrides();
 
+            GameManager.Instance.Game.Input.Flight.TrimModifier.Disable();
+            for (var j = GameManager.Instance.Game.Input.Flight.TrimModifier.bindings.Count - 1; j >= 0; j--)
+                GameManager.Instance.Game.Input.Flight.TrimModifier.ChangeBinding(j).Erase();
             GameManager.Instance.Game.Input.Flight.ThrottleDelta.OnStateChange(_ => _isThrottleAxisActive = false);
             GameManager.Instance.Game.Input.Flight.ThrottleMax.canceled += _ => ResetThrottle();
             GameManager.Instance.Game.Input.Flight.ThrottleCutoff.canceled += _ => ResetThrottle();
@@ -264,8 +267,6 @@ namespace Codenade.Inputbinder
             _vessel = Game.ViewController.GetActiveSimVessel();
             if (_vessel is object)
             {
-                if (!_bindingUI.IsInitialized && !_bindingUI.IsInitializing)
-                    _bindingUI.Initialize(Game.UI.GetPopupCanvas().transform);
                 if (_button is null)
                 {
                     _button = AppBarButton.CreateButton($"BTN-{Constants.ID}", Constants.Name, OnAppBarButtonClicked);

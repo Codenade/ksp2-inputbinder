@@ -17,7 +17,7 @@
 
 ## Description
 
-Inputbinder aims to allow users to bind their input devices to the various game actions. It comes with a UI accessible through the game's in-flight app bar:
+Inputbinder aims to allow users to bind their input devices to the various game actions. It comes with a UI accessible through the game's in-flight app bar or through clicking on the input settings in the pause menu:
 
 __Inputbinder in the App-Bar menu__  
 ![AppBar](./resources/inputbinder-app-bar.png)
@@ -107,7 +107,7 @@ Dedicated actions to change the trim
 
 ## Configuration
 
-The mod settings can be accessed in-game in the flight view.
+The mod settings can be accessed in-game in the flight view through the app-bar or anywhere from the settings menu.
 
 ![AppBar](./resources/inputbinder-app-bar.png)
 

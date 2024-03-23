@@ -7,6 +7,8 @@ using UnityEngine;
 using BepInEx;
 using HarmonyLib;
 using System.Reflection.Emit;
+using KSP.UI;
+using KSP.Game;
 
 namespace Codenade.Inputbinder
 {
@@ -23,6 +25,7 @@ namespace Codenade.Inputbinder
             harmony.PatchAll(typeof(PatchLoadMod));
             harmony.PatchAll(typeof(PatchNoControllerAutoremove));
             harmony.PatchAll(typeof(PatchNoMouseGlitch));
+            harmony.PatchAll(typeof(PatchInputSettings));
             enabled = false;
         }
     }
@@ -53,6 +56,60 @@ namespace Codenade.Inputbinder
             }
             return false;
         }
+    }
+
+    [HarmonyPatch(typeof(SettingsMenuManager), "ShowInputSettings")]
+    internal static class PatchInputSettings
+    {
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var log = global::BepInEx.Logging.Logger.CreateLogSource("codenade-inputbinder");
+            var sequenceFound = false;
+            var startIndex = -1;
+
+            var codes = new List<CodeInstruction>(instructions);
+            for (var i = 0; i < codes.Count; i++)
+            {
+                if (startIndex != -1)
+                {
+                    if (codes[i].opcode != seq[i - startIndex])
+                        startIndex = -1;
+                    else if (i - startIndex + 1 == seq.Length)
+                    {
+                        sequenceFound = true;
+                        break;
+                    }
+                }
+                else if (codes[i].opcode == seq[0])
+                    startIndex = i;
+            }
+            if (sequenceFound)
+            {
+                codes.RemoveRange(0, startIndex);
+                codes.InsertRange(0, new List<CodeInstruction>()
+                {
+                    new CodeInstruction(OpCodes.Call, typeof(GameManager).GetMethod("get_Instance")),
+                    new CodeInstruction(OpCodes.Callvirt, typeof(GameManager).GetMethod("get_Game")),
+                    new CodeInstruction(OpCodes.Callvirt, typeof(GameInstance).GetMethod("get_UI")),
+                    new CodeInstruction(OpCodes.Callvirt, typeof(UIManager).GetMethod("get_EscapeMenu")),
+                    new CodeInstruction(OpCodes.Callvirt, typeof(GlobalEscapeMenu).GetMethod("ResumeGame")),
+                    new CodeInstruction(OpCodes.Call, typeof(Inputbinder).GetMethod("get_Instance")),
+                    new CodeInstruction(OpCodes.Callvirt, typeof(Inputbinder).GetMethod("get_BindingUI")),
+                    new CodeInstruction(OpCodes.Callvirt, typeof(BindingUI).GetMethod("Show"))
+                });
+            }
+            else
+                log.LogError("Failed to patch SettingsMenuManager.ShowInputSettings");
+            return codes.AsEnumerable();
+        }
+
+        private static readonly OpCode[] seq =
+        {
+            OpCodes.Ldarg_0,
+            OpCodes.Ldstr,
+            OpCodes.Call,
+            OpCodes.Ret
+        };
     }
 
     [HarmonyPatch(typeof(InputManager), "Awake")]

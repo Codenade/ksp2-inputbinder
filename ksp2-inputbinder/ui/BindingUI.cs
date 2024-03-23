@@ -57,6 +57,11 @@ namespace Codenade.Inputbinder
 
         public void Initialize(Transform parent)
         {
+            if (parent is null)
+            {
+                QLog.Error("BindingUI.Initialize(): Argument parent is null .. not initializing.");
+                return;
+            }
             IsInitializing = true;
             if (_uiWindow is object)
                 Destroy(_uiWindow);
@@ -464,6 +469,8 @@ namespace Codenade.Inputbinder
 
         private void OnEnable()
         {
+            if (!(IsInitialized || IsInitializing))
+                Initialize(GameManager.Instance.Game.UI.GetPopupCanvas()?.transform);
             if (_uiWindow is object)
                 _uiWindow.gameObject.SetActive(true);
             VisibilityChanged?.Invoke(true);
