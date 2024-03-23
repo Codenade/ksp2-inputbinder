@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.UI;
 
@@ -46,7 +47,10 @@ namespace Codenade.Inputbinder
         private GameObject _uiOverlayResetAll;
         private GameObject _uiOverlaySaveAs;
         private GameObject _uiOverlayLoad;
+        private GameObject _uiActionsList;
+        private GameObject _uiSearchList;
         private SaveButtonBehaviour _btnSaveDrp;
+        private TMP_InputField _searchIF;
         private Button _btnLoad;
         private Button _btnResetAll;
         private float _scrollRectPosition;
@@ -135,6 +139,10 @@ namespace Codenade.Inputbinder
             _uiWindow.MaxSize = new Vector2(1200, 800);
             _uiMain = Instantiate(new GameObject("Main", typeof(SetupVerticalLayout)), ContentRoot.transform);
             _uiMain.SetActive(false);
+            _uiActionsList = Instantiate(new GameObject("ActionsList", typeof(SetupVerticalLayout)), _uiMain.transform);
+            _uiActionsList.SetActive(false);
+            _uiSearchList = Instantiate(new GameObject("SearchList", typeof(SetupVerticalLayout)), _uiMain.transform);
+            _uiSearchList.SetActive(false);
             _uiOverlayRebind = Instantiate(Assets[PrefabKeys.CurrentlyBindingOverlay], ContentRoot.transform.parent.parent);
             _uiOverlayRebind.SetActive(false);
             _uiPage1 = Instantiate(Assets[PrefabKeys.WindowProcessorsContent].GetChild("Viewport").GetChild("Content").GetChild("Page1"), ContentRoot.transform);
@@ -155,42 +163,58 @@ namespace Codenade.Inputbinder
             var uiwindowcontent = _uiMain.transform.parent.gameObject;
             var scrollComponent = uiwindowcontent.transform.parent.parent.gameObject.GetComponent<ScrollRect>();
             scrollComponent.scrollSensitivity = 1f;
+            scrollComponent.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHideAndExpandViewport;
             scrollComponent.tag = "UI_SCROLL"; // Block the scrollwheel from zooming the camera view using the game's mechanic for it
             var uipanel = scrollComponent.transform.parent.parent.gameObject;
-            uipanel.GetComponent<VerticalLayoutGroup>().reverseArrangement = true;
+            var uipanelL = uipanel.GetComponent<VerticalLayoutGroup>();
+            uipanelL.reverseArrangement = true;
+            uipanelL.childForceExpandHeight = false;
             // reordered children of uigroup to make the save button draw on top in its extended state
             var header = uipanel.GetChild("GRP-Header");            //foot
             var body = uipanel.GetChild("GRP-Body");                //resz
             var footer = uipanel.GetChild("GRP-Footer");            //body
             var resizehandle = uipanel.GetChild("ResizeHandle");    //head
+            var toolbar1 = Instantiate(new GameObject("GRP-Toolbar1", typeof(LayoutElement), typeof(HorizontalLayoutGroup)), uipanel.transform);
+            var toolbar2 = Instantiate(new GameObject("GRP-Toolbar2", typeof(HorizontalLayoutGroup)), uipanel.transform);
+            toolbar1.AddComponent<Image>().color = new Color(0.0314f, 0.0471f, 0.051f, 0.7843f);
+            toolbar2.AddComponent<Image>().color = new Color(0.0314f, 0.0471f, 0.051f, 0.7843f);
             body.transform.SetSiblingIndex(3);
             footer.transform.SetSiblingIndex(1);
             header.transform.SetSiblingIndex(4);
-            var saveBtnDrp = Instantiate(Assets[PrefabKeys.SaveButtonDropdown], header.transform);
-            saveBtnDrp.transform.SetSiblingIndex(3);
+            toolbar1.transform.SetSiblingIndex(4);
+            toolbar2.transform.SetSiblingIndex(4);
+            body.GetComponent<LayoutElement>().flexibleHeight = 999999;
+            toolbar1.GetComponent<LayoutElement>().preferredHeight = 30;
+            var tb1L = toolbar1.GetComponent<HorizontalLayoutGroup>();
+            var tb1RT = toolbar1.GetComponent<RectTransform>();
+            tb1L.childForceExpandHeight = false;
+            var tb2L = toolbar2.GetComponent<HorizontalLayoutGroup>();
+            var tb2RT = toolbar2.GetComponent<RectTransform>();
+            tb2L.childForceExpandHeight = false;
+            var saveBtnDrp = Instantiate(Assets[PrefabKeys.SaveButtonDropdown], toolbar1.transform);
             _btnSaveDrp = saveBtnDrp.AddComponent<SaveButtonBehaviour>();
             _btnSaveDrp.Init();
             _btnSaveDrp.PrimaryClick += () => Inputbinder.Instance.ActionManager.SaveOverrides();
             _btnSaveDrp.SecondaryClick += () => ChangeStatus(Status.SaveDialog);
             var saveBtnRT = saveBtnDrp.GetComponent<RectTransform>();
-            saveBtnRT.anchorMin = Vector2.zero;
-            saveBtnRT.anchorMax = Vector2.zero;
-            saveBtnRT.anchoredPosition = new Vector2(150, 35);
             saveBtnRT.sizeDelta = new Vector2(80, 30);
-            var loadBtn = Instantiate(Assets[PrefabKeys.LoadBindingsButton], header.transform);
-            loadBtn.transform.SetSiblingIndex(4);
+            var loadBtn = Instantiate(Assets[PrefabKeys.LoadBindingsButton], toolbar1.transform);
             _btnLoad = loadBtn.GetComponent<Button>();
             _btnLoad.onClick.AddListener(() => ChangeStatus(Status.LoadDialog));
             var loadBtnRT = loadBtn.GetComponent<RectTransform>();
-            loadBtnRT.anchoredPosition = new Vector2(220, 20);
             loadBtnRT.sizeDelta = new Vector2(55, 30);
-            var rstAllBdgsBtn = Instantiate(Assets[PrefabKeys.ResetAllBindingsButton], header.transform);
-            rstAllBdgsBtn.transform.SetSiblingIndex(5);
+            var rstAllBdgsBtn = Instantiate(Assets[PrefabKeys.ResetAllBindingsButton], toolbar1.transform);;
             _btnResetAll = rstAllBdgsBtn.GetComponent<Button>();
             _btnResetAll.onClick.AddListener(RemoveAllBindingsButtonClicked);
             var rstAllBdgsBtnRT = rstAllBdgsBtn.GetComponent<RectTransform>();
-            rstAllBdgsBtnRT.anchoredPosition = new Vector2(285, 20);
             rstAllBdgsBtnRT.sizeDelta = new Vector2(70, 30);
+            var searchBox = Instantiate(Assets[PrefabKeys.SearchBox], toolbar2.transform);
+            var searchBoxRT = searchBox.GetComponent<RectTransform>();
+            var searchBoxTF = searchBox.GetComponent<TMP_InputField>();
+            _searchIF = searchBoxTF;
+            searchBoxTF.onSelect.AddListener((_) => InputSystem.DisableDevice(Keyboard.current.device));
+            searchBoxTF.onDeselect.AddListener((_) => InputSystem.EnableDevice(Keyboard.current.device));
+            searchBoxTF.onValueChanged.AddListener((x) => SearchFor(x));
             //var rmGpdBdgsBtn = Instantiate(Assets[PrefabKeys.RemoveGamepadBindingsButton], header.transform);
             //rmGpdBdgsBtn.transform.SetSiblingIndex(5);
             //rmGpdBdgsBtn.GetComponent<Button>().onClick.AddListener(Inputbinder.Instance.RemoveKSPsGamepadBindings);
@@ -203,7 +227,7 @@ namespace Codenade.Inputbinder
             windowTitle.GetComponent<TextMeshProUGUI>().text = "Inputbinder";
             var uiwc_rect = uiwindowcontent.GetComponent<RectTransform>();
             uiwc_rect.offsetMin = new Vector2(0, uiwc_rect.offsetMin.y);
-            uiwc_rect.offsetMax = new Vector2(-20, uiwc_rect.offsetMax.y);
+            uiwc_rect.offsetMax = new Vector2(0, uiwc_rect.offsetMax.y);
             var uiwc_csf = uiwindowcontent.GetComponent<ContentSizeFitter>();
             uiwc_csf.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
             uiwc_csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
@@ -211,37 +235,30 @@ namespace Codenade.Inputbinder
             uiwc_vlg.childControlWidth = true;
             uiwc_vlg.childControlHeight = true;
             uiwc_vlg.childAlignment = TextAnchor.UpperCenter;
-            foreach (var item in _actionManager.Actions)
+            GameObject catObj = null;
+            foreach (var item in _actionManager.OrganizedInputActionData)
             {
-                var actionObj = Instantiate(Assets[PrefabKeys.ActionGroup], _uiMain.transform);
-                actionObj.name = item.Value.Name;
-                var actionHeader = actionObj.GetChild("ActionHeader");
-                var actionName = actionHeader.GetChild("ActionName").GetComponent<TextMeshProUGUI>();
-                actionName.text = item.Value.FriendlyName;
-                var actionExpBtn = actionHeader.GetChild("ExpandableButton");
-                actionExpBtn.AddComponent<ExpandCollapse>().Initialize(false);
-                var actionBindings = actionObj.GetChild("Bindings");
-                for (var idx = 0; idx < item.Value.Action.bindings.Count; idx++)
+                if (item is Category cat)
                 {
-                    var binding = item.Value.Action.bindings[idx];
-                    if (binding.isComposite)
-                    {
-                        var compositeRoot = Instantiate(Assets[PrefabKeys.BindingGroupComposite], actionBindings.transform);
-                        compositeRoot.AddComponent<CompositeBindingGroup>().Initialize(item.Value.Action, idx);
-                        var bindingsContainer = compositeRoot.GetChild("Bindings");
-                        for (var i = idx + 1; i < item.Value.Action.bindings.Count; i++)
-                        {
-                            var mBinding = item.Value.Action.bindings[i];
-                            if (mBinding.isComposite || !mBinding.isPartOfComposite)
-                                break;
-                            Instantiate(Assets[PrefabKeys.BindingGroup], bindingsContainer.transform).AddComponent<BindingGroup>().Initialize(item.Value.Action, i);
-                            idx = i;
-                        }
-                    }
-                    else
-                    {
-                        Instantiate(Assets[PrefabKeys.BindingGroup], actionBindings.transform).AddComponent<BindingGroup>().Initialize(item.Value.Action, idx);
-                    }
+                    catObj = Instantiate(Assets[PrefabKeys.CategoryGroup], _uiActionsList.transform);
+                    catObj.name = "Category_" + cat.FriendlyName;
+                    var actionHeader = catObj.GetChild("CategoryHeader");
+                    var actionName = actionHeader.GetChild("CategoryName").GetComponent<TextMeshProUGUI>();
+                    actionName.text = cat.FriendlyName;
+                    var actionExpBtn = actionHeader.GetChild("ExpandableButton");
+                    catObj = catObj.GetChild("Actions");
+                    actionExpBtn.AddComponent<ExpandCollapse>().Initialize(false, catObj);
+                    continue;
+                }
+                else if (item is CategoryEnd)
+                {
+                    catObj = null;
+                    continue;
+                }
+                else if (item is WrappedInputAction action)
+                {
+                    CreateInputActionElement(action, catObj?.transform);
+                    continue;
                 }
             }
             _uiPage1.GetChild("ProcessorCancelButton").AddComponent<ProcCancelBehaviour>();
@@ -253,6 +270,40 @@ namespace Codenade.Inputbinder
             _uiPage2.GetChild("Processors").AddComponent<Page2ListPopulator>();
             _uiPage3.GetChild("Values").AddComponent<Page3ValuesManager>();
             ChangeStatus(Status.Default);
+        }
+
+        private void CreateInputActionElement(WrappedInputAction action, Transform parent = null)
+        {
+            var actionObj = Instantiate(Assets[PrefabKeys.ActionGroup], parent ?? _uiActionsList.transform);
+            actionObj.name = action.InputAction.name;
+            var actionHeader = actionObj.GetChild("ActionHeader");
+            var actionName = actionHeader.GetChild("ActionName").GetComponent<TextMeshProUGUI>();
+            actionName.text = action.FriendlyName;
+            var actionExpBtn = actionHeader.GetChild("ExpandableButton");
+            actionExpBtn.AddComponent<ExpandCollapse>().Initialize(false);
+            var actionBindings = actionObj.GetChild("Bindings");
+            for (var idx = 0; idx < action.InputAction.bindings.Count; idx++)
+            {
+                var binding = action.InputAction.bindings[idx];
+                if (binding.isComposite)
+                {
+                    var compositeRoot = Instantiate(Assets[PrefabKeys.BindingGroupComposite], actionBindings.transform);
+                    compositeRoot.AddComponent<CompositeBindingGroup>().Initialize(action.InputAction, idx);
+                    var bindingsContainer = compositeRoot.GetChild("Bindings");
+                    for (var i = idx + 1; i < action.InputAction.bindings.Count; i++)
+                    {
+                        var mBinding = action.InputAction.bindings[i];
+                        if (mBinding.isComposite || !mBinding.isPartOfComposite)
+                            break;
+                        Instantiate(Assets[PrefabKeys.BindingGroup], bindingsContainer.transform).AddComponent<BindingGroup>().Initialize(action.InputAction, i);
+                        idx = i;
+                    }
+                }
+                else
+                {
+                    Instantiate(Assets[PrefabKeys.BindingGroup], actionBindings.transform).AddComponent<BindingGroup>().Initialize(action.InputAction, idx);
+                }
+            }
         }
 
         public void ChangeStatus(Status status)
@@ -280,6 +331,7 @@ namespace Codenade.Inputbinder
                     _btnSaveDrp.interactable = true;
                     _btnLoad.interactable = true;
                     _btnResetAll.interactable = true;
+                    SearchFor(_searchIF.text);
                     break;
                 case Status.ResetDialog:
                     _uiMain.SetActive(true);
@@ -321,6 +373,79 @@ namespace Codenade.Inputbinder
                 StartCoroutine(SetScrollRectPosOnNextFrame());
             }
             CurrentStatus = status;
+        }
+
+        public void SearchFor(string name)
+        {
+            if (!name.IsNullOrEmpty())
+            {
+                name = name.ToLower();
+                for (var j = _uiSearchList.transform.childCount - 1; j >= 0; j--)
+                    DestroyImmediate(_uiSearchList.transform.GetChild(j).gameObject);
+                _uiActionsList.SetActive(false);
+                var actions = _actionManager.OrganizedInputActionData;
+                foreach (var c in actions)
+                {
+                    if (!(c is WrappedInputAction))
+                        continue;
+                    var a = (WrappedInputAction)c;
+                    if (a.FriendlyName.ToLower().Contains(name))
+                    {
+                        CreateInputActionElementMarked(a, name, _uiSearchList.transform);
+                        continue;
+                    }
+                    foreach (var b in a.InputAction.bindings)
+                    {
+                        if (b.effectivePath is null)
+                            continue;
+                        if (b.effectivePath.ToLower().Contains(name))
+                        {
+                            CreateInputActionElementMarked(a, name, _uiSearchList.transform);
+                            break;
+                        }
+                    }
+                }
+                _uiSearchList.SetActive(true);
+            }
+            else
+            {
+                _uiActionsList.SetActive(true);
+                _uiSearchList.SetActive(false);
+            }
+        }
+
+        private void CreateInputActionElementMarked(WrappedInputAction action, string toMark, Transform parent = null)
+        {
+            var actionObj = Instantiate(Assets[PrefabKeys.ActionGroup], parent ?? _uiSearchList.transform);
+            actionObj.name = action.InputAction.name;
+            var actionHeader = actionObj.GetChild("ActionHeader");
+            var actionName = actionHeader.GetChild("ActionName").GetComponent<TextMeshProUGUI>();
+            actionName.text = Utils.MarkText(action.FriendlyName, toMark);
+            var actionExpBtn = actionHeader.GetChild("ExpandableButton");
+            actionExpBtn.AddComponent<ExpandCollapse>().Initialize(false);
+            var actionBindings = actionObj.GetChild("Bindings");
+            for (var idx = 0; idx < action.InputAction.bindings.Count; idx++)
+            {
+                var binding = action.InputAction.bindings[idx];
+                if (binding.isComposite)
+                {
+                    var compositeRoot = Instantiate(Assets[PrefabKeys.BindingGroupComposite], actionBindings.transform);
+                    compositeRoot.AddComponent<CompositeBindingGroup>().Initialize(action.InputAction, idx);
+                    var bindingsContainer = compositeRoot.GetChild("Bindings");
+                    for (var i = idx + 1; i < action.InputAction.bindings.Count; i++)
+                    {
+                        var mBinding = action.InputAction.bindings[i];
+                        if (mBinding.isComposite || !mBinding.isPartOfComposite)
+                            break;
+                        Instantiate(Assets[PrefabKeys.BindingGroup], bindingsContainer.transform).AddComponent<BindingGroup>().Initialize(action.InputAction, i, toMark);
+                        idx = i;
+                    }
+                }
+                else
+                {
+                    Instantiate(Assets[PrefabKeys.BindingGroup], actionBindings.transform).AddComponent<BindingGroup>().Initialize(action.InputAction, idx, toMark);
+                }
+            }
         }
 
         private IEnumerator SetScrollRectPosOnNextFrame()
@@ -383,6 +508,8 @@ namespace Codenade.Inputbinder
             public static readonly string SaveAsDialogOverlay =             "Codenade.Inputbinder/SaveAsDialogOverlay";
             public static readonly string ProfileElement =                  "Codenade.Inputbinder/ProfileElement";
             public static readonly string LoadDialogOverlay =               "Codenade.Inputbinder/LoadDialogOverlay";
+            public static readonly string CategoryGroup =                   "Codenade.Inputbinder/CategoryGroup";
+            public static readonly string SearchBox =                       "Codenade.Inputbinder/SearchBox";
 
             public static string[] AllKeys 
             { 

@@ -13,11 +13,12 @@ namespace Codenade.Inputbinder
     internal static class GameInputUtils
     {
         // Handling for game_actions_to_add.txt
-        public static List<WrappedInputAction> Load(string path)
+        public static List<IWrappedInputAction> Load(string path)
         {
-            var outList = new List<WrappedInputAction>();
+            var outList = new List<IWrappedInputAction>();
             if (!File.Exists(path))
                 return outList;
+            outList.Add(DefaultInputActionDefinitions.CategoryCustom);
             using (var reader = new StreamReader(path))
             {
                 string line = null;
@@ -32,6 +33,7 @@ namespace Codenade.Inputbinder
                     outList.TryAddUnique(action);
                 }
             }
+            outList.Add(new CategoryEnd());
             return outList;
         }
 

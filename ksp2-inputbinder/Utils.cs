@@ -12,6 +12,23 @@ namespace Codenade.Inputbinder
 
         public static bool IsValidFileNameCharacter(char c) => !(Path.GetInvalidFileNameChars().Contains(c) || Path.GetInvalidPathChars().Contains(c));
 
+        public static string MarkText(string text, string toMark)
+        {
+            if (text is null)
+                return null;
+            if (toMark is null)
+                return text;
+            toMark = toMark.ToLower();
+            if (text.ToLower().Contains(toMark))
+            {
+                var start = text.ToLower().IndexOf(toMark);
+                var end = start + toMark.Length;
+                return text[..start] + "<mark=#ffff00aa>" + text[start..end] + "</mark>" + text[end..];
+            }
+            else
+                return text;
+        }
+
         public static string GetFullDateTimeFormat(string localeName)
         {
             return GetTimeInfo(localeName, LOCALE_SSHORTDATE) + ' ' + GetTimeInfo(localeName, LOCALE_STIMEFORMAT);
