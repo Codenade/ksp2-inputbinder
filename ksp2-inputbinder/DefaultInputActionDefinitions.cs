@@ -394,6 +394,20 @@ namespace Codenade.Inputbinder
                 new WrappedInputAction()
                 {
                     Source = ActionSource.Game,
+                    InputAction = GameManager.Instance.Game.Input.Flight.cameraPan,
+                    FriendlyName = "Camera Pan",
+                    Setup = DoVector2dSetup
+                },
+                new WrappedInputAction()
+                {
+                    Source = ActionSource.Internal,
+                    InputAction = new InputAction(Constants.ActionResetFlightCam),
+                    FriendlyName = "Reset Camera",
+                    Setup = DoButtonSetup
+                },
+                new WrappedInputAction()
+                {
+                    Source = ActionSource.Game,
                     InputAction = GameManager.Instance.Game.Input.Flight.CameraPitchGamepad,
                     FriendlyName = "Camera Pitch",
                     Setup = DoAxis2C1NSetup
@@ -1108,14 +1122,22 @@ namespace Codenade.Inputbinder
                 QLog.ErrorLine("d.InputAction cannot be null");
             }
             bool wasEnabled = d.InputAction.enabled;
+            string[] bindings = new string[4] { null, null, null, null };
+            if (d.InputAction.bindings.Count > 4 && d.InputAction.bindings[0].isComposite && InputSystem.TryGetBindingComposite(d.InputAction.bindings[0].path) == typeof(UnityEngine.InputSystem.Composites.Vector2Composite))
+            {
+                bindings[0] = d.InputAction.bindings[GameInputUtils.FindNamedCompositePart(d.InputAction, 0, "left")].path;
+                bindings[1] = d.InputAction.bindings[GameInputUtils.FindNamedCompositePart(d.InputAction, 0, "right")].path;
+                bindings[2] = d.InputAction.bindings[GameInputUtils.FindNamedCompositePart(d.InputAction, 0, "down")].path;
+                bindings[3] = d.InputAction.bindings[GameInputUtils.FindNamedCompositePart(d.InputAction, 0, "up")].path;
+            }
             d.InputAction.expectedControlType = "Vector2";
             for (var jb = d.InputAction.bindings.Count - 1; jb >= 0; jb--)
                 d.InputAction.ChangeBinding(jb).Erase();
             d.InputAction.AddCompositeBinding("2DVector")
-                            .With("left", null)
-                            .With("right", null)
-                            .With("down", null)
-                            .With("up", null);
+                            .With("left", bindings[0])
+                            .With("right", bindings[1])
+                            .With("down", bindings[2])
+                            .With("up", bindings[3]);
             d.InputAction.AddCompositeBinding("2DAxis")
                 .With("x", null)
                 .With("y", null);

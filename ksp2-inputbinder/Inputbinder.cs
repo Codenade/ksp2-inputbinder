@@ -81,6 +81,7 @@ namespace Codenade.Inputbinder
             _actionManager.Actions[Constants.ActionAPManeuverID].Action.performed += ctx => SetAPMode(AutopilotMode.Maneuver);
             _actionManager.Actions[Constants.ActionAPNavigationID].Action.performed += ctx => SetAPMode(AutopilotMode.Navigation);
             _actionManager.Actions[Constants.ActionAPAutopilotID].Action.performed += ctx => SetAPMode(AutopilotMode.Autopilot);
+            _actionManager.Actions[Constants.ActionResetFlightCam].Action.performed += ctx => Game.CameraManager.FlightCamera.ActiveSolution.ResetGimbalAndCamera(true); 
             _actionManager.Actions[Constants.ActionThrottleID].Action.Enable();
             _actionManager.Actions[Constants.ActionPitchTrimID].Action.Enable();
             _actionManager.Actions[Constants.ActionRollTrimID].Action.Enable();
@@ -98,6 +99,7 @@ namespace Codenade.Inputbinder
             _actionManager.Actions[Constants.ActionAPManeuverID].Action.Enable();
             _actionManager.Actions[Constants.ActionAPNavigationID].Action.Enable();
             _actionManager.Actions[Constants.ActionAPAutopilotID].Action.Enable();
+            _actionManager.Actions[Constants.ActionResetFlightCam].Action.Enable();
             _bindingUI = gameObject.AddComponent<BindingUI>();
             _bindingUI.Hide();
             _bindingUI.VisibilityChanged += OnUiVisibilityChange;

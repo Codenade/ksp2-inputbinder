@@ -23,6 +23,7 @@
         public static readonly string ActionAPManeuverID = "inputbinder/ap_maneuver";
         public static readonly string ActionAPNavigationID = "inputbinder/ap_navigation";
         public static readonly string ActionAPAutopilotID = "inputbinder/ap_autopilot";
+        public static readonly string ActionResetFlightCam = "inputbinder/reset_flight_cam";
         public static readonly string BindingClearPath = string.Empty;
         public static readonly string AppBarIconAssetKey = "Codenade.Inputbinder/ICO-AppBar-Inputbinder";
     }
