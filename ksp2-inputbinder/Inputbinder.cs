@@ -267,8 +267,6 @@ namespace Codenade.Inputbinder
             _vessel = Game.ViewController.GetActiveSimVessel();
             if (_vessel is object)
             {
-                if (!(_bindingUI.IsInitialized || _bindingUI.IsInitializing))
-                    _bindingUI.Initialize(Game.UI.GetPopupCanvas().transform);
                 if (_button is null)
                 {
                     _button = AppBarButton.CreateButton($"BTN-{Constants.ID}", Constants.Name, OnAppBarButtonClicked);
