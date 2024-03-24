@@ -51,7 +51,7 @@ namespace Codenade.Inputbinder
         public static Category CategoryAPMode = new Category("SAS Modes");
         public static Category CategoryFlightCamera = new Category("Flight Camera Controls");
         public static Category CategoryEVA = new Category("EVA");
-        public static Category CategoryOAB = new Category("OAB");
+        public static Category CategoryOAB = new Category("VAB");
         public static Category CategoryRD = new Category("R&D");
         public static Category CategoryMap = new Category("Map");
         public static Category CategoryGeneral = new Category("General");
@@ -566,6 +566,34 @@ namespace Codenade.Inputbinder
                 new WrappedInputAction()
                 {
                     Source = ActionSource.Game,
+                    InputAction = GameManager.Instance.Game.Input.MapView.nextMapItem,
+                    FriendlyName = "Map Next Item",
+                    Setup = DoButtonSetup
+                },
+                new WrappedInputAction()
+                {
+                    Source = ActionSource.Game,
+                    InputAction = GameManager.Instance.Game.Input.MapView.previousMapItem,
+                    FriendlyName = "Map Previous Item",
+                    Setup = DoButton1MSetup
+                },
+                new WrappedInputAction()
+                {
+                    Source = ActionSource.Game,
+                    InputAction = GameManager.Instance.Game.Input.MapView.cameraRotate,
+                    FriendlyName = "Map Rotate Camera",
+                    Setup = DoVector2dSetup
+                },
+                new WrappedInputAction()
+                {
+                    Source = ActionSource.Game,
+                    InputAction = GameManager.Instance.Game.Input.MapView.cameraZoom,
+                    FriendlyName = "Map Zoom Camera",
+                    Setup = DoCameraZoomSetup
+                },
+                new WrappedInputAction()
+                {
+                    Source = ActionSource.Game,
                     InputAction = GameManager.Instance.Game.Input.MapView.resetCamera,
                     FriendlyName = "Map Reset Camera",
                     Setup = DoButtonSetup
@@ -851,7 +879,7 @@ namespace Codenade.Inputbinder
                 {
                     QLog.WarnLine($"Cannot load default path for {d.InputAction.name} - {d.InputAction.id}");
                     d.Source = ActionSource.Internal;
-                    DoButtonSetup(d);
+                    DoButton1MSetup(d);
                 }
                 else
                 {
@@ -898,7 +926,7 @@ namespace Codenade.Inputbinder
                 {
                     QLog.WarnLine($"Cannot load default path for {d.InputAction.name} - {d.InputAction.id}");
                     d.Source = ActionSource.Internal;
-                    DoButtonSetup(d);
+                    DoButton1N1MSetup(d);
                 }
                 else
                 {
