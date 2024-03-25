@@ -5,7 +5,7 @@
 		<RootNamespace>Codenade.Inputbinder</RootNamespace>
 	</PropertyGroup>
 	<PropertyGroup Label="Plugin information. This is read by BepInEx.PluginInfoProps">
-		<Version>0.5.4</Version>
+		<Version>0.6.0</Version>
 		<Product>Inputbinder</Product>
 		<AssemblyName>Inputbinder</AssemblyName>
 		<AssemblyTitle>Inputbinder</AssemblyTitle>
