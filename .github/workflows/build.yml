@@ -1,6 +1,6 @@
 name: Build
 
-on: 
+on:
   pull_request:
     branches:
     - master
@@ -15,7 +15,24 @@ jobs:
     steps:
 
     - name: Checkout
-      uses: actions/checkout@v4.1.0
+      uses: actions/checkout@v4
+
+    - name: Restore Cake
+      run: dotnet tool restore
+
+    - name: Restore Dependencies
+      run: dotnet restore
+
+    - name: Dotnet Build
+      run: dotnet cake --target Build -v Diagnostic
+
+    - uses: actions/cache@v4
+      with:
+        path: ksp2-inputbinder-assets
+        key: Library-Inputbinder-
+        restore-keys: |
+          Library-Inputbinder-
+          Library-
 
     - name: Setup Unity - Build assets
       uses: game-ci/unity-builder@v4
@@ -28,17 +45,13 @@ jobs:
         unityVersion: 2022.3.5f1
         projectPath: ksp2-inputbinder-assets
         buildMethod: BuildAssets.PerformBuild
+        buildsPath: ksp2-inputbinder-assets/Build
 
-    - name: Remove build directory
-      run: sudo rm -dfr ./build
-
-    - name: Build
-      run: |
-        dotnet tool restore
-        dotnet cake
+    - name: Pack Files
+      run: dotnet cake --target Pack -e -v Diagnostic
 
     - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v3.1.3
+      uses: actions/upload-artifact@v4
       with:
         name: build
         path: ${{ github.workspace }}/build/ksp2-inputbinder.zip
