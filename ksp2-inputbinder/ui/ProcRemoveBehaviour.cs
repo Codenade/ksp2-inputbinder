@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
@@ -6,6 +7,7 @@ namespace Codenade.Inputbinder
 {
     internal class ProcRemoveBehaviour : MonoBehaviour
     {
+        internal event Action<string> OnRemove;
         private string _processorName;
 
         private void Awake()
@@ -33,8 +35,11 @@ namespace Codenade.Inputbinder
             if (_processorName == "")
                 return;
             var binding = Inputbinder.Instance.ActionManager.ProcBindInfo.Binding;
-            if (ProcessorUtilities.ExtractSingleProcessor(binding.overrideProcessors ?? "", _processorName, out var toReplace))
-                binding.overrideProcessors = binding.overrideProcessors.Replace(toReplace, "").Trim(';');
+            if (ProcessorUtilities.ExtractSingleProcessor(binding.overrideProcessors ?? "", _processorName, out var toRemove))
+            {
+                OnRemove?.Invoke(toRemove);
+                binding.overrideProcessors = binding.overrideProcessors.Remove(binding.overrideProcessors.IndexOf(toRemove), toRemove.Length).Trim(';').Replace(";;", ";");
+            }
             else
                 return;
             if (binding.overrideProcessors == "")

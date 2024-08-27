@@ -12,10 +12,9 @@ namespace Codenade.Inputbinder
         internal static readonly string profilePath = Path.Combine(BepInEx.Paths.ConfigPath, "inputbinder/defaultprofile.txt");
         public static List<AAPBinding> aapBindings = new List<AAPBinding>();
 
-        [ConfigProperty("main")]
-        public static float SliderMin { get; set; } = -2;
-        [ConfigProperty("main")]
-        public static float SliderMax { get; set; } = 2;
+        [ConfigProperty("main")] public static float SliderMin { get; set; } = -2;
+        [ConfigProperty("main")] public static float SliderMax { get; set; } = 2;
+        [ConfigProperty("main")] public static bool ShowValuesInProcessorsSection { get; set; } = true;
         public static string DefaultProfile { get; set; } = "input";
 
         public static void Load()
@@ -148,7 +147,7 @@ namespace Codenade.Inputbinder
             SaveDefaultProfile();
         }
 
-        protected class ConfigPropertyAttribute : Attribute
+        private class ConfigPropertyAttribute : Attribute
         {
             public string Section { get; set; }
 
