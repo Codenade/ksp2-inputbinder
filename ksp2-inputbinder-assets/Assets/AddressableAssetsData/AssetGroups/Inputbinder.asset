@@ -105,6 +105,22 @@ MonoBehaviour:
     m_Address: Codenade.Inputbinder/SearchBox
     m_ReadOnly: 0
     m_SerializedLabels: []
+  - m_GUID: 40d436c09638a8d4c9656b4096794739
+    m_Address: Codenade.Inputbinder/Icons/ring.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 7d227d68e3a3db84f869e22b08d3c3a5
+    m_Address: Codenade.Inputbinder/Icons/ring-bottom.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: aad6f57084e714d4fa828f6c841263cd
+    m_Address: Codenade.Inputbinder/Icons/ring-top.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: de699fe0028059041b17dab217c93fb8
+    m_Address: Codenade.Inputbinder/Icons/ring-both.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 8644c698111574d4db1297cfbb2f6c1b, type: 2}
   m_SchemaSet:

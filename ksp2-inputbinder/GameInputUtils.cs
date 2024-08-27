@@ -12,6 +12,9 @@ namespace Codenade.Inputbinder
 {
     internal static class GameInputUtils
     {
+        private static readonly FieldInfo _inputControlMinValue = typeof(InputControl).GetField("m_MinValue", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static readonly FieldInfo _inputControlMaxValue = typeof(InputControl).GetField("m_MaxValue", BindingFlags.Instance | BindingFlags.NonPublic);
+
         // Handling for game_actions_to_add.txt
         public static List<IWrappedInputAction> Load(string path)
         {
@@ -126,6 +129,10 @@ namespace Codenade.Inputbinder
             action.performed += func;
             action.canceled += func;
         }
+
+        public static PrimitiveValue GetMinValue(this InputControl control) => (PrimitiveValue)_inputControlMinValue.GetValue(control);
+
+        public static PrimitiveValue GetMaxValue(this InputControl control) => (PrimitiveValue)_inputControlMaxValue.GetValue(control);
 
         public static Dictionary<string, Type> GetInputSystemLayouts()
         {
