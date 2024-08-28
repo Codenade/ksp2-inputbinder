@@ -61,8 +61,12 @@ namespace Codenade.Inputbinder
 
         private void Update()
         {
-            _pathTxt.text = Utils.MarkText(_action.bindings[_bindingIndex].effectivePath, _toMark);
-            _procText.text = _action.bindings[_bindingIndex].effectiveProcessors;
+            var newPath = Utils.MarkText(_action.bindings[_bindingIndex].effectivePath, _toMark);
+            var newProc = _action.bindings[_bindingIndex].effectiveProcessors;
+            if (_pathTxt.text != newPath)
+                _pathTxt.text = newPath;
+            if (_procText.text != newProc)
+                _procText.text = newProc;
         }
 
         private void OnRebindClicked()

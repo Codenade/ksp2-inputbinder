@@ -30,7 +30,9 @@ namespace Codenade.Inputbinder
 
         private void Update()
         {
-            _txtProc.text = _action.bindings[_bindingIndex].effectiveProcessors;
+            var newText = _action.bindings[_bindingIndex].effectiveProcessors;
+            if (_txtProc.text != newText)
+                _txtProc.text = newText;
         }
     }
 }
