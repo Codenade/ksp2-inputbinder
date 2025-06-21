@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Codenade.Inputbinder
+namespace Codenade.Inputbinder.Profiles
 {
     internal struct LegacyInputActionData
     {

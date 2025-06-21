@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Codenade.Inputbinder.Profiles;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
@@ -9,7 +10,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Codenade.Inputbinder
+namespace Codenade.Inputbinder.ui
 {
     internal class ProfileListPopulator : MonoBehaviour
     {
@@ -59,7 +60,7 @@ namespace Codenade.Inputbinder
 
         private void AddElement(string name, InputProfileData profile)
         {
-            var profileElementObj = Instantiate(Inputbinder.Instance.BindingUI.Assets[BindingUI.PrefabKeys.ProfileElement], transform.Find("Content"));
+            var profileElementObj = Instantiate(AssetDb.ProfileElement.Entry, transform.Find("Content"));
             var profileElement = profileElementObj.transform;
             var grpInfo = profileElement.Find("GrpInfo");
             var grpBtns = profileElement.Find("GrpBtns");

@@ -105,6 +105,26 @@ MonoBehaviour:
     m_Address: Codenade.Inputbinder/SearchBox
     m_ReadOnly: 0
     m_SerializedLabels: []
+  - m_GUID: bce0df9ab9c4a2847ab928f6b1040468
+    m_Address: Codenade.Inputbinder/MainWindowUITK
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 8db88ec83f7277044acff3dc9d1dbcdc
+    m_Address: Codenade.Inputbinder/ActionCategory.uxml
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f1ddc3782c8f68b4cb76e8ba0d07fac7
+    m_Address: Codenade.Inputbinder/CompositeInputBinding.uxml
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: e5535be665bd9fc44ab90300d41ee57f
+    m_Address: Codenade.Inputbinder/InputAction.uxml
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: b9d68941cd8bcc44584df27a11dbc452
+    m_Address: Codenade.Inputbinder/SingleInputBinding.uxml
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 8644c698111574d4db1297cfbb2f6c1b, type: 2}
   m_SchemaSet:

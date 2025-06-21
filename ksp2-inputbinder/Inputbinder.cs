@@ -13,6 +13,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using System.Collections;
 using System.IO;
 using KSP.Sim;
+using Codenade.Inputbinder.ui;
 
 namespace Codenade.Inputbinder
 {

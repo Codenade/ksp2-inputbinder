@@ -1,0 +1,19 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UiToolkit/inputbinder-styles.uss?fileID=7433441132597879392&amp;guid=874c4842ed8177640a42510d6b1f222d&amp;type=3#inputbinder-styles" />
+    <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0);">
+        <ui:VisualElement class="ib-row">
+            <ui:Label tabindex="-1" text="Name" display-tooltip-when-elided="true" name="BindingName" style="-unity-font-style: bold; -unity-text-align: upper-left;" />
+            <ui:Button text="Rebind" display-tooltip-when-elided="true" name="RebindButton" />
+        </ui:VisualElement>
+        <ui:VisualElement class="ib-row" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); justify-content: flex-start;">
+            <ui:Label tabindex="-1" text="Control:" display-tooltip-when-elided="true" />
+            <ui:Label tabindex="-1" text="Binding Path" display-tooltip-when-elided="true" name="BindingPath" />
+            <ui:Button text="Clear" display-tooltip-when-elided="true" name="ClearButton" style="background-color: rgb(147, 34, 16); position: absolute; right: 0;" />
+        </ui:VisualElement>
+        <ui:VisualElement name="Processors" class="ib-row" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); display: none; justify-content: flex-start;">
+            <ui:Label tabindex="-1" text="Preprocessors:" display-tooltip-when-elided="true" />
+            <ui:Label tabindex="-1" text="..." display-tooltip-when-elided="true" name="BindingProcessors" style="text-overflow: ellipsis; white-space: normal;" />
+            <ui:Button text="Edit" display-tooltip-when-elided="true" name="EditProcessorsButton" style="position: absolute; right: 0;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

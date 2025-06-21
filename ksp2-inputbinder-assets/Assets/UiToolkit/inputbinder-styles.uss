@@ -1,0 +1,26 @@
+.ib-row {
+    flex-grow: 1;
+    background-color: rgba(0, 0, 0, 0);
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.status-bar {
+    flex-grow: 1;
+    background-color: rgb(229, 152, 0);
+    flex-direction: row;
+    overflow: visible;
+    visibility: visible;
+    transform-origin: top;
+    transition-duration: 1s;
+    transition-property: height;
+    height: auto;
+    position: absolute;
+    top: 72px;
+    display: none;
+    width: 100%;
+}
+
+#CloseButton:hover {
+    -unity-background-image-tint-color: rgb(200, 209, 245);
+}

@@ -9,6 +9,7 @@ using HarmonyLib;
 using System.Reflection.Emit;
 using KSP.UI;
 using KSP.Game;
+using Codenade.Inputbinder.ui;
 
 namespace Codenade.Inputbinder
 {

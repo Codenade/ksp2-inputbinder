@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace Codenade.Inputbinder
+namespace Codenade.Inputbinder.Profiles
 {
     /// <summary>Root datatype containing basic information on input profiles</summary>
     public struct InputProfileData

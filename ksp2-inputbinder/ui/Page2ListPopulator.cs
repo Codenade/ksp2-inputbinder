@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Utilities;
 
-namespace Codenade.Inputbinder
+namespace Codenade.Inputbinder.ui
 {
     internal class Page2ListPopulator : MonoBehaviour
     {
@@ -32,7 +32,7 @@ namespace Codenade.Inputbinder
                 }
                 if (t is null || !t.IsGenericType || t.GetGenericTypeDefinition() != typeof(InputControl<>) || InputSystem.TryGetProcessor(p).BaseType.GetGenericArguments()[0] != t.GetGenericArguments()[0])
                     continue;
-                var temp = Instantiate(Inputbinder.Instance.BindingUI.Assets[BindingUI.PrefabKeys.ProcessorAddGroup], gameObject.transform);
+                var temp = Instantiate(AssetDb.ProcessorAddGroup.Entry, gameObject.transform);
                 temp.GetChild("ProcessorName").GetComponent<TextMeshProUGUI>().text = p;
                 temp.GetChild("ProcessorAddButton").AddComponent<ProcNextBehaviour>().Initialize(p);
             }

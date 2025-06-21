@@ -1,11 +1,12 @@
-﻿using KSP.IO;
+﻿using Codenade.Inputbinder.Profiles;
+using KSP.IO;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace Codenade.Inputbinder
+namespace Codenade.Inputbinder.Profiles
 {
     internal class ProfileDefinitions
     {

@@ -33,7 +33,7 @@ namespace Codenade.Inputbinder
             {
                 if (f.FieldType.IsNumericType())
                 {
-                    var temp = Instantiate(Inputbinder.Instance.BindingUI.Assets[BindingUI.PrefabKeys.ProcessorValueGroup], gameObject.transform);
+                    var temp = Instantiate(AssetDb.ProcessorValueGroup.Entry, gameObject.transform);
                     if (!_actionManager.ProcBindInfo.Values.ContainsKey(f.Name))
                         _actionManager.ProcBindInfo.Values.Add(f.Name, 0f);
                     temp.GetChild("ValueName").GetComponent<TextMeshProUGUI>().text = f.Name;
@@ -41,7 +41,7 @@ namespace Codenade.Inputbinder
                 }
                 else if (Type.GetTypeCode(f.FieldType) == TypeCode.Boolean)
                 {
-                    var temp = Instantiate(Inputbinder.Instance.BindingUI.Assets[BindingUI.PrefabKeys.ProcessorValueGroupBool], gameObject.transform);
+                    var temp = Instantiate(AssetDb.ProcessorValueGroupBool.Entry, gameObject.transform);
                     if (!_actionManager.ProcBindInfo.Values.ContainsKey(f.Name))
                         _actionManager.ProcBindInfo.Values.Add(f.Name, false);
                     temp.GetChild("ValueName").GetComponent<TextMeshProUGUI>().text = f.Name;

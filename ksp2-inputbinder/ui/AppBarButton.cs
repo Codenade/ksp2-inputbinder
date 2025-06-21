@@ -6,7 +6,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Codenade.Inputbinder
+namespace Codenade.Inputbinder.ui
 {
     internal class AppBarButton : MonoBehaviour
     {

@@ -1,0 +1,22 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UiToolkit/inputbinder-styles.uss?fileID=7433441132597879392&amp;guid=874c4842ed8177640a42510d6b1f222d&amp;type=3#inputbinder-styles" />
+    <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0);">
+        <ui:VisualElement name="TitleBar" style="flex-grow: 1; background-color: rgb(0, 0, 0); flex-direction: row; align-self: auto; color: rgb(192, 199, 213); background-image: none; border-top-left-radius: 6px; border-bottom-left-radius: 0; border-top-right-radius: 6px; border-bottom-right-radius: 0; justify-content: flex-start; -unity-text-align: middle-left; transform-origin: center; top: 0; min-height: 36px; max-height: 36px;">
+            <ui:VisualElement name="TitleIcon" tabindex="-1" style="background-image: url(&apos;project://database/Assets/Icons/ICO-AppBar-Inputbinder.png?fileID=2800000&amp;guid=e17c9cb96b47b1243996b158dfbee636&amp;type=3#ICO-AppBar-Inputbinder&apos;); -unity-text-align: middle-left; transform-origin: left; white-space: nowrap; width: 24px; height: 24px; margin-left: 8px; -unity-background-image-tint-color: rgb(210, 222, 236); align-self: center; flex-shrink: 0;" />
+            <ui:Label tabindex="-1" text="Inputbinder" display-tooltip-when-elided="true" name="Title" enable-rich-text="false" style="transform-origin: left; -unity-font-style: normal; -unity-text-align: middle-left; margin-left: 4px; font-size: 18px;" />
+            <ui:Button name="CloseButton" tooltip="Close the Window" enable-rich-text="false" display-tooltip-when-elided="true" style="border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; -unity-font-style: normal; -unity-font-definition: url(&apos;project://database/Packages/uitkforksp2.controls/Assets/Theme/Fonts/LEDCounter7/led_counter-7%20SDF.asset?fileID=11400000&amp;guid=33e1e97b69ec355479ba49006381fc06&amp;type=2#led_counter-7 SDF&apos;); -unity-text-align: middle-center; transform-origin: right; right: 0; align-self: center; position: relative; font-size: 20px; margin-left: auto; background-color: rgba(15, 19, 24, 0.18); background-image: url(&apos;project://database/Assets/Icons/Inputbinder-DropdownArrow.png?fileID=21300000&amp;guid=ac2fda04cd3dddf41a08e25333ff4d07&amp;type=3#Inputbinder-DropdownArrow&apos;);" />
+        </ui:VisualElement>
+        <ui:VisualElement name="SearchBar" style="flex-grow: 1; background-color: rgb(84, 84, 84); flex-direction: row; transform-origin: center; position: relative; top: 0; bottom: 0; min-height: 36px; max-height: 36px; right: 0; left: 0; width: 100%; height: 36px; align-self: auto;">
+            <ui:VisualElement name="SearchIcon" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); background-image: url(&apos;project://database/Assets/Icons/Inputbinder-Search-Icon.png?fileID=21300000&amp;guid=66cc0dce2befc764eba700911c7e2e90&amp;type=3#Inputbinder-Search-Icon&apos;); -unity-background-scale-mode: scale-to-fit; min-width: 20px; min-height: 20px; margin-left: 4px; margin-right: 4px; margin-top: 4px; margin-bottom: 4px; max-width: 20px; max-height: 20px; transform-origin: center; align-self: center;" />
+            <ui:TextField name="SearchTextEntry" max-length="32" tooltip="Enter a search term" style="min-height: 22px; position: relative; align-self: flex-start; -unity-text-align: middle-left; transform-origin: center; -unity-background-scale-mode: stretch-to-fill; scale: 1 1; flex-shrink: initial; padding-top: 0; padding-bottom: 0; padding-right: 2px; padding-left: 4px;" />
+        </ui:VisualElement>
+        <ui:ScrollView style="border-top-left-radius: 0; border-top-right-radius: 0; top: 0;" />
+        <ui:VisualElement name="RebindWarning" class="status-bar">
+            <ui:Label tabindex="-1" text="Control rebind in progress..." display-tooltip-when-elided="true" name="RebindWarningText" style="font-size: 12px; -unity-text-align: middle-left; padding-left: 4px; padding-right: 4px; color: rgb(255, 255, 255);" />
+        </ui:VisualElement>
+        <ui:Button text="Save" display-tooltip-when-elided="true" name="SaveBtn" />
+        <ui:Button text="Save As.." display-tooltip-when-elided="true" name="SaveAsBtn" />
+        <ui:Button text="Load" display-tooltip-when-elided="true" name="LoadBtn" />
+        <ui:Button text="Settings" display-tooltip-when-elided="true" name="SettingsBtn" />
+    </ui:VisualElement>
+</ui:UXML>

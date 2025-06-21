@@ -2,7 +2,7 @@
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-namespace Codenade.Inputbinder
+namespace Codenade.Inputbinder.ui
 {
     internal class ProcNextBehaviour : MonoBehaviour
     {

@@ -1,7 +1,7 @@
 ﻿using TMPro;
 using UnityEngine;
 
-namespace Codenade.Inputbinder
+namespace Codenade.Inputbinder.ui
 {
     internal class Page1ListPopulator : MonoBehaviour
     {
@@ -18,7 +18,7 @@ namespace Codenade.Inputbinder
             {
                 if (p.IsNullOrEmpty() || p.IndexOf('(') < 0 || p.IndexOf(')') < 0)
                     continue;
-                var temp = Instantiate(Inputbinder.Instance.BindingUI.Assets[BindingUI.PrefabKeys.ProcessorGroup], gameObject.transform);
+                var temp = Instantiate(AssetDb.ProcessorGroup.Entry, gameObject.transform);
                 var strt = p.IndexOf('(');
                 var name = p.Substring(0, strt);
                 var values = p.Substring(strt).Trim('(', ')');

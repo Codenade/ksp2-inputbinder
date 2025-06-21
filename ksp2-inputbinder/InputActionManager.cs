@@ -1,4 +1,6 @@
-﻿using KSP.IO;
+﻿using Codenade.Inputbinder.Profiles;
+using Codenade.Inputbinder.ui;
+using KSP.IO;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
