@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); min-width: auto; min-height: auto; flex-direction: column; justify-content: space-between; align-items: stretch;">
+        <ui:Foldout text="Foldout" value="false" name="Foldout" style="align-self: auto;" />
+        <ui:Button display-tooltip-when-elided="true" name="RemoveBtn" class="image-button" style="padding-left: 4px; padding-right: 4px; padding-top: 4px; padding-bottom: 4px; background-color: rgb(204, 51, 32); visibility: visible; position: absolute; right: 8px; margin-top: 4px; margin-right: -4px; height: 31px; margin-left: auto; margin-bottom: auto;">
+            <ui:VisualElement class="image-button-image" style="background-color: rgba(0, 0, 0, 0); background-image: url(&apos;project://database/Assets/Icons/BinIcon.png?fileID=2800000&amp;guid=0cb0df0b7f5428f438fc330c306e2310&amp;type=3#BinIcon&apos;); padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px;" />
+        </ui:Button>
+    </ui:VisualElement>
+</ui:UXML>

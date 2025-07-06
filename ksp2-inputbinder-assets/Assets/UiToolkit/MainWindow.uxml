@@ -4,19 +4,60 @@
         <ui:VisualElement name="TitleBar" style="flex-grow: 1; background-color: rgb(0, 0, 0); flex-direction: row; align-self: auto; color: rgb(192, 199, 213); background-image: none; border-top-left-radius: 6px; border-bottom-left-radius: 0; border-top-right-radius: 6px; border-bottom-right-radius: 0; justify-content: flex-start; -unity-text-align: middle-left; transform-origin: center; top: 0; min-height: 36px; max-height: 36px;">
             <ui:VisualElement name="TitleIcon" tabindex="-1" style="background-image: url(&apos;project://database/Assets/Icons/ICO-AppBar-Inputbinder.png?fileID=2800000&amp;guid=e17c9cb96b47b1243996b158dfbee636&amp;type=3#ICO-AppBar-Inputbinder&apos;); -unity-text-align: middle-left; transform-origin: left; white-space: nowrap; width: 24px; height: 24px; margin-left: 8px; -unity-background-image-tint-color: rgb(210, 222, 236); align-self: center; flex-shrink: 0;" />
             <ui:Label tabindex="-1" text="Inputbinder" display-tooltip-when-elided="true" name="Title" enable-rich-text="false" style="transform-origin: left; -unity-font-style: normal; -unity-text-align: middle-left; margin-left: 4px; font-size: 18px;" />
-            <ui:Button name="CloseButton" tooltip="Close the Window" enable-rich-text="false" display-tooltip-when-elided="true" style="border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; -unity-font-style: normal; -unity-font-definition: url(&apos;project://database/Packages/uitkforksp2.controls/Assets/Theme/Fonts/LEDCounter7/led_counter-7%20SDF.asset?fileID=11400000&amp;guid=33e1e97b69ec355479ba49006381fc06&amp;type=2#led_counter-7 SDF&apos;); -unity-text-align: middle-center; transform-origin: right; right: 0; align-self: center; position: relative; font-size: 20px; margin-left: auto; background-color: rgba(15, 19, 24, 0.18); background-image: url(&apos;project://database/Assets/Icons/Inputbinder-DropdownArrow.png?fileID=21300000&amp;guid=ac2fda04cd3dddf41a08e25333ff4d07&amp;type=3#Inputbinder-DropdownArrow&apos;);" />
+            <ui:Button name="CloseButton" tooltip="Close the Window" enable-rich-text="false" display-tooltip-when-elided="true" style="border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; -unity-font-style: normal; -unity-font-definition: url(&apos;project://database/Packages/uitkforksp2.controls/Assets/Theme/Fonts/LEDCounter7/led_counter-7%20SDF.asset?fileID=11400000&amp;guid=33e1e97b69ec355479ba49006381fc06&amp;type=2#led_counter-7 SDF&apos;); -unity-text-align: middle-center; transform-origin: right; right: 0; align-self: center; position: relative; font-size: 20px; background-color: rgba(15, 19, 24, 0.18); background-image: url(&apos;project://database/Assets/Icons/CloseWindow.png?fileID=2800000&amp;guid=f2d18b2f9290c794aa1f72c8adad9710&amp;type=3#CloseWindow&apos;); -unity-background-scale-mode: scale-to-fit; height: 16px; max-height: 16px; min-height: 16px; border-top-left-radius: 0; border-bottom-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; margin-left: auto; padding-left: 15px; padding-top: 8px; padding-bottom: 8px; padding-right: 15px; margin-top: 7px; margin-bottom: 7px; margin-right: 4px;" />
         </ui:VisualElement>
-        <ui:VisualElement name="SearchBar" style="flex-grow: 1; background-color: rgb(84, 84, 84); flex-direction: row; transform-origin: center; position: relative; top: 0; bottom: 0; min-height: 36px; max-height: 36px; right: 0; left: 0; width: 100%; height: 36px; align-self: auto;">
-            <ui:VisualElement name="SearchIcon" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); background-image: url(&apos;project://database/Assets/Icons/Inputbinder-Search-Icon.png?fileID=21300000&amp;guid=66cc0dce2befc764eba700911c7e2e90&amp;type=3#Inputbinder-Search-Icon&apos;); -unity-background-scale-mode: scale-to-fit; min-width: 20px; min-height: 20px; margin-left: 4px; margin-right: 4px; margin-top: 4px; margin-bottom: 4px; max-width: 20px; max-height: 20px; transform-origin: center; align-self: center;" />
-            <ui:TextField name="SearchTextEntry" max-length="32" tooltip="Enter a search term" style="min-height: 22px; position: relative; align-self: flex-start; -unity-text-align: middle-left; transform-origin: center; -unity-background-scale-mode: stretch-to-fill; scale: 1 1; flex-shrink: initial; padding-top: 0; padding-bottom: 0; padding-right: 2px; padding-left: 4px;" />
-        </ui:VisualElement>
-        <ui:ScrollView style="border-top-left-radius: 0; border-top-right-radius: 0; top: 0;" />
-        <ui:VisualElement name="RebindWarning" class="status-bar">
+        <ui:VisualElement name="RebindWarning" class="status-bar" style="background-color: rgb(229, 152, 0); display: none;">
             <ui:Label tabindex="-1" text="Control rebind in progress..." display-tooltip-when-elided="true" name="RebindWarningText" style="font-size: 12px; -unity-text-align: middle-left; padding-left: 4px; padding-right: 4px; color: rgb(255, 255, 255);" />
         </ui:VisualElement>
-        <ui:Button text="Save" display-tooltip-when-elided="true" name="SaveBtn" />
-        <ui:Button text="Save As.." display-tooltip-when-elided="true" name="SaveAsBtn" />
-        <ui:Button text="Load" display-tooltip-when-elided="true" name="LoadBtn" />
-        <ui:Button text="Settings" display-tooltip-when-elided="true" name="SettingsBtn" />
+        <ui:VisualElement name="ActionsScreen" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); display: flex;">
+            <ui:VisualElement name="SearchBar" style="flex-grow: 1; background-color: rgb(84, 84, 84); flex-direction: row; transform-origin: center; position: relative; top: 0; bottom: 0; min-height: 36px; max-height: 36px; right: 0; left: 0; width: 100%; height: 36px; align-self: auto;">
+                <ui:VisualElement name="SearchIcon" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); background-image: url(&apos;project://database/Assets/Icons/Inputbinder-Search-Icon.png?fileID=21300000&amp;guid=66cc0dce2befc764eba700911c7e2e90&amp;type=3#Inputbinder-Search-Icon&apos;); -unity-background-scale-mode: scale-to-fit; min-width: 20px; min-height: 20px; margin-left: 4px; margin-right: 4px; margin-top: 4px; margin-bottom: 4px; max-width: 20px; max-height: 20px; transform-origin: center; align-self: center;" />
+                <ui:TextField name="SearchTextEntry" max-length="32" tooltip="Enter a search term" style="min-height: 22px; position: relative; align-self: flex-start; -unity-text-align: middle-left; transform-origin: center; -unity-background-scale-mode: scale-to-fit; scale: 1 1; flex-shrink: initial; padding-top: 0; padding-bottom: 0; padding-right: 2px; padding-left: 4px; border-top-left-radius: 16px; border-bottom-left-radius: 16px; border-top-right-radius: 16px; border-bottom-right-radius: 16px;" />
+            </ui:VisualElement>
+            <ui:ScrollView name="ActionsScrollView" style="border-top-left-radius: 0; border-top-right-radius: 0; top: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0;" />
+        </ui:VisualElement>
+        <ui:VisualElement name="ProcessorEditScreen" style="flex-grow: 1; background-color: rgb(0, 0, 15); display: none;">
+            <ui:Label tabindex="-1" text="Edit Pre-Processors" display-tooltip-when-elided="true" name="Title" style="font-size: 17px; -unity-font-style: bold; -unity-text-align: middle-center; background-color: rgba(53, 53, 53, 0);" />
+            <ui:ScrollView name="List" />
+        </ui:VisualElement>
+        <ui:VisualElement name="LoadProfileScreen" style="flex-grow: 1; background-color: rgb(0, 0, 13); display: none;">
+            <ui:Label tabindex="-1" text="Choose a profile to load" display-tooltip-when-elided="true" name="Title" style="font-size: 17px; -unity-font-style: bold; -unity-text-align: middle-center;" />
+            <ui:ListView focusable="true" name="List" />
+        </ui:VisualElement>
+        <ui:VisualElement name="SaveProfileScreen" style="flex-grow: 1; background-color: rgb(0, 0, 13); display: none;">
+            <ui:Label tabindex="-1" text="Save profile as" display-tooltip-when-elided="true" name="Title" style="font-size: 17px; -unity-font-style: bold; -unity-text-align: middle-center;" />
+            <ui:TextField picking-mode="Ignore" label="Profile Name" value="My Input Profile" max-length="24" name="ProfileName" style="background-color: rgba(123, 123, 123, 0.3);" />
+            <ui:Button text="Save Profile" display-tooltip-when-elided="true" enable-rich-text="false" tabindex="1" name="Confirm" style="width: 180px; align-self: center; margin-left: 8px; margin-right: 8px; margin-top: 8px; margin-bottom: 8px;" />
+        </ui:VisualElement>
+        <ui:VisualElement name="SettingsScreen" style="flex-grow: 1; background-color: rgb(0, 0, 13); display: none;">
+            <ui:Label tabindex="-1" text="Mod Settings" display-tooltip-when-elided="true" name="Title" enable-rich-text="false" style="font-size: 17px; -unity-font-style: bold; -unity-text-align: middle-center;" />
+            <ui:ScrollView style="background-color: rgba(30, 33, 41, 0);">
+                <ui:FloatField label="Slider Min Value" value="-2" name="SliderMin" />
+                <ui:FloatField label="Slider Max Value" value="2" name="SliderMax" />
+            </ui:ScrollView>
+        </ui:VisualElement>
+        <ui:VisualElement name="NavBar" style="flex-grow: 1; background-color: rgb(1, 11, 19); flex-direction: row; justify-content: flex-end; border-bottom-right-radius: 8px; border-bottom-left-radius: 8px; height: 35px; max-height: 35px; min-height: 35px; padding-left: 2px; padding-right: 2px;">
+            <ui:Button display-tooltip-when-elided="true" name="BackBtn" class="image-button" style="min-width: auto; min-height: auto; background-color: rgb(156, 57, 17); display: flex;">
+                <ui:VisualElement class="image-button-image" style="background-image: url(&apos;project://database/Packages/uitkforksp2.controls/Assets/Theme/Icons/icon-back.png?fileID=2800000&amp;guid=0a3d0abe7d8d04a4db612161b230ecdc&amp;type=3#icon-back&apos;);" />
+            </ui:Button>
+            <ui:Button display-tooltip-when-elided="true" name="AddBtn" class="image-button" style="min-width: auto; min-height: auto; background-color: rgb(23, 156, 137); display: flex;">
+                <ui:VisualElement class="image-button-image" style="background-image: url(&apos;project://database/Assets/Icons/Add-Icon.png?fileID=2800000&amp;guid=d7fe1cd601f53eb42b1c1a01eb30b1cf&amp;type=3#Add-Icon&apos;);" />
+            </ui:Button>
+            <ui:Button display-tooltip-when-elided="true" name="ResetAllBtn" class="image-button" style="min-width: auto; min-height: auto; background-color: rgb(207, 182, 0);">
+                <ui:VisualElement class="image-button-image" style="background-image: url(&apos;project://database/Assets/Icons/ResetIcon.png?fileID=2800000&amp;guid=b6025a5552617d04faa7b42e1d56a126&amp;type=3#ResetIcon&apos;);" />
+            </ui:Button>
+            <ui:Button display-tooltip-when-elided="true" name="SaveBtn" tooltip="Save Bindings" class="image-button" style="background-color: rgb(224, 100, 24);">
+                <ui:VisualElement name="VisualElement" class="image-button-image" style="background-image: url(&apos;project://database/Assets/Icons/Save.png?fileID=2800000&amp;guid=8ad3c5230e8115b4aabd65eeeec7fbf4&amp;type=3#Save&apos;);" />
+            </ui:Button>
+            <ui:Button display-tooltip-when-elided="true" name="SaveAsBtn" tooltip="Save Bindings as..." class="image-button" style="padding-left: 4px; padding-right: 4px; padding-top: 4px; padding-bottom: 4px; background-color: rgb(168, 23, 113);">
+                <ui:VisualElement class="image-button-image" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); background-image: url(&apos;project://database/Assets/Icons/SaveAs.png?fileID=2800000&amp;guid=314868f3f78994c4fa727994272d5d94&amp;type=3#SaveAs&apos;); padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px;" />
+            </ui:Button>
+            <ui:Button display-tooltip-when-elided="true" name="LoadBtn" tooltip="Load Bindings" class="image-button" style="min-width: auto; background-color: rgb(48, 115, 171);">
+                <ui:VisualElement class="image-button-image" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); background-image: url(&apos;project://database/Assets/Icons/Load.png?fileID=2800000&amp;guid=d76463c304e4c074791a11447ac3f202&amp;type=3#Load&apos;);" />
+            </ui:Button>
+            <ui:Button display-tooltip-when-elided="true" name="SettingsBtn" tooltip="Mod Settings" class="image-button" style="background-color: rgb(45, 156, 39);">
+                <ui:VisualElement class="image-button-image" style="background-image: url(&apos;project://database/Assets/Icons/Settings.png?fileID=2800000&amp;guid=a9a1a04a383047d499675d5a4d772d22&amp;type=3#Settings&apos;);" />
+            </ui:Button>
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

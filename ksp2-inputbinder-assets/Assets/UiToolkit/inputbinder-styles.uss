@@ -24,3 +24,30 @@
 #CloseButton:hover {
     -unity-background-image-tint-color: rgb(200, 209, 245);
 }
+
+.image-button {
+    align-self: center;
+    justify-content: center;
+    align-items: center;
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    margin-left: 1px;
+    margin-right: 1px;
+}
+
+.image-button-image {
+    flex-grow: 1;
+    background-color: rgba(0, 0, 0, 0);
+    -unity-background-scale-mode: scale-to-fit;
+    height: 100%;
+    width: auto;
+    max-height: 100%;
+    min-height: 100%;
+    padding-left: 8px;
+    padding-right: 8px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    align-self: center;
+}

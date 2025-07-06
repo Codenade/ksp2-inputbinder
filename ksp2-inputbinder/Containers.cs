@@ -28,45 +28,20 @@ namespace Codenade.Inputbinder
     public class ProcRebindInformation
     {
         public int BindingIndex => _bindingIndex;
-        public InputBinding Binding => _action.bindings[_bindingIndex];
-        public InputAction Action => _action;
+        public InputBinding Binding => _action.InputAction.bindings[_bindingIndex];
+        public WrappedInputAction Action => _action;
         public string ProcessorName { get; set; }
         public Dictionary<string, object> Values { get; }
 
         private readonly int _bindingIndex;
-        private readonly InputAction _action;
+        private readonly WrappedInputAction _action;
 
-        public ProcRebindInformation(int bindingIndex, InputAction action)
+        public ProcRebindInformation(int bindingIndex, WrappedInputAction action)
         {
             _bindingIndex = bindingIndex; ;
             _action = action;
             ProcessorName = "";
             Values = new Dictionary<string, object>();
-        }
-    }
-
-    public class NamedInputAction
-    {
-        public InputAction Action { get; set; }
-        public string Name { get { return Action.name; } }
-        public string FriendlyName { get; set; }
-        public bool IsFromGame { get; set; }
-        public bool IsUiExtended { get; set; }
-
-        public NamedInputAction(InputAction action, bool isFromGame = false)
-        {
-            Action = action;
-            FriendlyName = action.name;
-            IsFromGame = isFromGame;
-            IsUiExtended = Constants.UiActionsExtendDefault;
-        }
-
-        public NamedInputAction(InputAction action, string friendlyName, bool isFromGame = false)
-        {
-            Action = action;
-            FriendlyName = friendlyName;
-            IsFromGame = isFromGame;
-            IsUiExtended = Constants.UiActionsExtendDefault;
         }
     }
 }

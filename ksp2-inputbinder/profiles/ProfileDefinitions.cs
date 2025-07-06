@@ -10,7 +10,7 @@ namespace Codenade.Inputbinder.Profiles
 {
     internal class ProfileDefinitions
     {
-        public static bool LoadDefault(Dictionary<string, NamedInputAction> actions, string path)
+        public static bool LoadDefault(Dictionary<string, WrappedInputAction> actions, string path)
         {
             if (LoadVersion1(actions, path))
                 return true;
@@ -21,7 +21,7 @@ namespace Codenade.Inputbinder.Profiles
 
         public static InputProfileData LoadInfoVersion1(string path) => IOProvider.FromJsonFile<InputProfileData>(path);
 
-        public static bool LoadVersion1(Dictionary<string, NamedInputAction> actions, string path)
+        public static bool LoadVersion1(Dictionary<string, WrappedInputAction> actions, string path)
         {
             var content = IOProvider.FromJsonFile<InputProfileData>(path);
             if (content.FileVersion == default)
@@ -37,31 +37,31 @@ namespace Codenade.Inputbinder.Profiles
                     QLog.WarnLine($"No match for key {input.Key}");
                     continue;
                 }
-                for (var ib = 0; ib < input.Value.Bindings.Length && ib < matchedAction.Action.bindings.Count; ib++)
+                for (var ib = 0; ib < input.Value.Bindings.Length && ib < matchedAction.InputAction.bindings.Count; ib++)
                 {
-                    var bdg = matchedAction.Action.bindings[ib];
+                    var bdg = matchedAction.InputAction.bindings[ib];
                     if (bdg.isComposite)
                     {
                         bdg.overrideProcessors = input.Value.Bindings[ib].OverrideProcessors;
-                        matchedAction.Action.ApplyBindingOverride(ib, bdg);
+                        matchedAction.InputAction.ApplyBindingOverride(ib, bdg);
                     }
                     else if (bdg.isPartOfComposite)
                     {
                         bdg.overridePath = input.Value.Bindings[ib].OverridePath;
-                        matchedAction.Action.ApplyBindingOverride(ib, bdg);
+                        matchedAction.InputAction.ApplyBindingOverride(ib, bdg);
                     }
                     else
                     {
                         bdg.overridePath = input.Value.Bindings[ib].OverridePath;
                         bdg.overrideProcessors = input.Value.Bindings[ib].OverrideProcessors;
-                        matchedAction.Action.ApplyBindingOverride(ib, bdg);
+                        matchedAction.InputAction.ApplyBindingOverride(ib, bdg);
                     }
                 }
             }
             return true;
         }
 
-        public static bool LoadLegacy(Dictionary<string, NamedInputAction> actions, string path)
+        public static bool LoadLegacy(Dictionary<string, WrappedInputAction> actions, string path)
         {
             var data = IOProvider.FromJsonFile<Dictionary<string, LegacyInputActionData>>(path);
             foreach (var input in data)
@@ -71,43 +71,43 @@ namespace Codenade.Inputbinder.Profiles
                     QLog.WarnLine($"No match for key {input.Key}");
                     continue;
                 }
-                for (var ib = 0; ib < input.Value.Bindings.Length && ib < matchedAction.Action.bindings.Count; ib++)
+                for (var ib = 0; ib < input.Value.Bindings.Length && ib < matchedAction.InputAction.bindings.Count; ib++)
                 {
                     if (input.Value.Bindings[ib].Override)
                     {
-                        var bdg = matchedAction.Action.bindings[ib];
+                        var bdg = matchedAction.InputAction.bindings[ib];
                         if (bdg.isComposite)
                         {
                             bdg.overrideProcessors = input.Value.Bindings[ib].ProcessorsOverride;
-                            matchedAction.Action.ApplyBindingOverride(ib, bdg);
+                            matchedAction.InputAction.ApplyBindingOverride(ib, bdg);
                         }
                         else if (bdg.isPartOfComposite)
                         {
                             if (input.Value.Bindings[ib].Name != bdg.name)
                             {
-                                int prevCompositBindingIdx = matchedAction.Action.GetPreviousCompositeBinding(ib);
+                                int prevCompositBindingIdx = matchedAction.InputAction.GetPreviousCompositeBinding(ib);
                                 if (prevCompositBindingIdx != -1)
                                 {
-                                    var fi = matchedAction.Action.FindNamedCompositePart(prevCompositBindingIdx, input.Value.Bindings[ib].Name);
+                                    var fi = matchedAction.InputAction.FindNamedCompositePart(prevCompositBindingIdx, input.Value.Bindings[ib].Name);
                                     if (fi != -1)
                                     {
-                                        bdg = matchedAction.Action.bindings[fi];
+                                        bdg = matchedAction.InputAction.bindings[fi];
                                         bdg.overridePath = input.Value.Bindings[ib].PathOverride;
-                                        matchedAction.Action.ApplyBindingOverride(fi, bdg);
+                                        matchedAction.InputAction.ApplyBindingOverride(fi, bdg);
                                     }
                                 }
                             }
                             else
                             {
                                 bdg.overridePath = input.Value.Bindings[ib].PathOverride;
-                                matchedAction.Action.ApplyBindingOverride(ib, bdg);
+                                matchedAction.InputAction.ApplyBindingOverride(ib, bdg);
                             }
                         }
                         else
                         {
                             bdg.overridePath = input.Value.Bindings[ib].PathOverride;
                             bdg.overrideProcessors = input.Value.Bindings[ib].ProcessorsOverride;
-                            matchedAction.Action.ApplyBindingOverride(ib, bdg);
+                            matchedAction.InputAction.ApplyBindingOverride(ib, bdg);
                         }
                     }
                 }
@@ -115,7 +115,7 @@ namespace Codenade.Inputbinder.Profiles
             return true;
         }
 
-        public static bool SaveOverrides(Dictionary<string, NamedInputAction> actions, string path)
+        public static bool SaveOverrides(Dictionary<string, WrappedInputAction> actions, string path)
         {
             QLog.Info("Saving settings ...");
             var stopwatch = Stopwatch.StartNew();
@@ -127,23 +127,23 @@ namespace Codenade.Inputbinder.Profiles
                     return false;
                 }
             var actions_data = new Dictionary<string, InputActionData>();
-            foreach (var nia in actions)
+            foreach (var wia in actions)
             {
-                if (!nia.Value.Action.HasAnyOverrides())
+                if (!wia.Value.InputAction.HasAnyOverrides())
                     continue;
                 var data = new InputActionData();
-                var eAction = nia.Value;
-                var bindings = new BindingData[eAction.Action.bindings.Count];
-                for (var i = 0; i < eAction.Action.bindings.Count; i++)
+                var eAction = wia.Value;
+                var bindings = new BindingData[eAction.InputAction.bindings.Count];
+                for (var i = 0; i < eAction.InputAction.bindings.Count; i++)
                 {
                     var binding = new BindingData();
-                    var eBinding = eAction.Action.bindings[i];
+                    var eBinding = eAction.InputAction.bindings[i];
                     binding.OverridePath = eBinding.overridePath;
                     binding.OverrideProcessors = eBinding.overrideProcessors;
                     bindings[i] = binding;
                 }
                 data.Bindings = bindings;
-                actions_data.Add(nia.Key, data);
+                actions_data.Add(wia.Key, data);
             }
             var content = new InputProfileData
             {

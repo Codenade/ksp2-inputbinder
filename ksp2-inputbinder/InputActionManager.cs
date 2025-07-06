@@ -13,10 +13,9 @@ namespace Codenade.Inputbinder
 {
     public class InputActionManager
     {
-        public Dictionary<string, NamedInputAction> Actions { get; private set; }
+        public Dictionary<string, WrappedInputAction> Actions { get; private set; }
         internal List<IWrappedInputAction> OrganizedInputActionData { get; private set; }
         public bool IsCurrentlyRebinding => _rebindInfo is object;
-        public bool IsChangingProc => _procBindInfo is object;
 
         public RebindInformation RebindInfo => _rebindInfo;
         public ProcRebindInformation ProcBindInfo => _procBindInfo;
@@ -29,18 +28,16 @@ namespace Codenade.Inputbinder
 
         public InputActionManager()
         {
-            Actions = new Dictionary<string, NamedInputAction>();
+            Actions = new Dictionary<string, WrappedInputAction>();
             OrganizedInputActionData = new List<IWrappedInputAction>();
             _rebindInfo = null;
             _procBindInfo = null;
             RegisterActions();
         }
 
-        public void AddAction(InputAction action, bool isFromGame = false) => AddAction(action, action.name, isFromGame);
-
-        public void AddAction(InputAction action, string friendlyName, bool isFromGame = false)
+        public void AddAction(WrappedInputAction wia)
         {
-            Actions.Add(action.name, new NamedInputAction(action, friendlyName, isFromGame));
+            Actions.Add(wia.InputAction.name, wia);
             if (Inputbinder.Instance.BindingUI is object && Inputbinder.Instance.BindingUI.IsVisible)
             {
                 Inputbinder.Instance.BindingUI.Hide();
@@ -50,7 +47,7 @@ namespace Codenade.Inputbinder
 
         public bool ContainsAction(string name) => Actions.ContainsKey(name);
 
-        public bool TryGetAction(string name, out NamedInputAction val) => Actions.TryGetValue(name, out val);
+        public bool TryGetAction(string name, out WrappedInputAction val) => Actions.TryGetValue(name, out val);
 
         public void RemoveAction(InputAction action) => Actions.Remove(action.name);
 
@@ -58,7 +55,7 @@ namespace Codenade.Inputbinder
 
         public void Rebind(InputAction action, int bindingIndex)
         {
-            if (IsCurrentlyRebinding || IsChangingProc)
+            if (IsCurrentlyRebinding)
                 return;
             QLog.Debug("Rebind starting");
             var wasEnabled = action.enabled;
@@ -148,41 +145,6 @@ namespace Codenade.Inputbinder
             action.ApplyBindingOverride(idx, modifiedBinding);
         }
 
-        public void ChangeProcessors(InputAction action) => ChangeProcessors(action, -1);
-
-        public void ChangeProcessors(InputAction action, int bindingIndex)
-        {
-            if (IsCurrentlyRebinding)
-                return;
-            if (!IsChangingProc)
-            {
-                var chgIdx = 0;
-                if (bindingIndex < 0)
-                    for (var i = 0; i < action.bindings.Count; i++)
-                    {
-                        if (!(action.bindings[i].isComposite || action.bindings[i].isPartOfComposite))
-                            chgIdx = i;
-                        else
-                            return;
-                    }
-                else
-                    chgIdx = bindingIndex;
-                _procBindInfo = new ProcRebindInformation(chgIdx, action);
-            }
-            else if (action != _procBindInfo.Action || (bindingIndex >= 0 && _procBindInfo.Binding != action.bindings[bindingIndex]))
-            {
-                CompleteChangeProcessors();
-                ChangeProcessors(action, bindingIndex);
-            }
-            else
-                CompleteChangeProcessors();
-        }
-
-        public void CompleteChangeProcessors()
-        {
-            _procBindInfo = null;
-        }
-
         private void RegisterActions()
         {
             foreach (var dia in DefaultInputActionDefinitions.WrappedInputActions)
@@ -203,10 +165,10 @@ namespace Codenade.Inputbinder
                             substituteKey = contName + '/' + wia.InputAction.name;
                     }
                     substituteKey ??= wia.InputAction.id.ToString();
-                    Actions.Add(substituteKey, new NamedInputAction(wia.InputAction, wia.FriendlyName, wia.Source == ActionSource.Game));
+                    Actions.Add(substituteKey, wia);
                 }
                 else
-                    Actions.Add(wia.InputAction.name, new NamedInputAction(wia.InputAction, wia.FriendlyName, wia.Source == ActionSource.Game));
+                    Actions.Add(wia.InputAction.name, wia);
             }
             foreach (var dia in GameInputUtils.Load(IOProvider.JoinPath(BepInEx.Paths.ConfigPath, "inputbinder/game_actions_to_add.txt")))
             {
@@ -214,7 +176,7 @@ namespace Codenade.Inputbinder
                 if (!(dia is WrappedInputAction)) continue;
                 var wia = (WrappedInputAction)dia;
                 wia.Setup?.Invoke(wia);
-                Actions.Add(wia.InputAction.name, new NamedInputAction(wia.InputAction, wia.FriendlyName, wia.Source == ActionSource.Game));
+                Actions.Add(wia.InputAction.name, wia);
             }
         }
 
@@ -249,7 +211,7 @@ namespace Codenade.Inputbinder
         public void RemoveAllOverrides()
         {
             foreach (var action in Actions.Values)
-                action.Action.RemoveAllBindingOverrides();
+                action.InputAction.RemoveAllBindingOverrides();
         }
     }
 }

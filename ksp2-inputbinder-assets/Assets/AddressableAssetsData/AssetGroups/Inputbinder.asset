@@ -125,6 +125,14 @@ MonoBehaviour:
     m_Address: Codenade.Inputbinder/SingleInputBinding.uxml
     m_ReadOnly: 0
     m_SerializedLabels: []
+  - m_GUID: 07d858dc9af397141bd46c543ea33b05
+    m_Address: Codenade.Inputbinder/ProfileElement.uxml
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: c150df67c28ad1844a5ee842166dac86
+    m_Address: Codenade.Inputbinder/Preproc.uxml
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 8644c698111574d4db1297cfbb2f6c1b, type: 2}
   m_SchemaSet:

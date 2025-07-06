@@ -1,9 +1,6 @@
-﻿using KSP;
-using KSP.Game;
+﻿using KSP.Game;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UitkForKsp2.API;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -38,11 +35,23 @@ namespace Codenade.Inputbinder.ui
         private int _operationsInProgress;
 
         private UIDocument _uitkWindow;
+        private VisualElement _uitkActionsScreen;
         private VisualElement _uitkActionsContainer;
         private VisualElement _uitkStatusBar;
         private Label _uitkStatusBarLbl;
         private Dictionary<InputAction, ActionUpdater> _uitkActionsList = new Dictionary<InputAction, ActionUpdater>();
         private SearchOperation _so;
+
+        private Button _btnBack;
+        private Button _btnAdd;
+        private Button _btnReset;
+        private Button _btnSave;
+        private Button _btnSaveAs;
+        private Button _btnLoad;
+        private Button _btnSettings;
+
+        internal ProcessorEditMenu ProcessorEditMenu { get; private set; }
+        internal IMenuPanel ActiveMenuPanel { get; set; }
 
         public void InitAssets()
         {
@@ -97,12 +106,48 @@ namespace Codenade.Inputbinder.ui
 
             WindowPosition = new Vector2(400, 0);
 
-            _uitkWindow.rootVisualElement.Q<Button>("CloseButton").style.backgroundImage = new StyleBackground(FindObjectsOfType<Sprite>(true).Where(s => s.name == "ICO-Close-med").First());
+            // Setup title bar
             _uitkWindow.rootVisualElement.Q<Button>("CloseButton").clicked += Hide;
 
-            _uitkActionsContainer = _uitkWindow.rootVisualElement.Q<VisualElement>("unity-content-container");
+            // Setup nav bar
+            var navBar = _uitkWindow.rootVisualElement.Q<VisualElement>("NavBar");
+            _btnBack = navBar.Q<Button>("BackBtn");
+            _btnAdd = navBar.Q<Button>("AddBtn");
+            _btnReset = navBar.Q<Button>("ResetAllBtn");
+            _btnSave = navBar.Q<Button>("SaveBtn");
+            _btnSaveAs = navBar.Q<Button>("SaveAsBtn");
+            _btnLoad = navBar.Q<Button>("LoadBtn");
+            _btnSettings = navBar.Q<Button>("SettingsBtn");
+
+            _btnBack.clicked += () =>
+            {
+                bool result = ActiveMenuPanel?.Back() ?? true;
+                if (result)
+                {
+                    ActiveMenuPanel = null;
+                    ChangeStatus(Status.Default);
+                }
+            };
+
+            // Setup status bar
             _uitkStatusBar = _uitkWindow.rootVisualElement.Q<VisualElement>("RebindWarning");
             _uitkStatusBarLbl = _uitkStatusBar.Q<Label>("RebindWarningText");
+
+            // Setup processors screen
+            ProcessorEditMenu = new ProcessorEditMenu(_uitkWindow.rootVisualElement.Q<VisualElement>("ProcessorEditScreen"), _btnAdd);
+
+            // Setup load profile screen
+
+
+            // Setup save profile screen
+
+
+            // Setup settings screen
+
+
+            // Setup actions screen
+            _uitkActionsScreen = _uitkWindow.rootVisualElement.Q<VisualElement>("ActionsScreen");
+            _uitkActionsContainer = _uitkActionsScreen.Q<VisualElement>("unity-content-container");
 
             VisualElement catContainer = null;
             foreach (var item in _actionManager.OrganizedInputActionData)
@@ -129,6 +174,7 @@ namespace Codenade.Inputbinder.ui
                 }
             }
 
+            // Set status once
             ChangeStatus(Status.Default);
 
             // After this step we are done initializing
@@ -169,7 +215,7 @@ namespace Codenade.Inputbinder.ui
                 {
                     var compositeRoot = AssetDb.CompositeBindingUITK.Entry.Instantiate();
                     actionObj.Add(compositeRoot);
-                    actionUpdater.BindingUpdaters.Add(new CompositeUpdater(action.InputAction, idx, compositeRoot));
+                    actionUpdater.BindingUpdaters.Add(new CompositeUpdater(action, idx, compositeRoot));
                     var bindingsContainer = compositeRoot.Q<VisualElement>("SubBiContainer");
                     for (var i = idx + 1; i < action.InputAction.bindings.Count; i++)
                     {
@@ -178,7 +224,7 @@ namespace Codenade.Inputbinder.ui
                             break;
                         var bindingRoot = AssetDb.SingleBindingUITK.Entry.Instantiate();
                         bindingsContainer.Add(bindingRoot);
-                        actionUpdater.BindingUpdaters.Add(new BindingUpdater(action.InputAction, i, bindingRoot));
+                        actionUpdater.BindingUpdaters.Add(new BindingUpdater(action, i, bindingRoot));
                         idx = i;
                     }
                 }
@@ -186,22 +232,52 @@ namespace Codenade.Inputbinder.ui
                 {
                     var bindingRoot = AssetDb.SingleBindingUITK.Entry.Instantiate();
                     actionObj.Add(bindingRoot);
-                    actionUpdater.BindingUpdaters.Add(new BindingUpdater(action.InputAction, idx, bindingRoot));
+                    actionUpdater.BindingUpdaters.Add(new BindingUpdater(action, idx, bindingRoot));
                 }
             }
         }
 
         public void ChangeStatus(Status status)
         {
+            if (status != Status.Default && status != Status.Rebinding) _uitkActionsScreen.style.display = DisplayStyle.None;
             switch (status)
             {
                 case Status.Default:
+                    _uitkActionsScreen.style.display = DisplayStyle.Flex;
+                    _btnAdd.style.display = DisplayStyle.None;
+                    _btnBack.style.display = DisplayStyle.None;
+                    _btnLoad.style.display = DisplayStyle.Flex;
+                    _btnReset.style.display = DisplayStyle.Flex;
+                    _btnSave.style.display = DisplayStyle.Flex;
+                    _btnSaveAs.style.display = DisplayStyle.Flex;
+                    _btnSettings.style.display = DisplayStyle.Flex;
                     break;
                 case Status.ResetDialog:
+                    _btnAdd.style.display = DisplayStyle.None;
+                    _btnBack.style.display = DisplayStyle.Flex;
+                    _btnLoad.style.display = DisplayStyle.None;
+                    _btnReset.style.display = DisplayStyle.None;
+                    _btnSave.style.display = DisplayStyle.None;
+                    _btnSaveAs.style.display = DisplayStyle.None;
+                    _btnSettings.style.display = DisplayStyle.None;
                     break;
                 case Status.SaveDialog:
+                    _btnAdd.style.display = DisplayStyle.None;
+                    _btnBack.style.display = DisplayStyle.Flex;
+                    _btnLoad.style.display = DisplayStyle.None;
+                    _btnReset.style.display = DisplayStyle.None;
+                    _btnSave.style.display = DisplayStyle.Flex;
+                    _btnSaveAs.style.display = DisplayStyle.None;
+                    _btnSettings.style.display = DisplayStyle.None;
                     break;
                 case Status.LoadDialog:
+                    _btnAdd.style.display = DisplayStyle.None;
+                    _btnBack.style.display = DisplayStyle.Flex;
+                    _btnLoad.style.display = DisplayStyle.None;
+                    _btnReset.style.display = DisplayStyle.None;
+                    _btnSave.style.display = DisplayStyle.None;
+                    _btnSaveAs.style.display = DisplayStyle.None;
+                    _btnSettings.style.display = DisplayStyle.None;
                     break;
                 case Status.Rebinding:
                     if (!Inputbinder.Instance.ActionManager.IsCurrentlyRebinding)
@@ -209,17 +285,34 @@ namespace Codenade.Inputbinder.ui
                         ChangeStatus(Status.Default);
                         return;
                     }
+                    _btnAdd.style.display = DisplayStyle.None;
+                    _btnBack.style.display = DisplayStyle.Flex;
+                    _btnLoad.style.display = DisplayStyle.None;
+                    _btnReset.style.display = DisplayStyle.None;
+                    _btnSave.style.display = DisplayStyle.None;
+                    _btnSaveAs.style.display = DisplayStyle.None;
+                    _btnSettings.style.display = DisplayStyle.None;
                     _uitkStatusBarLbl.text = $"Rebinding {Inputbinder.Instance.ActionManager.RebindInfo}";
                     _uitkStatusBar.Show();
                     
                     break;
-                case Status.ProcessorList:
-                    break;
                 case Status.ProcessorAdd:
-                    break;
-                case Status.ProcessorConfirm:
+                    _btnAdd.style.display = DisplayStyle.None;
+                    _btnBack.style.display = DisplayStyle.Flex;
+                    _btnLoad.style.display = DisplayStyle.None;
+                    _btnReset.style.display = DisplayStyle.None;
+                    _btnSave.style.display = DisplayStyle.None;
+                    _btnSaveAs.style.display = DisplayStyle.None;
+                    _btnSettings.style.display = DisplayStyle.None;
                     break;
                 case Status.ProcessorEdit:
+                    _btnAdd.style.display = DisplayStyle.Flex;
+                    _btnBack.style.display = DisplayStyle.Flex;
+                    _btnLoad.style.display = DisplayStyle.None;
+                    _btnReset.style.display = DisplayStyle.None;
+                    _btnSave.style.display = DisplayStyle.None;
+                    _btnSaveAs.style.display = DisplayStyle.None;
+                    _btnSettings.style.display = DisplayStyle.None;
                     break;
             }
             CurrentStatus = status;
@@ -267,7 +360,7 @@ namespace Codenade.Inputbinder.ui
 
         private void RemoveAllBindingsButtonClicked()
         {
-            if (Inputbinder.Instance.ActionManager.IsCurrentlyRebinding || Inputbinder.Instance.ActionManager.IsChangingProc)
+            if (Inputbinder.Instance.ActionManager.IsCurrentlyRebinding)
                 return;
             ChangeStatus(Status.ResetDialog);
         }
@@ -292,7 +385,7 @@ namespace Codenade.Inputbinder.ui
                 return;
             ChangeStatus(Status.Default);
             _actionManager.CancelBinding();
-            _actionManager.CompleteChangeProcessors();
+            ProcessorEditMenu.Back();
 
             _uitkWindow?.Hide();
 
@@ -309,9 +402,7 @@ namespace Codenade.Inputbinder.ui
         {
             Default,
             Rebinding,
-            ProcessorList,
             ProcessorAdd,
-            ProcessorConfirm,
             ProcessorEdit,
             SaveDialog,
             LoadDialog,

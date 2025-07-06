@@ -68,37 +68,37 @@ namespace Codenade.Inputbinder
             GameManager.Instance.Game.Input.Flight.ThrottleDelta.OnStateChange(_ => _isThrottleAxisActive = false);
             GameManager.Instance.Game.Input.Flight.ThrottleMax.canceled += _ => ResetThrottle();
             GameManager.Instance.Game.Input.Flight.ThrottleCutoff.canceled += _ => ResetThrottle();
-            _actionManager.Actions[Constants.ActionThrottleID].Action.OnStateChange(ctx => SetThrottleFromAxis(ctx.ReadValue<float>()));
-            _actionManager.Actions[Constants.ActionTrimResetID].Action.performed += ctx => ResetTrim();
-            _actionManager.Actions[Constants.ActionAPStabilityID].Action.performed += ctx => SetAPMode(AutopilotMode.StabilityAssist);
-            _actionManager.Actions[Constants.ActionAPProgradeID].Action.performed += ctx => SetAPMode(AutopilotMode.Prograde);
-            _actionManager.Actions[Constants.ActionAPRetrogradeID].Action.performed += ctx => SetAPMode(AutopilotMode.Retrograde);
-            _actionManager.Actions[Constants.ActionAPNormalID].Action.performed += ctx => SetAPMode(AutopilotMode.Normal);
-            _actionManager.Actions[Constants.ActionAPAntinormalID].Action.performed += ctx => SetAPMode(AutopilotMode.Antinormal);
-            _actionManager.Actions[Constants.ActionAPRadialInID].Action.performed += ctx => SetAPMode(AutopilotMode.RadialIn);
-            _actionManager.Actions[Constants.ActionAPRadialOutID].Action.performed += ctx => SetAPMode(AutopilotMode.RadialOut);
-            _actionManager.Actions[Constants.ActionAPTargetID].Action.performed += ctx => SetAPMode(AutopilotMode.Target);
-            _actionManager.Actions[Constants.ActionAPAntiTargetID].Action.performed += ctx => SetAPMode(AutopilotMode.AntiTarget);
-            _actionManager.Actions[Constants.ActionAPManeuverID].Action.performed += ctx => SetAPMode(AutopilotMode.Maneuver);
-            _actionManager.Actions[Constants.ActionAPNavigationID].Action.performed += ctx => SetAPMode(AutopilotMode.Navigation);
-            _actionManager.Actions[Constants.ActionAPAutopilotID].Action.performed += ctx => SetAPMode(AutopilotMode.Autopilot);
-            _actionManager.Actions[Constants.ActionThrottleID].Action.Enable();
-            _actionManager.Actions[Constants.ActionPitchTrimID].Action.Enable();
-            _actionManager.Actions[Constants.ActionRollTrimID].Action.Enable();
-            _actionManager.Actions[Constants.ActionYawTrimID].Action.Enable();
-            _actionManager.Actions[Constants.ActionTrimResetID].Action.Enable();
-            _actionManager.Actions[Constants.ActionAPStabilityID].Action.Enable();
-            _actionManager.Actions[Constants.ActionAPProgradeID].Action.Enable();
-            _actionManager.Actions[Constants.ActionAPRetrogradeID].Action.Enable();
-            _actionManager.Actions[Constants.ActionAPNormalID].Action.Enable();
-            _actionManager.Actions[Constants.ActionAPAntinormalID].Action.Enable();
-            _actionManager.Actions[Constants.ActionAPRadialInID].Action.Enable();
-            _actionManager.Actions[Constants.ActionAPRadialOutID].Action.Enable();
-            _actionManager.Actions[Constants.ActionAPTargetID].Action.Enable();
-            _actionManager.Actions[Constants.ActionAPAntiTargetID].Action.Enable();
-            _actionManager.Actions[Constants.ActionAPManeuverID].Action.Enable();
-            _actionManager.Actions[Constants.ActionAPNavigationID].Action.Enable();
-            _actionManager.Actions[Constants.ActionAPAutopilotID].Action.Enable();
+            _actionManager.Actions[Constants.ActionThrottleID].InputAction.OnStateChange(ctx => SetThrottleFromAxis(ctx.ReadValue<float>()));
+            _actionManager.Actions[Constants.ActionTrimResetID].InputAction.performed += ctx => ResetTrim();
+            _actionManager.Actions[Constants.ActionAPStabilityID].InputAction.performed += ctx => SetAPMode(AutopilotMode.StabilityAssist);
+            _actionManager.Actions[Constants.ActionAPProgradeID].InputAction.performed += ctx => SetAPMode(AutopilotMode.Prograde);
+            _actionManager.Actions[Constants.ActionAPRetrogradeID].InputAction.performed += ctx => SetAPMode(AutopilotMode.Retrograde);
+            _actionManager.Actions[Constants.ActionAPNormalID].InputAction.performed += ctx => SetAPMode(AutopilotMode.Normal);
+            _actionManager.Actions[Constants.ActionAPAntinormalID].InputAction.performed += ctx => SetAPMode(AutopilotMode.Antinormal);
+            _actionManager.Actions[Constants.ActionAPRadialInID].InputAction.performed += ctx => SetAPMode(AutopilotMode.RadialIn);
+            _actionManager.Actions[Constants.ActionAPRadialOutID].InputAction.performed += ctx => SetAPMode(AutopilotMode.RadialOut);
+            _actionManager.Actions[Constants.ActionAPTargetID].InputAction.performed += ctx => SetAPMode(AutopilotMode.Target);
+            _actionManager.Actions[Constants.ActionAPAntiTargetID].InputAction.performed += ctx => SetAPMode(AutopilotMode.AntiTarget);
+            _actionManager.Actions[Constants.ActionAPManeuverID].InputAction.performed += ctx => SetAPMode(AutopilotMode.Maneuver);
+            _actionManager.Actions[Constants.ActionAPNavigationID].InputAction.performed += ctx => SetAPMode(AutopilotMode.Navigation);
+            _actionManager.Actions[Constants.ActionAPAutopilotID].InputAction.performed += ctx => SetAPMode(AutopilotMode.Autopilot);
+            _actionManager.Actions[Constants.ActionThrottleID].InputAction.Enable();
+            _actionManager.Actions[Constants.ActionPitchTrimID].InputAction.Enable();
+            _actionManager.Actions[Constants.ActionRollTrimID].InputAction.Enable();
+            _actionManager.Actions[Constants.ActionYawTrimID].InputAction.Enable();
+            _actionManager.Actions[Constants.ActionTrimResetID].InputAction.Enable();
+            _actionManager.Actions[Constants.ActionAPStabilityID].InputAction.Enable();
+            _actionManager.Actions[Constants.ActionAPProgradeID].InputAction.Enable();
+            _actionManager.Actions[Constants.ActionAPRetrogradeID].InputAction.Enable();
+            _actionManager.Actions[Constants.ActionAPNormalID].InputAction.Enable();
+            _actionManager.Actions[Constants.ActionAPAntinormalID].InputAction.Enable();
+            _actionManager.Actions[Constants.ActionAPRadialInID].InputAction.Enable();
+            _actionManager.Actions[Constants.ActionAPRadialOutID].InputAction.Enable();
+            _actionManager.Actions[Constants.ActionAPTargetID].InputAction.Enable();
+            _actionManager.Actions[Constants.ActionAPAntiTargetID].InputAction.Enable();
+            _actionManager.Actions[Constants.ActionAPManeuverID].InputAction.Enable();
+            _actionManager.Actions[Constants.ActionAPNavigationID].InputAction.Enable();
+            _actionManager.Actions[Constants.ActionAPAutopilotID].InputAction.Enable();
             _bindingUI = gameObject.AddComponent<BindingUI>();
             _bindingUI.Hide();
             _bindingUI.VisibilityChanged += OnUiVisibilityChange;
@@ -162,7 +162,7 @@ namespace Codenade.Inputbinder
         {
             if (_isThrottleAxisActive)
             {
-                SetThrottle(_actionManager.Actions[Constants.ActionThrottleID].Action.ReadValue<float>(), true);
+                SetThrottle(_actionManager.Actions[Constants.ActionThrottleID].InputAction.ReadValue<float>(), true);
             }
         }
 
@@ -212,9 +212,9 @@ namespace Codenade.Inputbinder
         {
             _vessel?.ApplyFlightCtrlState(new KSP.Sim.State.FlightCtrlStateIncremental()
             {
-                pitchTrim = _vessel.flightCtrlState.pitchTrim + _actionManager.Actions[Constants.ActionPitchTrimID].Action.ReadValue<float>() * Time.unscaledDeltaTime,
-                rollTrim = _vessel.flightCtrlState.rollTrim + _actionManager.Actions[Constants.ActionRollTrimID].Action.ReadValue<float>() * Time.unscaledDeltaTime,
-                yawTrim = _vessel.flightCtrlState.yawTrim + _actionManager.Actions[Constants.ActionYawTrimID].Action.ReadValue<float>() * Time.unscaledDeltaTime
+                pitchTrim = _vessel.flightCtrlState.pitchTrim + _actionManager.Actions[Constants.ActionPitchTrimID].InputAction.ReadValue<float>() * Time.unscaledDeltaTime,
+                rollTrim = _vessel.flightCtrlState.rollTrim + _actionManager.Actions[Constants.ActionRollTrimID].InputAction.ReadValue<float>() * Time.unscaledDeltaTime,
+                yawTrim = _vessel.flightCtrlState.yawTrim + _actionManager.Actions[Constants.ActionYawTrimID].InputAction.ReadValue<float>() * Time.unscaledDeltaTime
             });
         }
 
